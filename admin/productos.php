@@ -51,6 +51,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: productos.php"); exit;
 }
 
+
+function getProductImgUrl($rawImg, $mediaJson = null) {
+    $img = $rawImg ?? '';
+    if (empty($img) && !empty($mediaJson)) {
+        $media = json_decode($mediaJson, true);
+        if (is_array($media) && count($media) > 0 && isset($media[0]['url'])) {
+            $img = $media[0]['url'];
+        }
+    }
+    if (!$img) return '';
+    if (strpos($img, 'http') === 0) return $img;
+    
+    $img = ltrim($img, '/');
+    if (strpos($img, 'v1/cotizaciones/') === 0) {
+        $img = substr($img, strlen('v1/cotizaciones/'));
+    } else if (strpos($img, 'cotizaciones/') === 0) {
+        $img = substr($img, strlen('cotizaciones/'));
+    }
+    $img = ltrim($img, '/');
+    
+    return '../cotizaciones/' . $img;
+}
+
 $sql = "SELECT id, name, item_no, series, categoria_id, price, img, media_json FROM productos ORDER BY id DESC ";
 $stmt = $pdo->query($sql);
 $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -160,15 +183,7 @@ include 'header.php';
                             <input type="checkbox" class="prod-checkbox" value="<?= $p['id'] ?>" style="cursor: pointer; width: 16px; height: 16px;">
                         </td>
                         <td class="img-cell" data-label="IMG">
-                            <?php 
-                            $img = $p['img'] ?? '';
-                            if (empty($img) && !empty($p['media_json'])) {
-                                $media = json_decode($p['media_json'], true);
-                                if (is_array($media) && count($media) > 0 && isset($media[0]['url'])) $img = $media[0]['url'];
-                            }
-                            if ($img && strpos($img, 'http') !== 0 && strpos($img, 'cotizaciones/') !== 0 && strpos($img, 'v1/cotizaciones/') !== 0) $img = '../cotizaciones/' . $img;
-                            else if (strpos($img, 'http') !== 0) $img = '../' . $img;
-                            ?>
+                            <?php $img = getProductImgUrl($p['img'] ?? '', $p['media_json'] ?? ''); ?>
                             <div style="width:44px; height:34px; border:1px solid #eee; background:white; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
                                 <?php if ($img): ?>
                                     <img src="<?= htmlspecialchars($img) ?>" style="max-width:100%; max-height:100%; object-fit:contain;" onerror="this.style.display='none'" />
@@ -195,15 +210,7 @@ include 'header.php';
 
     <div id="gridView" style="display:none; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; margin-top:20px;">
         <?php foreach ($productos as $p): ?>
-            <?php 
-            $img = $p['img'] ?? '';
-            if (empty($img) && !empty($p['media_json'])) {
-                $media = json_decode($p['media_json'], true);
-                if (is_array($media) && count($media) > 0 && isset($media[0]['url'])) $img = $media[0]['url'];
-            }
-            if ($img && strpos($img, 'http') !== 0 && strpos($img, 'cotizaciones/') !== 0 && strpos($img, 'v1/cotizaciones/') !== 0) $img = '../cotizaciones/' . $img;
-            else if (strpos($img, 'http') !== 0) $img = '../' . $img;
-            ?>
+            <?php $img = getProductImgUrl($p['img'] ?? '', $p['media_json'] ?? ''); ?>
             <div class="product-card" data-id="<?= $p['id'] ?>" data-cat="<?= htmlspecialchars($p['categoria_id'] ?? '') ?>" data-brand="<?= htmlspecialchars($p['series'] ?? '') ?>" style="background: white; border: 1px solid #eee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                 <label class="card-checkbox-badge" title="Seleccionar equipo">
                     <input type="checkbox" class="prod-checkbox" value="<?= $p['id'] ?>" style="cursor: pointer; width: 18px; height: 18px; margin: 0;">

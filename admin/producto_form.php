@@ -1,6 +1,29 @@
 <?php
 require_once 'config.php';
 if (!isset($_SESSION['user_id'])) { header("Location: login.php"); exit; }
+
+function getProductImgUrl($rawImg, $mediaJson = null) {
+    $img = $rawImg ?? '';
+    if (empty($img) && !empty($mediaJson)) {
+        $media = json_decode($mediaJson, true);
+        if (is_array($media) && count($media) > 0 && isset($media[0]['url'])) {
+            $img = $media[0]['url'];
+        }
+    }
+    if (!$img) return '';
+    if (strpos($img, 'http') === 0) return $img;
+    
+    $img = ltrim($img, '/');
+    if (strpos($img, 'v1/cotizaciones/') === 0) {
+        $img = substr($img, strlen('v1/cotizaciones/'));
+    } else if (strpos($img, 'cotizaciones/') === 0) {
+        $img = substr($img, strlen('cotizaciones/'));
+    }
+    $img = ltrim($img, '/');
+    
+    return '../cotizaciones/' . $img;
+}
+
 $id = $_GET['id'] ?? null;
 $producto = ['name' => '', 'item_no' => '', 'series' => '', 'categoria_id' => '', 'price' => 0, 'img' => '', 'media_json' => '[]'];
 $success = false;
@@ -134,11 +157,7 @@ include 'header.php';
         <div class="form-group" style="background:#f9f9f9; padding:16px; border:1px solid #eee; border-radius:8px;">
             <label style="color:#1d3557; margin-bottom:12px; display:block; font-weight:bold;">📷 Foto del Equipo</label>
             <div style="display:flex; gap:16px; align-items:flex-start;">
-                <?php 
-                $imgSrc = $producto['img'] ?? '';
-                if ($imgSrc && strpos($imgSrc, 'http') !== 0 && strpos($imgSrc, 'cotizaciones/') !== 0 && strpos($imgSrc, 'v1/cotizaciones/') !== 0) $imgSrc = '../cotizaciones/' . $imgSrc;
-                else if (strpos($imgSrc, 'http') !== 0) $imgSrc = '../' . $imgSrc;
-                ?>
+                <?php $imgSrc = getProductImgUrl($producto['img'] ?? '', $producto['media_json'] ?? ''); ?>
                 <?php if ($producto['img']): ?>
                     <div style="width:120px; height:120px; border-radius:6px; border:1px solid #ccc; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; padding:4px;">
                         <img src="<?= htmlspecialchars($imgSrc) ?>" style="max-width:100%; max-height:100%; object-fit:contain;" alt="Imagen rota o no encontrada">
