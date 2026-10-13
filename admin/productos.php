@@ -16,9 +16,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (!empty($ids)) {
         $catVal = $_POST['bulk_categoria'] ?? 'KEEP';
         $brandVal = $_POST['bulk_marca'] ?? 'KEEP';
+        $codeMode = $_POST['bulk_item_no_mode'] ?? 'KEEP';
+        $codeVal = trim($_POST['bulk_item_no'] ?? '');
         
         $updates = [];
         $params = [];
+        
+        if ($codeMode === 'SET') {
+            $updates[] = "item_no = ?";
+            $params[] = $codeVal;
+        } else if ($codeMode === 'CLEAR') {
+            $updates[] = "item_no = ''";
+        }
         
         if ($catVal !== 'KEEP') {
             if ($catVal === 'NONE' || $catVal === '') {
@@ -279,7 +288,7 @@ include 'header.php';
                 </select>
             </div>
             
-            <div class="form-group" style="margin-bottom: 24px;">
+            <div class="form-group" style="margin-bottom: 16px;">
                 <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #1d3557;">Marca (Series)</label>
                 <select name="bulk_marca" id="bulkBrandSelect" style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fdfdfd; box-sizing: border-box;">
                     <option value="KEEP">-- No cambiar (Mantener actual) --</option>
@@ -288,6 +297,16 @@ include 'header.php';
                         <option value="<?= htmlspecialchars($m['name']) ?>"><?= htmlspecialchars($m['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #1d3557;">Código (SKU)</label>
+                <select name="bulk_item_no_mode" id="bulkItemNoMode" style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fdfdfd; box-sizing: border-box; margin-bottom: 8px;">
+                    <option value="KEEP">-- No cambiar (Mantener actual) --</option>
+                    <option value="SET">Asignar nuevo código a todos</option>
+                    <option value="CLEAR">- Dejar código vacío -</option>
+                </select>
+                <input type="text" name="bulk_item_no" id="bulkItemNoInput" placeholder="Escribe el nuevo código..." style="display: none; width: 100%; padding: 10px 12px; border: 1px solid #457b9d; border-radius: 6px; font-size: 14px; background: #fff; box-sizing: border-box;">
             </div>
             
             <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #eee; padding-top: 16px;">
@@ -333,6 +352,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkEditForm = document.getElementById('bulkEditForm');
     const bulkCatSelect = document.getElementById('bulkCatSelect');
     const bulkBrandSelect = document.getElementById('bulkBrandSelect');
+    const bulkItemNoMode = document.getElementById('bulkItemNoMode');
+    const bulkItemNoInput = document.getElementById('bulkItemNoInput');
+
+    if (bulkItemNoMode) {
+        bulkItemNoMode.addEventListener('change', function() {
+            if (this.value === 'SET') {
+                bulkItemNoInput.style.display = 'block';
+                bulkItemNoInput.focus();
+            } else {
+                bulkItemNoInput.style.display = 'none';
+            }
+        });
+    }
 
     function updateSelectionUI() {
         const count = selectedIds.size;
@@ -415,6 +447,9 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSelectedCountText.textContent = selectedIds.size;
             bulkCatSelect.value = 'KEEP';
             bulkBrandSelect.value = 'KEEP';
+            bulkItemNoMode.value = 'KEEP';
+            bulkItemNoInput.value = '';
+            bulkItemNoInput.style.display = 'none';
             bulkModal.style.display = 'flex';
         });
     }
@@ -432,9 +467,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (bulkEditForm) {
         bulkEditForm.addEventListener('submit', function(e) {
-            if (bulkCatSelect.value === 'KEEP' && bulkBrandSelect.value === 'KEEP') {
+            const hasChange = bulkCatSelect.value !== 'KEEP' || 
+                              bulkBrandSelect.value !== 'KEEP' || 
+                              bulkItemNoMode.value !== 'KEEP';
+            if (!hasChange) {
                 e.preventDefault();
-                alert('Debes seleccionar al menos un campo a modificar (Categoría o Marca).');
+                alert('Debes seleccionar al menos un campo a modificar (Categoría, Marca o Código).');
+                return;
+            }
+            if (bulkItemNoMode.value === 'SET' && bulkItemNoInput.value.trim() === '') {
+                e.preventDefault();
+                alert('Ingresa el código que deseas asignar o selecciona "Dejar código vacío".');
+                bulkItemNoInput.focus();
                 return;
             }
             if (!confirm(`¿Estás seguro de actualizar ${selectedIds.size} productos con los nuevos valores?`)) {
