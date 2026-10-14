@@ -71,7 +71,9 @@ try {
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
     $marcas = $pdo->query("SELECT * FROM marcas ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
     $series = $pdo->query("SELECT * FROM series ORDER BY pos ASC, name ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $dbError = null;
 } catch (Exception $e) {
+    $dbError = $e->getMessage();
     $productos = [];
     $categorias = [];
     $marcas = [];
@@ -1034,6 +1036,7 @@ window.DB_PRODUCTS = <?php echo $productosJson; ?>;
 window.DB_CATEGORIAS = <?php echo $categoriasJson; ?>;
 window.DB_MARCAS = <?php echo $marcasJson; ?>;
 window.DB_SERIES = <?php echo $seriesJson; ?>;
+window.DB_ERROR = <?php echo json_encode($dbError ?? null); ?>;
 </script>
 <script type="text/x-dc" data-dc-script>
 const ITEMS_PER_PAGE = 12;
