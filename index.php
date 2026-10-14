@@ -672,26 +672,38 @@ $seriesJson = json_encode($series);
             <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270)">Equipos</h2>
           </div>
 
-          <!-- Barra superior: Series horizontales a la izquierda y Ordenamiento a la derecha -->
+          <!-- Barra superior: Series horizontales + Dropdown de Marcas a la izquierda y Ordenamiento a la derecha -->
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;background:#fafafa;padding:12px 16px;border-radius:10px;border:1px solid oklch(90% 0 0)">
             
-            <sc-if value="{{hasSeriesFilter}}">
-              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
-                <span style="font-size:13px;font-weight:700;color:oklch(30% .008 270);margin-right:2px;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.05em">Series:</span>
-                <sc-for list="{{catalogoSeriesList}}" as="s">
-                  <button onClick="{{s.onClick}}" style="background:{{s.bg}};color:{{s.color}};border:{{s.border}};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;box-shadow:0 1px 3px rgba(0,0,0,0.04);white-space:nowrap">
-                    <sc-if value="{{s.checked}}"><span style="font-size:11px">✓</span></sc-if>
-                    <span>{{s.name}}</span>
-                  </button>
-                </sc-for>
-                <sc-if value="{{hasSelectedSeries}}">
-                  <button onClick="{{clearCatalogoSeries}}" style="background:white;color:oklch(58% .22 25);border:1px solid oklch(85% 0 0);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s ease;margin-left:4px" title="Limpiar selección de series">✕ Todas</button>
-                </sc-if>
+            <div style="display:flex;align-items:center;flex-wrap:wrap;gap:14px">
+              <!-- Dropdown de Marcas adicional -->
+              <div style="display:inline-flex;align-items:center;gap:8px">
+                <span style="font-size:13px;font-weight:700;color:oklch(30% .008 270);font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.05em">Marca:</span>
+                <select onChange="{{onTopBrandSelect}}" value="{{topBrandValue}}" style="padding:6px 12px;border-radius:6px;border:1px solid oklch(85% 0 0);font-size:13px;font-weight:500;color:oklch(20% .005 270);outline:none;cursor:pointer;background:white">
+                  <option value="">Todas las Marcas</option>
+                  <sc-for list="{{topBrandsList}}" as="bm">
+                    <option value="{{bm.name}}">{{bm.name}}</option>
+                  </sc-for>
+                </select>
               </div>
-            </sc-if>
-            <sc-if value="{{noSeriesFilter}}">
-              <div></div>
-            </sc-if>
+
+              <!-- Filtro horizontal de Series -->
+              <sc-if value="{{hasSeriesFilter}}">
+                <div style="display:inline-flex;align-items:center;flex-wrap:wrap;gap:8px">
+                  <span style="display:inline-block;width:1px;height:20px;background:oklch(85% 0 0);margin:0 4px"></span>
+                  <span style="font-size:13px;font-weight:700;color:oklch(30% .008 270);margin-right:2px;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.05em">Series:</span>
+                  <sc-for list="{{catalogoSeriesList}}" as="s">
+                    <button onClick="{{s.onClick}}" style="background:{{s.bg}};color:{{s.color}};border:{{s.border}};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;box-shadow:0 1px 3px rgba(0,0,0,0.04);white-space:nowrap">
+                      <sc-if value="{{s.checked}}"><span style="font-size:11px">✓</span></sc-if>
+                      <span>{{s.name}}</span>
+                    </button>
+                  </sc-for>
+                  <sc-if value="{{hasSelectedSeries}}">
+                    <button onClick="{{clearCatalogoSeries}}" style="background:white;color:oklch(58% .22 25);border:1px solid oklch(85% 0 0);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s ease;margin-left:4px" title="Limpiar selección de series">✕ Todas</button>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </div>
 
             <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
               <span style="font-size:12px;color:oklch(40% 0 0);font-weight:600">Ordenar:</span>
@@ -1436,6 +1448,15 @@ class Component extends DCLogic {
   };
 
 
+  onTopBrandSelect = (e) => {
+    const val = e.target.value;
+    if (!val) {
+      this.setState({ catalogoBrands: [], catalogoPage: 1 });
+    } else {
+      this.setState({ catalogoBrands: [val], catalogoPage: 1 });
+    }
+  };
+
   onCatalogoSort = (e) => {
     this.setState({ catalogoSort: e.target.value });
   };
@@ -1641,6 +1662,12 @@ class Component extends DCLogic {
       name: m.name,
       checked: this.state.catalogoBrands.includes(m.name),
       onChange: this.toggleCatalogoBrand(m.name)
+    }));
+
+    const topBrandValue = this.state.catalogoBrands.length === 1 ? this.state.catalogoBrands[0] : '';
+    const topBrandsList = (window.DB_MARCAS || []).map(m => ({
+      name: m.name,
+      selected: this.state.catalogoBrands.includes(m.name)
     }));
 
     // Series parametrizadas por categoría actual
@@ -1919,6 +1946,9 @@ class Component extends DCLogic {
 
 
       catalogoBrandsList,
+      topBrandsList,
+      topBrandValue,
+      onTopBrandSelect: this.onTopBrandSelect,
       catalogoSeriesList,
       hasSeriesFilter,
       hasCartItems: this.state.cart.length > 0,
