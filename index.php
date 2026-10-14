@@ -23,6 +23,15 @@ try {
     foreach($productos as &$p) {
         $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
     }
+    
+    // Auto migration: ensure mostrar_home column exists
+    try {
+        $checkCol = $pdo->query("SHOW COLUMNS FROM categorias LIKE 'mostrar_home'")->fetch();
+        if (!$checkCol) {
+            $pdo->exec("ALTER TABLE categorias ADD COLUMN mostrar_home TINYINT(1) DEFAULT 1");
+        }
+    } catch (Exception $e) {}
+
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
     $marcas = $pdo->query("SELECT * FROM marcas ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
@@ -978,6 +987,7 @@ DB_CATS.forEach((c, idx) => {
         tag: c.tag || 'Equipos profesionales',
         img: c.img || '',
         badge: c.badge || ('0' + (idx+1)),
+        mostrar_home: (c.mostrar_home !== undefined && c.mostrar_home !== null) ? Number(c.mostrar_home) : 1,
         longDesc: 'Colección de equipos de alto rendimiento y durabilidad. Equipos de uso rudo diseñados para soportar el trabajo diario en los gimnasios, conjuntos y hogares.',
         features: [
             {title:'Grado comercial', desc:'Construcción robusta y materiales de alta calidad para un rendimiento continuo.'},
@@ -1432,7 +1442,7 @@ class Component extends DCLogic {
       onClick: () => this.setState({ heroIndex: i }, () => this.scheduleHero()),
     }));
 
-    const categories = Object.values(CATEGORIES).filter(c => c.slug !== 'todos').map((c, i) => ({
+    const categories = Object.values(CATEGORIES).filter(c => c.slug !== 'todos' && c.mostrar_home === 1).map((c, i) => ({
       slug: c.slug, name: c.name, tag: c.tag, img: c.img, badge: c.badge,
       onClick: () => this.goToCategory(c.slug),
       revealOpacity: 1,
