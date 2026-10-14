@@ -725,7 +725,6 @@ $seriesJson = json_encode($series);
               <div style="position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
                 
                 <div onClick="{{prod.onOpen}}" style="height:160px;background:oklch(98% .002 270);padding:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" title="Ver detalles">
-                  <span style="position:absolute;top:12px;left:12px;background:oklch(20% .005 270);color:white;font-size:10px;font-weight:700;padding:4px 8px;border-radius:4px;letter-spacing:0.05em">SKU: {{prod.item_no}}</span>
                   <img loading="lazy" sc-camel-src="{{prod.image}}" alt="{{prod.name}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
                 </div>
 
