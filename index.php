@@ -632,39 +632,37 @@ $seriesJson = json_encode($series);
             </div>
           </div>
 
-          <sc-if value="{{hasSeriesFilter}}">
-          <div style="margin-bottom:16px">
-            <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 8px;color:oklch(20% .005 270)">Series</h3>
-            <input type="text" onInput="{{onSerieSearch}}" value="{{seriesSearch}}" placeholder="Buscar serie..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid oklch(85% 0 0);border-radius:6px;font-size:13px;outline:none;margin-bottom:12px;background:#fdfdfd" />
-            <div style="display:flex;flex-direction:column;gap:8px;max-height:350px;overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:oklch(85% 0 0) transparent">
-              <div class="brand-scroll" style="display:flex;flex-direction:column;gap:8px;flex-grow:1">
-              <sc-for list="{{catalogoSeriesList}}" as="s">
-                <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:oklch(30% .008 270);cursor:pointer">
-                  <input type="checkbox" checked="{{s.checked}}" onChange="{{s.onChange}}" style="accent-color:oklch(58% .22 25);width:16px;height:16px;cursor:pointer" />
-                  {{s.name}}
-                </label>
-              </sc-for>
-              </div>
-            </div>
-          </div>
-          </sc-if>
-
         </aside>
 
         <!-- CUADRÍCULA DE PRODUCTOS -->
         <div style="flex-grow:1;min-width:0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
             <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270)">Equipos</h2>
-            
-            
           </div>
-          
 
+          <!-- Barra superior: Series horizontales a la izquierda y Ordenamiento a la derecha -->
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;background:#fafafa;padding:12px 16px;border-radius:10px;border:1px solid oklch(90% 0 0)">
+            
+            <sc-if value="{{hasSeriesFilter}}">
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+                <span style="font-size:13px;font-weight:700;color:oklch(30% .008 270);margin-right:2px;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.05em">Series:</span>
+                <sc-for list="{{catalogoSeriesList}}" as="s">
+                  <button onClick="{{s.onClick}}" style="background:{{s.bg}};color:{{s.color}};border:{{s.border}};padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;box-shadow:0 1px 3px rgba(0,0,0,0.04);white-space:nowrap">
+                    <sc-if value="{{s.checked}}"><span style="font-size:11px">✓</span></sc-if>
+                    <span>{{s.name}}</span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{hasSelectedSeries}}">
+                  <button onClick="{{clearCatalogoSeries}}" style="background:white;color:oklch(58% .22 25);border:1px solid oklch(85% 0 0);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s ease;margin-left:4px" title="Limpiar selección de series">✕ Todas</button>
+                </sc-if>
+              </div>
+            </sc-if>
+            <sc-if value="{{noSeriesFilter}}">
+              <div></div>
+            </sc-if>
 
-          <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:24px">
-            
-            
-            <div style="display:flex;align-items:center;gap:16px">
+            <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
+              <span style="font-size:12px;color:oklch(40% 0 0);font-weight:600">Ordenar:</span>
               <select onChange="{{onCatalogoSort}}" value="{{catalogoSort}}" style="padding:8px 16px;border-radius:6px;border:1px solid oklch(85% 0 0);font-size:13px;color:oklch(20% .005 270);outline:none;cursor:pointer;background:white">
                 <option value="name_asc">Nombre (A-Z)</option>
                 <option value="name_desc">Nombre (Z-A)</option>
@@ -1372,11 +1370,17 @@ class Component extends DCLogic {
   };
 
   toggleCatalogoSerie = (serie) => (e) => {
+    if (e) e.preventDefault();
     const series = [...this.state.catalogoSeries];
     const idx = series.indexOf(serie);
     if (idx >= 0) series.splice(idx, 1);
     else series.push(serie);
     this.setState({ catalogoSeries: series, catalogoPage: 1 });
+  };
+
+  clearCatalogoSeries = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ catalogoSeries: [], catalogoPage: 1 });
   };
 
 
@@ -1576,19 +1580,26 @@ class Component extends DCLogic {
       onChange: this.toggleCatalogoBrand(m.name)
     }));
 
-    const ss = this.state.seriesSearch.toLowerCase().trim();
     const knownSeries = (window.DB_SERIES || []).map(s => s.name);
     (this.state.allProducts || []).forEach(p => {
       if (p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
         knownSeries.push(p.serie.trim());
       }
     });
-    const catalogoSeriesList = knownSeries.filter(sName => !ss || sName.toLowerCase().includes(ss)).map(sName => ({
-      name: sName,
-      checked: this.state.catalogoSeries.includes(sName),
-      onChange: this.toggleCatalogoSerie(sName)
-    }));
+    const catalogoSeriesList = knownSeries.map(sName => {
+      const checked = this.state.catalogoSeries.includes(sName);
+      return {
+        name: sName,
+        checked: checked,
+        bg: checked ? 'oklch(58% .22 25)' : 'white',
+        color: checked ? 'white' : 'oklch(20% .005 270)',
+        border: checked ? '1px solid oklch(58% .22 25)' : '1px solid oklch(85% 0 0)',
+        onClick: this.toggleCatalogoSerie(sName)
+      };
+    });
     const hasSeriesFilter = knownSeries.length > 0;
+    const hasSelectedSeries = this.state.catalogoSeries.length > 0;
+    const noSeriesFilter = !hasSeriesFilter;
 
         const filterDefs = [{ id: 'todos', label: 'Todos' }].concat(
         (window.DB_CATEGORIAS || []).map(c => ({ id: c.slug, label: c.name }))
@@ -1826,8 +1837,9 @@ class Component extends DCLogic {
       onCatalogoSearch: this.onCatalogoSearch,
       brandSearch: this.state.brandSearch,
       onBrandSearch: this.onBrandSearch,
-      seriesSearch: this.state.seriesSearch,
-      onSerieSearch: this.onSerieSearch,
+      hasSelectedSeries,
+      noSeriesFilter,
+      clearCatalogoSeries: this.clearCatalogoSeries,
       catalogoFilters,
       catalogoProducts,
       hasMoreCatalogo,
