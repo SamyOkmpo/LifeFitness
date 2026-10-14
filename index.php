@@ -27,28 +27,42 @@ try {
         }
         $pdo->exec("CREATE TABLE IF NOT EXISTS series (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL UNIQUE,
+            categoria_id INT DEFAULT NULL,
+            name VARCHAR(100) NOT NULL,
             pos INT DEFAULT 0
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        try {
+            $pdo->exec("ALTER TABLE series DROP INDEX name");
+        } catch (Exception $e) {}
+        $checkCatCol = $pdo->query("SHOW COLUMNS FROM series LIKE 'categoria_id'")->fetch();
+        if (!$checkCatCol) {
+            $pdo->exec("ALTER TABLE series ADD COLUMN categoria_id INT DEFAULT NULL");
+        }
         $chkSerie = $pdo->query("SHOW COLUMNS FROM productos LIKE 'serie'")->fetch();
         if (!$chkSerie) {
             $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL;");
         }
-        $existingDistinct = $pdo->query("SELECT DISTINCT serie FROM productos WHERE serie IS NOT NULL AND TRIM(serie) != ''")->fetchAll(PDO::FETCH_COLUMN);
-        $curSeries = $pdo->query("SELECT name FROM series")->fetchAll(PDO::FETCH_COLUMN);
-        $maxPos = (int)$pdo->query("SELECT COALESCE(MAX(pos), 0) FROM series")->fetchColumn();
-        foreach ($existingDistinct as $es) {
-            $es = trim($es);
-            if (!in_array($es, $curSeries)) {
-                $maxPos++;
-                $ins = $pdo->prepare("INSERT INTO series (name, pos) VALUES (?, ?)");
-                $ins->execute([$es, $maxPos]);
-                $curSeries[] = $es;
+        // Auto-discover series per category
+        $distinctPairs = $pdo->query("SELECT DISTINCT serie, categoria_id FROM productos WHERE serie IS NOT NULL AND TRIM(serie) != ''")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($distinctPairs as $dp) {
+            $sName = trim($dp['serie']);
+            $cId = !empty($dp['categoria_id']) ? (int)$dp['categoria_id'] : null;
+            if ($cId !== null) {
+                $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id = ?");
+                $chk->execute([$sName, $cId]);
+            } else {
+                $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id IS NULL");
+                $chk->execute([$sName]);
+            }
+            if (!$chk->fetch()) {
+                $maxPos = (int)$pdo->query("SELECT COALESCE(MAX(pos), 0) FROM series WHERE " . ($cId ? "categoria_id = $cId" : "categoria_id IS NULL"))->fetchColumn();
+                $ins = $pdo->prepare("INSERT INTO series (categoria_id, name, pos) VALUES (?, ?, ?)");
+                $ins->execute([$cId, $sName, $maxPos + 1]);
             }
         }
     } catch (Exception $e) {}
 
-    $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON p.serie = s.name ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
+    $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON (p.serie = s.name AND (s.categoria_id = p.categoria_id OR s.categoria_id IS NULL)) ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach($productos as &$p) {
         $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
@@ -1438,7 +1452,7 @@ class Component extends DCLogic {
   };
   setCatalogoFilter = (filter) => (e) => {
     if (e) e.preventDefault();
-    this.setState({ catalogoFilter: filter, catalogoPage: 1 });
+    this.setState({ catalogoFilter: filter, catalogoPage: 1, catalogoSeries: [] });
   };
 
   goToCategory = (slug) => {
@@ -1572,9 +1586,27 @@ class Component extends DCLogic {
     
     
     const seriePosMap = {};
+    const globalSeriePosMap = {};
     (window.DB_SERIES || []).forEach(s => {
-      seriePosMap[(s.name || '').trim()] = Number(s.pos);
+      const sName = (s.name || '').trim();
+      const pos = Number(s.pos);
+      if (s.categoria_id) {
+        seriePosMap[s.categoria_id + '_' + sName] = pos;
+      }
+      if (!(sName in globalSeriePosMap) || pos < globalSeriePosMap[sName]) {
+        globalSeriePosMap[sName] = pos;
+      }
     });
+
+    const getSeriePos = (p) => {
+      if (!p || !p.serie) return 999999;
+      const sName = p.serie.trim();
+      if (!sName) return 999999;
+      const catKey = (p.categoria_id || 0) + '_' + sName;
+      if (catKey in seriePosMap) return seriePosMap[catKey];
+      if (sName in globalSeriePosMap) return globalSeriePosMap[sName];
+      return 999999;
+    };
 
     const sorter = (a, b) => {
       const s = this.state.catalogoSort;
@@ -1582,11 +1614,9 @@ class Component extends DCLogic {
       if (s === 'name_desc') return (b.name||'').localeCompare(a.name||'');
       if (s === 'series_asc') return (a.series||'').localeCompare(b.series||'');
 
-      // 'serie_order' (predeterminado): Orden de Series configurado en el admin
-      const aSerie = (a.serie || '').trim();
-      const bSerie = (b.serie || '').trim();
-      const posA = aSerie in seriePosMap ? seriePosMap[aSerie] : 999999;
-      const posB = bSerie in seriePosMap ? seriePosMap[bSerie] : 999999;
+      // 'serie_order' (predeterminado): Orden de Series configurado en el admin parametrizado por Categoría
+      const posA = getSeriePos(a);
+      const posB = getSeriePos(b);
       if (posA !== posB) return posA - posB;
       const brandCmp = (a.series || '').localeCompare(b.series || '');
       if (brandCmp !== 0) return brandCmp;
@@ -1606,12 +1636,41 @@ class Component extends DCLogic {
       onChange: this.toggleCatalogoBrand(m.name)
     }));
 
-    const knownSeries = (window.DB_SERIES || []).map(s => s.name);
+    // Series parametrizadas por categoría actual
+    const currentCatSlug = this.state.catalogoFilter;
+    const currentCatObj = currentCatSlug !== 'todos' ? (window.DB_CATEGORIAS || []).find(c => c.slug === currentCatSlug) : null;
+    const currentCatId = currentCatObj ? currentCatObj.id : null;
+
+    let relevantSeriesDb = (window.DB_SERIES || []);
+    if (currentCatId) {
+      relevantSeriesDb = relevantSeriesDb.filter(s => s.categoria_id == currentCatId || !s.categoria_id);
+    }
+    // Mantener el orden configurado en DB_SERIES (pos ASC)
+    const knownSeries = [];
+    relevantSeriesDb.forEach(s => {
+      const sName = (s.name || '').trim();
+      if (sName && !knownSeries.includes(sName)) {
+        // Asegurarse de que si hay categoría seleccionada, solo se muestren series con productos en esa categoría o configuradas para ella
+        knownSeries.push(sName);
+      }
+    });
+
+    // Auto-descubrir de productos de la categoría si falta alguna
     (this.state.allProducts || []).forEach(p => {
+      if (currentCatId && p.categoria_id != currentCatId) return;
       if (p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
         knownSeries.push(p.serie.trim());
       }
     });
+
+    // Ordenar knownSeries según pos dentro de la categoría
+    knownSeries.sort((s1, s2) => {
+      const p1 = currentCatId && (currentCatId + '_' + s1 in seriePosMap) ? seriePosMap[currentCatId + '_' + s1] : (globalSeriePosMap[s1] ?? 999999);
+      const p2 = currentCatId && (currentCatId + '_' + s2 in seriePosMap) ? seriePosMap[currentCatId + '_' + s2] : (globalSeriePosMap[s2] ?? 999999);
+      if (p1 !== p2) return p1 - p2;
+      return s1.localeCompare(s2);
+    });
+
     const catalogoSeriesList = knownSeries.map(sName => {
       const checked = this.state.catalogoSeries.includes(sName);
       return {

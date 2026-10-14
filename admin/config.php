@@ -30,17 +30,35 @@ try {
     }
 } catch (Exception $e) {}
 
-// Auto migration: ensure series table and productos.serie column exist
+// Auto migration: ensure series table, categoria_id and productos.serie exist
 try {
     $pdo->exec("CREATE TABLE IF NOT EXISTS series (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(100) NOT NULL UNIQUE,
+        categoria_id INT DEFAULT NULL,
+        name VARCHAR(100) NOT NULL,
         pos INT DEFAULT 0
     )");
+    try {
+        $pdo->exec("ALTER TABLE series DROP INDEX name");
+    } catch (Exception $e) {}
+    $checkCatCol = $pdo->query("SHOW COLUMNS FROM series LIKE 'categoria_id'")->fetch();
+    if (!$checkCatCol) {
+        $pdo->exec("ALTER TABLE series ADD COLUMN categoria_id INT DEFAULT NULL");
+    }
     $checkSerie = $pdo->query("SHOW COLUMNS FROM productos LIKE 'serie'")->fetch();
     if (!$checkSerie) {
         $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL");
     }
+    // Link existing series to categories based on products if categoria_id is null
+    $pdo->exec("UPDATE series s 
+        INNER JOIN (
+            SELECT serie, categoria_id 
+            FROM productos 
+            WHERE serie IS NOT NULL AND TRIM(serie) != '' AND categoria_id IS NOT NULL 
+            GROUP BY serie, categoria_id
+        ) p ON s.name = p.serie 
+        SET s.categoria_id = p.categoria_id 
+        WHERE s.categoria_id IS NULL");
 } catch (Exception $e) {}
 } catch (PDOException $e) {
     die("Error de conexión a la base de datos.");
