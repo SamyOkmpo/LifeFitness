@@ -30,6 +30,9 @@
         <h1><img src="../assets/logo.png" style="height:32px; filter: brightness(0) invert(1);" alt="Logo"> Panel Admin</h1>
         <div class="header-actions">
             <?php $curr = basename($_SERVER['PHP_SELF']); ?>
+            <a href="index.php" class="btn-nav <?= $curr=='index.php' ? 'active' : '' ?>">
+                <span style="font-size:16px; margin-bottom:4px;">🏠</span><span>Inicio</span>
+            </a>
             <a href="../v1/cotizaciones/cotizador.html" class="btn-nav">
                 <span style="font-size:16px; margin-bottom:4px;">✨</span><span>Nueva Cotización</span>
             </a>
