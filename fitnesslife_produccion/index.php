@@ -60,9 +60,13 @@ try {
                 $ins->execute([$cId, $sName, $maxPos + 1]);
             }
         }
+        try {
+            $pdo->exec("ALTER TABLE series CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
+            $pdo->exec("ALTER TABLE productos MODIFY COLUMN serie VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL;");
+        } catch (Exception $e) {}
     } catch (Exception $e) {}
 
-    $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON (p.serie = s.name AND (s.categoria_id = p.categoria_id OR s.categoria_id IS NULL)) ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
+    $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON (p.serie COLLATE utf8mb4_general_ci = s.name COLLATE utf8mb4_general_ci AND (s.categoria_id = p.categoria_id OR s.categoria_id IS NULL)) ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach($productos as &$p) {
         $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
