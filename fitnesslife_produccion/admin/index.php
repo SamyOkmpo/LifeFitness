@@ -366,7 +366,7 @@ try {
             <div class="card-top">
                 <span class="card-tag tag-web">Sitio Web & Catálogo</span>
                 <div class="card-title">🌐 Administrador Web</div>
-                <div class="card-desc">Control del catálogo público de la página web, series, marcas, categorías y mensajes de clientes (leads).</div>
+                <div class="card-desc">Control del catálogo público de la página web, series, marcas y categorías.</div>
             </div>
             <div class="links-list">
                 <a href="productos.php" class="nav-item">
@@ -395,13 +395,6 @@ try {
                         <span class="nav-icon">⚡</span>
                         <span>Series por Categoría</span>
                     </div>
-                </a>
-                <a href="cotizaciones.php" class="nav-item">
-                    <div class="nav-item-left">
-                        <span class="nav-icon">📩</span>
-                        <span>Leads Web (Contacto / Carrito)</span>
-                    </div>
-                    <span class="nav-item-badge" style="background:#fee2e2;color:#b91c1c"><?= $stats['cotizaciones_leads'] ?></span>
                 </a>
                 <?php if ($isAdmin): ?>
                 <a href="usuarios.php" class="nav-item" style="border-left:3px solid #1d3557;">
@@ -478,8 +471,9 @@ try {
         </span>
         <div class="quick-links">
             <a href="../index.php" target="_blank" class="quick-link">🌐 Ver Página Web</a>
-            <a href="cotizaciones.php" class="quick-link">📩 Ver Leads Web</a>
+            <?php if ($hasCotiz): ?>
             <a href="../v1/cotizaciones/mis_cotizaciones.html" class="quick-link">📂 Ver Cotizaciones Guardadas</a>
+            <?php endif; ?>
         </div>
     </div>
 </div>
