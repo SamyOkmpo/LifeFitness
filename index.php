@@ -1,5 +1,6 @@
 <?php
-$entorno = ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1' || strpos($_SERVER['SERVER_NAME'], '.local') !== false) ? 'LOCAL' : 'PRODUCCION';
+$serverName = $_SERVER['SERVER_NAME'] ?? 'localhost';
+$entorno = ($serverName === 'localhost' || $serverName === '127.0.0.1' || strpos($serverName, '.local') !== false || strpos($serverName, '192.168.') !== false || php_sapi_name() === 'cli') ? 'LOCAL' : 'PRODUCCION';
 
 if ($entorno === "LOCAL") {
     $host = "127.0.0.1";
@@ -24,24 +25,36 @@ try {
         $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
     }
     
-    // Auto migration: ensure mostrar_home column exists
+    // Auto migration: ensure mostrar_home and series exist
     try {
         $checkCol = $pdo->query("SHOW COLUMNS FROM categorias LIKE 'mostrar_home'")->fetch();
         if (!$checkCol) {
             $pdo->exec("ALTER TABLE categorias ADD COLUMN mostrar_home TINYINT(1) DEFAULT 1");
         }
+        $pdo->exec("CREATE TABLE IF NOT EXISTS series (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL UNIQUE,
+            pos INT DEFAULT 0
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        $chkSerie = $pdo->query("SHOW COLUMNS FROM productos LIKE 'serie'")->fetch();
+        if (!$chkSerie) {
+            $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL;");
+        }
     } catch (Exception $e) {}
 
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
     $marcas = $pdo->query("SELECT * FROM marcas ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
+    $series = $pdo->query("SELECT * FROM series ORDER BY pos ASC, name ASC")->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     $productos = [];
     $categorias = [];
     $marcas = [];
+    $series = [];
 }
 $productosJson = json_encode($productos);
 $categoriasJson = json_encode($categorias);
 $marcasJson = json_encode($marcas);
+$seriesJson = json_encode($series);
 ?>
 <!DOCTYPE html>
 <html>
@@ -619,6 +632,23 @@ $marcasJson = json_encode($marcas);
             </div>
           </div>
 
+          <sc-if value="{{hasSeriesFilter}}">
+          <div style="margin-bottom:16px">
+            <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 8px;color:oklch(20% .005 270)">Series</h3>
+            <input type="text" onInput="{{onSerieSearch}}" value="{{seriesSearch}}" placeholder="Buscar serie..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid oklch(85% 0 0);border-radius:6px;font-size:13px;outline:none;margin-bottom:12px;background:#fdfdfd" />
+            <div style="display:flex;flex-direction:column;gap:8px;max-height:350px;overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:oklch(85% 0 0) transparent">
+              <div class="brand-scroll" style="display:flex;flex-direction:column;gap:8px;flex-grow:1">
+              <sc-for list="{{catalogoSeriesList}}" as="s">
+                <label style="display:flex;align-items:center;gap:10px;font-size:13px;color:oklch(30% .008 270);cursor:pointer">
+                  <input type="checkbox" checked="{{s.checked}}" onChange="{{s.onChange}}" style="accent-color:oklch(58% .22 25);width:16px;height:16px;cursor:pointer" />
+                  {{s.name}}
+                </label>
+              </sc-for>
+              </div>
+            </div>
+          </div>
+          </sc-if>
+
         </aside>
 
         <!-- CUADRÍCULA DE PRODUCTOS -->
@@ -639,6 +669,7 @@ $marcasJson = json_encode($marcas);
                 <option value="name_asc">Nombre (A-Z)</option>
                 <option value="name_desc">Nombre (Z-A)</option>
                 <option value="series_asc">Marca (A-Z)</option>
+                <option value="serie_asc">Serie (A-Z)</option>
               </select>
             </div>
           </div>
@@ -657,7 +688,10 @@ $marcasJson = json_encode($marcas);
                 </div>
 
                 <div style="padding:16px;flex-grow:1;display:flex;flex-direction:column">
-                  <div style="font-size:12px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px">{{prod.series}}</div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
+                    <div style="font-size:12px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase">{{prod.series}}</div>
+                    <sc-if value="{{prod.hasSerie}}"><span style="font-size:11px;background:oklch(96% 0 0);color:oklch(20% .005 270);border:1px solid oklch(88% 0 0);padding:2px 6px;border-radius:4px;font-weight:600">Serie: {{prod.serie}}</span></sc-if>
+                  </div>
                   <h4 style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 8px;color:oklch(20% .005 270);line-height:1.2;flex-grow:1">{{prod.name}}</h4>
                   
                   <!-- ESPECIFICACIONES (ocultas por defecto, pero mostradas si hay) -->
@@ -761,7 +795,8 @@ $marcasJson = json_encode($marcas);
                </div>
                
                <div style="font-size:13px;color:oklch(50% 0 0);line-height:1.8;border-top:1px solid oklch(92% 0 0);padding-top:16px">
-                 <div><b>Marca / Serie:</b> {{modalProd.series}}</div>
+                 <div><b>Marca:</b> {{modalProd.series}}</div>
+                 <sc-if value="{{modalProd.hasSerie}}"><div><b>Serie:</b> {{modalProd.serie}}</div></sc-if>
                  <div><b>SKU:</b> {{modalProd.item_no}}</div>
                </div>
             </div>
@@ -974,6 +1009,7 @@ $marcasJson = json_encode($marcas);
 window.DB_PRODUCTS = <?php echo $productosJson; ?>;
 window.DB_CATEGORIAS = <?php echo $categoriasJson; ?>;
 window.DB_MARCAS = <?php echo $marcasJson; ?>;
+window.DB_SERIES = <?php echo $seriesJson; ?>;
 </script>
 <script type="text/x-dc" data-dc-script>
 const ITEMS_PER_PAGE = 12;
@@ -1015,6 +1051,8 @@ class Component extends DCLogic {
     modalProduct: null,
     catalogoBrands: [],
     brandSearch: '',
+    catalogoSeries: [],
+    seriesSearch: '',
     categoriesVisible: false,
     hoveredSolution: null,
     activeSolution: null,
@@ -1273,7 +1311,7 @@ class Component extends DCLogic {
   goToCatalogo = (e) => {
     if (e) e.preventDefault();
     window.history.pushState(null, '', '#catalogo');
-    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [] }, () => {
+    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [] }, () => {
       setTimeout(() => window.scrollTo(0, 0), 10);
       setTimeout(() => window.scrollTo(0, 0), 100);
     });
@@ -1333,6 +1371,14 @@ class Component extends DCLogic {
     this.setState({ catalogoBrands: brands, catalogoPage: 1 });
   };
 
+  toggleCatalogoSerie = (serie) => (e) => {
+    const series = [...this.state.catalogoSeries];
+    const idx = series.indexOf(serie);
+    if (idx >= 0) series.splice(idx, 1);
+    else series.push(serie);
+    this.setState({ catalogoSeries: series, catalogoPage: 1 });
+  };
+
 
 
   loadMoreCategory = (e) => {
@@ -1371,6 +1417,9 @@ class Component extends DCLogic {
   onBrandSearch = (e) => {
     this.setState({ brandSearch: e.target.value });
   };
+  onSerieSearch = (e) => {
+    this.setState({ seriesSearch: e.target.value });
+  };
   setCatalogoFilter = (filter) => (e) => {
     if (e) e.preventDefault();
     this.setState({ catalogoFilter: filter, catalogoPage: 1 });
@@ -1378,7 +1427,7 @@ class Component extends DCLogic {
 
   goToCategory = (slug) => {
     window.history.pushState(null, '', '#catalogo=' + slug);
-    this.setState({ page: 'catalogo', catalogoFilter: slug, catalogoPage: 1, catalogoSearch: '', catalogoBrands: [] }, () => {
+    this.setState({ page: 'catalogo', catalogoFilter: slug, catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [] }, () => {
       setTimeout(() => window.scrollTo(0, 0), 10);
       setTimeout(() => window.scrollTo(0, 0), 100);
     });
@@ -1509,6 +1558,7 @@ class Component extends DCLogic {
     const sorter = (a, b) => {
       const s = this.state.catalogoSort;
       if (s === 'series_asc') return (a.series||'').localeCompare(b.series||'');
+      if (s === 'serie_asc') return (a.serie||'').localeCompare(b.serie||'');
       if (s === 'name_desc') return (b.name||'').localeCompare(a.name||'');
       return (a.name||'').localeCompare(b.name||''); // name_asc default
     };
@@ -1525,6 +1575,20 @@ class Component extends DCLogic {
       checked: this.state.catalogoBrands.includes(m.name),
       onChange: this.toggleCatalogoBrand(m.name)
     }));
+
+    const ss = this.state.seriesSearch.toLowerCase().trim();
+    const knownSeries = (window.DB_SERIES || []).map(s => s.name);
+    (this.state.allProducts || []).forEach(p => {
+      if (p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
+        knownSeries.push(p.serie.trim());
+      }
+    });
+    const catalogoSeriesList = knownSeries.filter(sName => !ss || sName.toLowerCase().includes(ss)).map(sName => ({
+      name: sName,
+      checked: this.state.catalogoSeries.includes(sName),
+      onChange: this.toggleCatalogoSerie(sName)
+    }));
+    const hasSeriesFilter = knownSeries.length > 0;
 
         const filterDefs = [{ id: 'todos', label: 'Todos' }].concat(
         (window.DB_CATEGORIAS || []).map(c => ({ id: c.slug, label: c.name }))
@@ -1549,12 +1613,15 @@ class Component extends DCLogic {
       }
       const q = this.state.catalogoSearch.trim().toLowerCase();
       if (q) {
-        const searchStr = ((p.name||'') + ' ' + (p.series||'') + ' ' + (p.item_no||'')).toLowerCase();
+        const searchStr = ((p.name||'') + ' ' + (p.series||'') + ' ' + (p.serie||'') + ' ' + (p.item_no||'')).toLowerCase();
         if (!searchStr.includes(q)) return false;
       }
       
       const b = this.state.catalogoBrands;
       if (b.length > 0 && !b.includes(p.series)) return false;
+
+      const ser = this.state.catalogoSeries;
+      if (ser.length > 0 && (!p.serie || !ser.includes(p.serie.trim()))) return false;
       
       return true;
     }).map(p => {
@@ -1566,6 +1633,8 @@ class Component extends DCLogic {
       const item_no = p.item_no || 'N/A';
       const hasDims = p.set_up_dimension && p.set_up_dimension.trim() !== '';
       const hasWeight = p.weight_stack && p.weight_stack.trim() !== '';
+      const hasSerie = p.serie && p.serie.trim() !== '';
+      const serie = p.serie ? p.serie.trim() : '';
       
       const inCart = this.state.cart.some(c => c.item_no === item_no);
       const cartText = inCart ? 'Añadido ✓' : 'Añadir';
@@ -1578,8 +1647,8 @@ class Component extends DCLogic {
       const waLink = 'https://wa.me/573128011838?text=' + waMsg;
       
       
-      const onOpen = this.openModal({ ...p, image, item_no, hasDims, hasWeight, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
-      return { ...p, image, hasDims, hasWeight, item_no, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no }), onOpen };
+      const onOpen = this.openModal({ ...p, image, item_no, hasDims, hasWeight, hasSerie, serie, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
+      return { ...p, image, hasDims, hasWeight, hasSerie, serie, item_no, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no }), onOpen };
     });
     
     catalogoProductsFull.sort(sorter);
@@ -1747,6 +1816,8 @@ class Component extends DCLogic {
 
 
       catalogoBrandsList,
+      catalogoSeriesList,
+      hasSeriesFilter,
       hasCartItems: this.state.cart.length > 0,
       cartCount: this.state.cart.length,
       goToCart: this.goToCart,
@@ -1755,6 +1826,8 @@ class Component extends DCLogic {
       onCatalogoSearch: this.onCatalogoSearch,
       brandSearch: this.state.brandSearch,
       onBrandSearch: this.onBrandSearch,
+      seriesSearch: this.state.seriesSearch,
+      onSerieSearch: this.onSerieSearch,
       catalogoFilters,
       catalogoProducts,
       hasMoreCatalogo,

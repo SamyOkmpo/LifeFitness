@@ -45,6 +45,9 @@
             <a href="marcas.php" class="btn-nav <?= $curr=='marcas.php'||$curr=='marca_form.php' ? 'active' : '' ?>">
                 <span style="font-size:16px; margin-bottom:4px;">🏷️</span><span>Marcas</span>
             </a>
+            <a href="series.php" class="btn-nav <?= $curr=='series.php'||$curr=='serie_form.php' ? 'active' : '' ?>">
+                <span style="font-size:16px; margin-bottom:4px;">⚡</span><span>Series</span>
+            </a>
             <a href="../v1/cotizaciones/admin_usuarios.html" class="btn-nav">
                 <span style="font-size:16px; margin-bottom:4px;">👥</span><span>Usuarios</span>
             </a>

@@ -16,6 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     if (!empty($ids)) {
         $catVal = $_POST['bulk_categoria'] ?? 'KEEP';
         $brandVal = $_POST['bulk_marca'] ?? 'KEEP';
+        $serieMode = $_POST['bulk_serie_mode'] ?? 'KEEP';
+        $serieVal = trim($_POST['bulk_serie'] ?? '');
         $codeMode = $_POST['bulk_item_no_mode'] ?? 'KEEP';
         $codeVal = trim($_POST['bulk_item_no'] ?? '');
         
@@ -45,6 +47,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $updates[] = "series = ?";
                 $params[] = $brandVal;
             }
+        }
+
+        if ($serieMode === 'SET') {
+            $updates[] = "serie = ?";
+            $params[] = $serieVal;
+            if ($serieVal !== '') {
+                $chk = $pdo->prepare("SELECT id FROM series WHERE name = ?");
+                $chk->execute([$serieVal]);
+                if (!$chk->fetch()) {
+                    $posStmt = $pdo->query("SELECT COALESCE(MAX(pos), 0) + 1 AS next_pos FROM series");
+                    $nextPos = $posStmt->fetch()['next_pos'];
+                    $ins = $pdo->prepare("INSERT INTO series (name, pos) VALUES (?, ?)");
+                    $ins->execute([$serieVal, $nextPos]);
+                }
+            }
+        } else if ($serieMode === 'CLEAR') {
+            $updates[] = "serie = NULL";
         }
         
         if (!empty($updates)) {
@@ -83,11 +102,12 @@ function getProductImgUrl($rawImg, $mediaJson = null) {
     return '../cotizaciones/' . $img;
 }
 
-$sql = "SELECT id, name, item_no, series, categoria_id, price, img, media_json FROM productos ORDER BY id DESC ";
+$sql = "SELECT id, name, item_no, series, serie, categoria_id, price, img, media_json FROM productos ORDER BY id DESC ";
 $stmt = $pdo->query($sql);
 $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $cats = $pdo->query("SELECT id, name FROM categorias ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
 $marcas = $pdo->query("SELECT name FROM marcas ORDER BY name ASC")->fetchAll(PDO::FETCH_ASSOC);
+$seriesList = $pdo->query("SELECT name FROM series ORDER BY pos ASC, name ASC")->fetchAll(PDO::FETCH_ASSOC);
 $catMap = [];
 foreach ($cats as $c) { $catMap[$c['id']] = $c['name']; }
 include 'header.php';
@@ -134,6 +154,13 @@ include 'header.php';
                         <option value="<?= htmlspecialchars($m['name']) ?>"><?= htmlspecialchars($m['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
+                <select id="serieFilterTop" class="form-group" style="margin:0; padding:8px 12px; background:#f7f7f7; border:1px solid #e5e5e5; border-radius:6px; outline:none; font-size:13px;">
+                    <option value="">Todas las series</option>
+                    <option value="NONE">- Sin serie -</option>
+                    <?php foreach ($seriesList as $s): ?>
+                        <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
                 <input type="text" id="searchInput" placeholder="Buscar equipo o SKU..." style="padding:8px 12px; background:#f7f7f7; border:1px solid #e5e5e5; border-radius:6px; outline:none; font-size:13px; width:250px;">
@@ -156,12 +183,11 @@ include 'header.php';
                     </th>
                     <th style="width: 60px">IMG</th>
                     <th style="width: 100px">CÓDIGO</th>
-                    <th style="width: 180px">
+                    <th style="width: 170px">
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <span>CATEGORÍA</span>
                             <select id="catFilter" style="padding:4px 8px; background:#f7f7f7; border:1px solid #ccc; border-radius:4px; outline:none; font-size:11px; font-weight:normal; width:100%;">
                                 <option value="">Todas (Filtro)</option>
-                                <option value="NONE">- Sin marca -</option>
                                 <option value="NONE">- Sin categoría -</option>
                                 <?php foreach ($cats as $c): ?>
                                     <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
@@ -169,13 +195,26 @@ include 'header.php';
                             </select>
                         </div>
                     </th>
-                    <th style="width: 160px">
+                    <th style="width: 150px">
                         <div style="display:flex; flex-direction:column; gap:6px;">
                             <span>MARCA</span>
                             <select id="brandFilter" style="padding:4px 8px; background:#f7f7f7; border:1px solid #ccc; border-radius:4px; outline:none; font-size:11px; font-weight:normal; width:100%;">
                                 <option value="">Todas (Filtro)</option>
+                                <option value="NONE">- Sin marca -</option>
                                 <?php foreach ($marcas as $m): ?>
                                     <option value="<?= htmlspecialchars($m['name']) ?>"><?= htmlspecialchars($m['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </th>
+                    <th style="width: 150px">
+                        <div style="display:flex; flex-direction:column; gap:6px;">
+                            <span>SERIE</span>
+                            <select id="serieFilter" style="padding:4px 8px; background:#f7f7f7; border:1px solid #ccc; border-radius:4px; outline:none; font-size:11px; font-weight:normal; width:100%;">
+                                <option value="">Todas (Filtro)</option>
+                                <option value="NONE">- Sin serie -</option>
+                                <?php foreach ($seriesList as $s): ?>
+                                    <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -187,7 +226,7 @@ include 'header.php';
             </thead>
             <tbody>
                 <?php foreach ($productos as $p): ?>
-                    <tr class="product-row" data-id="<?= $p['id'] ?>" data-cat="<?= htmlspecialchars($p['categoria_id'] ?? '') ?>" data-brand="<?= htmlspecialchars($p['series'] ?? '') ?>">
+                    <tr class="product-row" data-id="<?= $p['id'] ?>" data-cat="<?= htmlspecialchars($p['categoria_id'] ?? '') ?>" data-brand="<?= htmlspecialchars($p['series'] ?? '') ?>" data-serie="<?= htmlspecialchars($p['serie'] ?? '') ?>">
                         <td class="checkbox-cell" data-label="Sel" style="text-align: center;">
                             <input type="checkbox" class="prod-checkbox" value="<?= $p['id'] ?>" style="cursor: pointer; width: 16px; height: 16px;">
                         </td>
@@ -204,6 +243,7 @@ include 'header.php';
                         <td class="searchable" data-label="Código" style="font-weight: 600; color: #457b9d;"><?= htmlspecialchars($p['item_no'] ?? '-') ?></td>
                         <td class="searchable" data-label="Categoría"><span style="background:#e0ebf3; color:#1d3557; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:600;"><?= htmlspecialchars($catMap[$p['categoria_id']] ?? 'Sin Categoría') ?></span></td>
                         <td class="searchable" data-label="Marca"><?= htmlspecialchars($p['series'] ?: '-') ?></td>
+                        <td class="searchable" data-label="Serie"><?= htmlspecialchars($p['serie'] ?: '-') ?></td>
                         <td class="searchable" data-label="Nombre" style="font-weight: 500;"><?= htmlspecialchars($p['name'] ?? '') ?></td>
                         <td data-label="Precio Ref.">$ <?= number_format((float)$p['price'], 0, ',', '.') ?></td>
                         <td class="actions-cell" data-label="Acciones" style="text-align: right; white-space: nowrap;">
@@ -212,7 +252,7 @@ include 'header.php';
                         </td>
                     </tr>
                 <?php endforeach; ?>
-                <tr id="noResultsRow" style="display:none;"><td colspan="8" style="text-align:center; padding:40px; color:#718096;">No se encontraron productos.</td></tr>
+                <tr id="noResultsRow" style="display:none;"><td colspan="9" style="text-align:center; padding:40px; color:#718096;">No se encontraron productos.</td></tr>
             </tbody>
         </table>
     </div>
@@ -220,7 +260,7 @@ include 'header.php';
     <div id="gridView" style="display:none; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 24px; margin-top:20px;">
         <?php foreach ($productos as $p): ?>
             <?php $img = getProductImgUrl($p['img'] ?? '', $p['media_json'] ?? ''); ?>
-            <div class="product-card" data-id="<?= $p['id'] ?>" data-cat="<?= htmlspecialchars($p['categoria_id'] ?? '') ?>" data-brand="<?= htmlspecialchars($p['series'] ?? '') ?>" style="background: white; border: 1px solid #eee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+            <div class="product-card" data-id="<?= $p['id'] ?>" data-cat="<?= htmlspecialchars($p['categoria_id'] ?? '') ?>" data-brand="<?= htmlspecialchars($p['series'] ?? '') ?>" data-serie="<?= htmlspecialchars($p['serie'] ?? '') ?>" style="background: white; border: 1px solid #eee; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
                 <label class="card-checkbox-badge" title="Seleccionar equipo">
                     <input type="checkbox" class="prod-checkbox" value="<?= $p['id'] ?>" style="cursor: pointer; width: 18px; height: 18px; margin: 0;">
                 </label>
@@ -233,7 +273,7 @@ include 'header.php';
                 </div>
                 <div style="padding: 16px; display: flex; flex-direction: column; flex-grow: 1; border-top: 1px solid #f0f0f0;">
                     <div class="searchable-card" style="font-size: 12px; color: #888; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.05em;">
-                        <?= htmlspecialchars($catMap[$p['categoria_id']] ?? 'Sin Categoría') ?> • <?= htmlspecialchars($p['series'] ?: 'Sin Marca') ?> • <?= htmlspecialchars($p['item_no'] ?? '-') ?>
+                        <?= htmlspecialchars($catMap[$p['categoria_id']] ?? 'Sin Categoría') ?> • <?= htmlspecialchars($p['series'] ?: 'Sin Marca') ?><?= !empty($p['serie']) ? ' • Serie: ' . htmlspecialchars($p['serie']) : '' ?> • <?= htmlspecialchars($p['item_no'] ?? '-') ?>
                     </div>
                     <div class="searchable-card" style="font-weight: 600; font-size: 16px; color: #1d3557; margin-bottom: 12px; line-height: 1.3;">
                         <?= htmlspecialchars($p['name'] ?? '') ?>
@@ -299,6 +339,23 @@ include 'header.php';
                 </select>
             </div>
 
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #1d3557;">Serie</label>
+                <select name="bulk_serie_mode" id="bulkSerieMode" style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fdfdfd; box-sizing: border-box; margin-bottom: 8px;">
+                    <option value="KEEP">-- No cambiar (Mantener actual) --</option>
+                    <option value="SET">Asignar serie</option>
+                    <option value="CLEAR">- Dejar sin serie -</option>
+                </select>
+                <div id="bulkSerieWrapper" style="display: none;">
+                    <input type="text" name="bulk_serie" id="bulkSerieInput" list="bulkSeriesDatalist" placeholder="Escribe o selecciona la serie..." style="width: 100%; padding: 10px 12px; border: 1px solid #457b9d; border-radius: 6px; font-size: 14px; background: #fff; box-sizing: border-box;">
+                    <datalist id="bulkSeriesDatalist">
+                        <?php foreach ($seriesList as $s): ?>
+                            <option value="<?= htmlspecialchars($s['name']) ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+            </div>
+
             <div class="form-group" style="margin-bottom: 24px;">
                 <label style="display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; color: #1d3557;">Código (SKU)</label>
                 <select name="bulk_item_no_mode" id="bulkItemNoMode" style="width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background: #fdfdfd; box-sizing: border-box; margin-bottom: 8px;">
@@ -331,8 +388,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const catFilterTop = document.getElementById('catFilterTop');
     const brandFilterTop = document.getElementById('brandFilterTop');
+    const serieFilterTop = document.getElementById('serieFilterTop');
     const catFilterTable = document.getElementById('catFilter');
     const brandFilterTable = document.getElementById('brandFilter');
+    const serieFilterTable = document.getElementById('serieFilter');
 
     let isGridView = false;
 
@@ -352,8 +411,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const bulkEditForm = document.getElementById('bulkEditForm');
     const bulkCatSelect = document.getElementById('bulkCatSelect');
     const bulkBrandSelect = document.getElementById('bulkBrandSelect');
+    const bulkSerieMode = document.getElementById('bulkSerieMode');
+    const bulkSerieWrapper = document.getElementById('bulkSerieWrapper');
+    const bulkSerieInput = document.getElementById('bulkSerieInput');
     const bulkItemNoMode = document.getElementById('bulkItemNoMode');
     const bulkItemNoInput = document.getElementById('bulkItemNoInput');
+
+    if (bulkSerieMode) {
+        bulkSerieMode.addEventListener('change', function() {
+            if (this.value === 'SET') {
+                bulkSerieWrapper.style.display = 'block';
+                bulkSerieInput.focus();
+            } else {
+                bulkSerieWrapper.style.display = 'none';
+            }
+        });
+    }
 
     if (bulkItemNoMode) {
         bulkItemNoMode.addEventListener('change', function() {
@@ -447,6 +520,9 @@ document.addEventListener('DOMContentLoaded', function() {
             modalSelectedCountText.textContent = selectedIds.size;
             bulkCatSelect.value = 'KEEP';
             bulkBrandSelect.value = 'KEEP';
+            bulkSerieMode.value = 'KEEP';
+            bulkSerieInput.value = '';
+            if (bulkSerieWrapper) bulkSerieWrapper.style.display = 'none';
             bulkItemNoMode.value = 'KEEP';
             bulkItemNoInput.value = '';
             bulkItemNoInput.style.display = 'none';
@@ -469,10 +545,17 @@ document.addEventListener('DOMContentLoaded', function() {
         bulkEditForm.addEventListener('submit', function(e) {
             const hasChange = bulkCatSelect.value !== 'KEEP' || 
                               bulkBrandSelect.value !== 'KEEP' || 
+                              bulkSerieMode.value !== 'KEEP' || 
                               bulkItemNoMode.value !== 'KEEP';
             if (!hasChange) {
                 e.preventDefault();
-                alert('Debes seleccionar al menos un campo a modificar (Categoría, Marca o Código).');
+                alert('Debes seleccionar al menos un campo a modificar (Categoría, Marca, Serie o Código).');
+                return;
+            }
+            if (bulkSerieMode.value === 'SET' && bulkSerieInput.value.trim() === '') {
+                e.preventDefault();
+                alert('Ingresa o selecciona la serie que deseas asignar o elige "Dejar sin serie".');
+                bulkSerieInput.focus();
                 return;
             }
             if (bulkItemNoMode.value === 'SET' && bulkItemNoInput.value.trim() === '') {
@@ -493,6 +576,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target.id === 'catFilterTop') catFilterTable.value = e.target.value;
         if (e.target.id === 'brandFilter') brandFilterTop.value = e.target.value;
         if (e.target.id === 'brandFilterTop') brandFilterTable.value = e.target.value;
+        if (e.target.id === 'serieFilter') serieFilterTop.value = e.target.value;
+        if (e.target.id === 'serieFilterTop') serieFilterTable.value = e.target.value;
         filterTable();
     }
 
@@ -500,6 +585,8 @@ document.addEventListener('DOMContentLoaded', function() {
     catFilterTop.addEventListener('change', syncFilters);
     brandFilterTable.addEventListener('change', syncFilters);
     brandFilterTop.addEventListener('change', syncFilters);
+    serieFilterTable.addEventListener('change', syncFilters);
+    serieFilterTop.addEventListener('change', syncFilters);
 
     viewToggleBtn.addEventListener('click', function() {
         isGridView = !isGridView;
@@ -521,6 +608,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const query = searchInput.value.toLowerCase().trim();
         const cat = catFilterTable.value;
         const brand = brandFilterTable.value;
+        const serie = serieFilterTable.value;
         let visibleCount = 0;
 
         // Filter Table Rows
@@ -528,6 +616,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let show = true;
             if (cat === 'NONE') { if (row.getAttribute('data-cat') !== '') show = false; } else if (cat !== '' && row.getAttribute('data-cat') !== cat) show = false;
             if (brand === 'NONE') { if (row.getAttribute('data-brand') !== '') show = false; } else if (brand !== '' && row.getAttribute('data-brand') !== brand) show = false;
+            if (serie === 'NONE') { if (row.getAttribute('data-serie') !== '') show = false; } else if (serie !== '' && row.getAttribute('data-serie') !== serie) show = false;
 
             if (show && query !== '') {
                 const searchData = Array.from(row.querySelectorAll('.searchable'))
@@ -551,6 +640,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let show = true;
             if (cat === 'NONE') { if (card.getAttribute('data-cat') !== '') show = false; } else if (cat !== '' && card.getAttribute('data-cat') !== cat) show = false;
             if (brand === 'NONE') { if (card.getAttribute('data-brand') !== '') show = false; } else if (brand !== '' && card.getAttribute('data-brand') !== brand) show = false;
+            if (serie === 'NONE') { if (card.getAttribute('data-serie') !== '') show = false; } else if (serie !== '' && card.getAttribute('data-serie') !== serie) show = false;
 
             if (show && query !== '') {
                 const searchData = Array.from(card.querySelectorAll('.searchable-card'))

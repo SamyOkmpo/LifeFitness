@@ -25,12 +25,13 @@ function getProductImgUrl($rawImg, $mediaJson = null) {
 }
 
 $id = $_GET['id'] ?? null;
-$producto = ['name' => '', 'item_no' => '', 'series' => '', 'categoria_id' => '', 'price' => 0, 'img' => '', 'media_json' => '[]'];
+$producto = ['name' => '', 'item_no' => '', 'series' => '', 'serie' => '', 'categoria_id' => '', 'price' => 0, 'img' => '', 'media_json' => '[]'];
 $success = false;
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'] ?? '';
     $item_no = $_POST['item_no'] ?? '';
     $series = $_POST['series'] ?? '';
+    $serie = trim($_POST['serie'] ?? '');
     $categoria_id = $_POST['categoria_id'] ?? null;
     if ($categoria_id === '') $categoria_id = null;
     $price = $_POST['price'] ?? 0;
@@ -92,12 +93,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $media_json = json_encode([['url' => $img, 'type' => 'image']]);
 
+    if ($serie !== '') {
+        $stmtCheck = $pdo->prepare("SELECT id FROM series WHERE name = ?");
+        $stmtCheck->execute([$serie]);
+        if (!$stmtCheck->fetch()) {
+            $posStmt = $pdo->query("SELECT COALESCE(MAX(pos), 0) + 1 AS next_pos FROM series");
+            $nextPos = $posStmt->fetch()['next_pos'];
+            $stmtInsert = $pdo->prepare("INSERT INTO series (name, pos) VALUES (?, ?)");
+            $stmtInsert->execute([$serie, $nextPos]);
+        }
+    }
+
     if ($id) {
-        $stmt = $pdo->prepare("UPDATE productos SET name=:name, item_no=:item_no, series=:series, categoria_id=:cat, price=:price, img=:img, media_json=:media_json WHERE id=:id");
-        $stmt->execute(['name'=>$name, 'item_no'=>$item_no, 'series'=>$series, 'cat'=>$categoria_id, 'price'=>$price, 'img'=>$img, 'media_json'=>$media_json, 'id'=>$id]);
+        $stmt = $pdo->prepare("UPDATE productos SET name=:name, item_no=:item_no, series=:series, serie=:serie, categoria_id=:cat, price=:price, img=:img, media_json=:media_json WHERE id=:id");
+        $stmt->execute(['name'=>$name, 'item_no'=>$item_no, 'series'=>$series, 'serie'=>$serie, 'cat'=>$categoria_id, 'price'=>$price, 'img'=>$img, 'media_json'=>$media_json, 'id'=>$id]);
     } else {
-        $stmt = $pdo->prepare("INSERT INTO productos (name, item_no, series, categoria_id, price, img, media_json) VALUES (:name, :item_no, :series, :cat, :price, :img, :media_json)");
-        $stmt->execute(['name'=>$name, 'item_no'=>$item_no, 'series'=>$series, 'cat'=>$categoria_id, 'price'=>$price, 'img'=>$img, 'media_json'=>$media_json]);
+        $stmt = $pdo->prepare("INSERT INTO productos (name, item_no, series, serie, categoria_id, price, img, media_json) VALUES (:name, :item_no, :series, :serie, :cat, :price, :img, :media_json)");
+        $stmt->execute(['name'=>$name, 'item_no'=>$item_no, 'series'=>$series, 'serie'=>$serie, 'cat'=>$categoria_id, 'price'=>$price, 'img'=>$img, 'media_json'=>$media_json]);
         $id = $pdo->lastInsertId();
     }
     $success = true;
@@ -111,6 +123,8 @@ $stmt = $pdo->query("SELECT * FROM categorias ORDER BY pos ASC");
 $categorias = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $stmt = $pdo->query("SELECT * FROM marcas ORDER BY name ASC");
 $marcas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query("SELECT * FROM series ORDER BY pos ASC, name ASC");
+$seriesList = $stmt->fetchAll(PDO::FETCH_ASSOC);
 include 'header.php';
 ?>
 <div class="panel-card" style="max-width:600px; margin: 0 auto;">
@@ -134,7 +148,7 @@ include 'header.php';
         </div>
         <div style="display:flex; gap:16px; flex-wrap:wrap;">
             <div class="form-group" style="flex:1;">
-                <label>Marca (Series)</label>
+                <label>Marca</label>
                 <select name="series">
                     <option value="">-- Sin Marca --</option>
                     <?php foreach ($marcas as $m): ?>
@@ -142,6 +156,16 @@ include 'header.php';
                     <?php endforeach; ?>
                 </select>
                 <div style="font-size:11px;color:#718096;margin-top:4px;">* Las marcas se crean en el panel de Marcas</div>
+            </div>
+            <div class="form-group" style="flex:1;">
+                <label>Serie / Línea</label>
+                <input type="text" name="serie" list="seriesDatalist" value="<?= htmlspecialchars($producto['serie'] ?? '') ?>" placeholder="ej: Optima, Insignia, M7Pro...">
+                <datalist id="seriesDatalist">
+                    <?php foreach ($seriesList as $s): ?>
+                        <option value="<?= htmlspecialchars($s['name']) ?>"></option>
+                    <?php endforeach; ?>
+                </datalist>
+                <div style="font-size:11px;color:#718096;margin-top:4px;">* Selecciona o escribe una nueva serie</div>
             </div>
             <div class="form-group" style="flex:1;">
                 <label>Categoría Web</label>
