@@ -59,6 +59,17 @@ try {
         ) p ON s.name = p.serie 
         SET s.categoria_id = p.categoria_id 
         WHERE s.categoria_id IS NULL");
+    // Auto migration: ensure acceso_web and acceso_cotizador exist in usuarios
+    try {
+        $checkWeb = $pdo->query("SHOW COLUMNS FROM usuarios LIKE 'acceso_web'")->fetch();
+        if (!$checkWeb) {
+            $pdo->exec("ALTER TABLE usuarios ADD COLUMN acceso_web TINYINT(1) NOT NULL DEFAULT 1");
+        }
+        $checkCotiz = $pdo->query("SHOW COLUMNS FROM usuarios LIKE 'acceso_cotizador'")->fetch();
+        if (!$checkCotiz) {
+            $pdo->exec("ALTER TABLE usuarios ADD COLUMN acceso_cotizador TINYINT(1) NOT NULL DEFAULT 1");
+        }
+    } catch (Exception $e) {}
 } catch (Exception $e) {}
 } catch (PDOException $e) {
     die("Error de conexión a la base de datos.");

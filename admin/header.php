@@ -29,16 +29,24 @@
     <header class="app-header">
         <h1><img src="../assets/logo.png" style="height:32px; filter: brightness(0) invert(1);" alt="Logo"> Panel Admin</h1>
         <div class="header-actions">
-            <?php $curr = basename($_SERVER['PHP_SELF']); ?>
+            <?php 
+            $curr = basename($_SERVER['PHP_SELF']); 
+            $hasWeb = !isset($_SESSION['acceso_web']) || $_SESSION['acceso_web'] == 1;
+            $hasCotiz = !isset($_SESSION['acceso_cotizador']) || $_SESSION['acceso_cotizador'] == 1;
+            $isAdmin = ($_SESSION['rol'] ?? '') === 'admin';
+            ?>
             <a href="index.php" class="btn-nav <?= $curr=='index.php' ? 'active' : '' ?>">
                 <span style="font-size:16px; margin-bottom:4px;">🏠</span><span>Inicio</span>
             </a>
+            <?php if ($hasCotiz): ?>
             <a href="../v1/cotizaciones/cotizador.html" class="btn-nav">
                 <span style="font-size:16px; margin-bottom:4px;">✨</span><span>Nueva Cotización</span>
             </a>
             <a href="../v1/cotizaciones/mis_cotizaciones.html" class="btn-nav">
                 <span style="font-size:16px; margin-bottom:4px;">📂</span><span>Historial</span>
             </a>
+            <?php endif; ?>
+            <?php if ($hasWeb): ?>
             <a href="productos.php" class="btn-nav <?= $curr=='productos.php'||$curr=='producto_form.php' ? 'active' : '' ?>">
                 <span style="font-size:16px; margin-bottom:4px;">📦</span><span>Productos</span>
             </a>
@@ -51,9 +59,15 @@
             <a href="series.php" class="btn-nav <?= $curr=='series.php'||$curr=='serie_form.php' ? 'active' : '' ?>">
                 <span style="font-size:16px; margin-bottom:4px;">⚡</span><span>Series</span>
             </a>
-            <a href="../v1/cotizaciones/admin_usuarios.html" class="btn-nav">
+            <a href="cotizaciones.php" class="btn-nav <?= $curr=='cotizaciones.php' ? 'active' : '' ?>">
+                <span style="font-size:16px; margin-bottom:4px;">📩</span><span>Leads</span>
+            </a>
+            <?php endif; ?>
+            <?php if ($isAdmin): ?>
+            <a href="usuarios.php" class="btn-nav <?= $curr=='usuarios.php'||$curr=='usuario_form.php' ? 'active' : '' ?>">
                 <span style="font-size:16px; margin-bottom:4px;">👥</span><span>Usuarios</span>
             </a>
+            <?php endif; ?>
             <a href="logout.php" class="btn-nav" style="color:#ffcccc;border-color:rgba(255,0,0,0.3);background:rgba(255,0,0,0.1)">
                 <span style="font-size:16px; margin-bottom:4px;">🚪</span><span>Salir</span>
             </a>

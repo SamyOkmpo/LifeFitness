@@ -22,9 +22,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $usuario['username'];
             $_SESSION['nombre'] = $usuario['nombre'];
             $_SESSION['rol'] = $usuario['rol'];
-            
-            header("Location: index.php");
-            exit;
+            $_SESSION['acceso_web'] = (int)($usuario['acceso_web'] ?? 1);
+            $_SESSION['acceso_cotizador'] = (int)($usuario['acceso_cotizador'] ?? 1);
+
+            // Redirección inteligente si solo tiene acceso a un módulo
+            if ($_SESSION['acceso_web'] == 1 && $_SESSION['acceso_cotizador'] == 0) {
+                header("Location: productos.php");
+                exit;
+            } elseif ($_SESSION['acceso_web'] == 0 && $_SESSION['acceso_cotizador'] == 1) {
+                header("Location: ../v1/cotizaciones/cotizador.html");
+                exit;
+            } else {
+                header("Location: index.php");
+                exit;
+            }
         } else {
             $error = "Usuario o contraseña incorrectos.";
         }

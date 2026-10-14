@@ -353,7 +353,14 @@ try {
         <p>Selecciona el área que deseas gestionar</p>
     </div>
 
-    <div class="modules-grid">
+    <?php 
+    $hasWeb = !isset($_SESSION['acceso_web']) || $_SESSION['acceso_web'] == 1;
+    $hasCotiz = !isset($_SESSION['acceso_cotizador']) || $_SESSION['acceso_cotizador'] == 1;
+    $isAdmin = ($_SESSION['rol'] ?? '') === 'admin';
+    ?>
+
+    <div class="modules-grid" style="<?= (!$hasWeb || !$hasCotiz) ? 'max-width:680px; margin:0 auto 40px;' : '' ?>">
+        <?php if ($hasWeb): ?>
         <!-- MODULO 1: ADMINISTRADOR DE LA PÁGINA WEB -->
         <div class="module-card">
             <div class="card-top">
@@ -396,6 +403,15 @@ try {
                     </div>
                     <span class="nav-item-badge" style="background:#fee2e2;color:#b91c1c"><?= $stats['cotizaciones_leads'] ?></span>
                 </a>
+                <?php if ($isAdmin): ?>
+                <a href="usuarios.php" class="nav-item" style="border-left:3px solid #1d3557;">
+                    <div class="nav-item-left">
+                        <span class="nav-icon">👥</span>
+                        <span>Perfiles de Usuario & Permisos</span>
+                    </div>
+                    <span class="nav-item-badge" style="background:#e0f2fe;color:#0369a1;"><?= $stats['usuarios'] ?></span>
+                </a>
+                <?php endif; ?>
             </div>
             <div class="card-footer">
                 <a href="productos.php" class="btn-cta btn-cta-primary">
@@ -403,7 +419,9 @@ try {
                 </a>
             </div>
         </div>
+        <?php endif; ?>
 
+        <?php if ($hasCotiz): ?>
         <!-- MODULO 2: ADMINISTRADOR DEL COTIZADOR -->
         <div class="module-card">
             <div class="card-top">
@@ -433,15 +451,17 @@ try {
                         <span>Precios Base & Costos del Cotizador</span>
                     </div>
                 </a>
-                <a href="../v1/cotizaciones/admin_usuarios.html" class="nav-item">
+                <?php if ($isAdmin): ?>
+                <a href="usuarios.php" class="nav-item" style="border-left:3px solid #e63946;">
                     <div class="nav-item-left">
                         <span class="nav-icon">👥</span>
-                        <span>Usuarios & Asesores Comerciales</span>
+                        <span>Usuarios & Permisos de Acceso</span>
                     </div>
                     <?php if ($stats['usuarios'] > 0): ?>
                     <span class="nav-item-badge"><?= $stats['usuarios'] ?></span>
                     <?php endif; ?>
                 </a>
+                <?php endif; ?>
             </div>
             <div class="card-footer">
                 <a href="../v1/cotizaciones/cotizador.html" class="btn-cta btn-cta-accent">
@@ -449,6 +469,7 @@ try {
                 </a>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 
     <div class="quick-bar">
