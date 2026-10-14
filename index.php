@@ -19,13 +19,7 @@ if ($entorno === "LOCAL") {
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $stmt = $pdo->query("SELECT * FROM productos ORDER BY series, name");
-    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    foreach($productos as &$p) {
-        $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
-    }
-    
-    // Auto migration: ensure mostrar_home and series exist
+    // Auto migration: ensure mostrar_home and series exist, and auto-discover series from products
     try {
         $checkCol = $pdo->query("SHOW COLUMNS FROM categorias LIKE 'mostrar_home'")->fetch();
         if (!$checkCol) {
@@ -40,7 +34,25 @@ try {
         if (!$chkSerie) {
             $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL;");
         }
+        $existingDistinct = $pdo->query("SELECT DISTINCT serie FROM productos WHERE serie IS NOT NULL AND TRIM(serie) != ''")->fetchAll(PDO::FETCH_COLUMN);
+        $curSeries = $pdo->query("SELECT name FROM series")->fetchAll(PDO::FETCH_COLUMN);
+        $maxPos = (int)$pdo->query("SELECT COALESCE(MAX(pos), 0) FROM series")->fetchColumn();
+        foreach ($existingDistinct as $es) {
+            $es = trim($es);
+            if (!in_array($es, $curSeries)) {
+                $maxPos++;
+                $ins = $pdo->prepare("INSERT INTO series (name, pos) VALUES (?, ?)");
+                $ins->execute([$es, $maxPos]);
+                $curSeries[] = $es;
+            }
+        }
     } catch (Exception $e) {}
+
+    $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON p.serie = s.name ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
+    $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach($productos as &$p) {
+        $p['media_json'] = (array_key_exists('media_json', $p) && !empty($p['media_json'])) ? json_decode($p['media_json'], true) : [];
+    }
 
     $categorias = $pdo->query("SELECT * FROM categorias ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
     $marcas = $pdo->query("SELECT * FROM marcas ORDER BY pos ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -664,10 +676,10 @@ $seriesJson = json_encode($series);
             <div style="display:flex;align-items:center;gap:12px;margin-left:auto">
               <span style="font-size:12px;color:oklch(40% 0 0);font-weight:600">Ordenar:</span>
               <select onChange="{{onCatalogoSort}}" value="{{catalogoSort}}" style="padding:8px 16px;border-radius:6px;border:1px solid oklch(85% 0 0);font-size:13px;color:oklch(20% .005 270);outline:none;cursor:pointer;background:white">
+                <option value="serie_order">Por Serie (Recomendado)</option>
                 <option value="name_asc">Nombre (A-Z)</option>
                 <option value="name_desc">Nombre (Z-A)</option>
                 <option value="series_asc">Marca (A-Z)</option>
-                <option value="serie_asc">Serie (A-Z)</option>
               </select>
             </div>
           </div>
@@ -1045,7 +1057,7 @@ class Component extends DCLogic {
     catalogoPage: 1,
     categoryLimit: 6,
     catalogoViewMode: 'grid',
-    catalogoSort: 'name_asc',
+    catalogoSort: 'serie_order',
     modalProduct: null,
     catalogoBrands: [],
     brandSearch: '',
@@ -1559,12 +1571,26 @@ class Component extends DCLogic {
     });
     
     
+    const seriePosMap = {};
+    (window.DB_SERIES || []).forEach(s => {
+      seriePosMap[(s.name || '').trim()] = Number(s.pos);
+    });
+
     const sorter = (a, b) => {
       const s = this.state.catalogoSort;
-      if (s === 'series_asc') return (a.series||'').localeCompare(b.series||'');
-      if (s === 'serie_asc') return (a.serie||'').localeCompare(b.serie||'');
+      if (s === 'name_asc') return (a.name||'').localeCompare(b.name||'');
       if (s === 'name_desc') return (b.name||'').localeCompare(a.name||'');
-      return (a.name||'').localeCompare(b.name||''); // name_asc default
+      if (s === 'series_asc') return (a.series||'').localeCompare(b.series||'');
+
+      // 'serie_order' (predeterminado): Orden de Series configurado en el admin
+      const aSerie = (a.serie || '').trim();
+      const bSerie = (b.serie || '').trim();
+      const posA = aSerie in seriePosMap ? seriePosMap[aSerie] : 999999;
+      const posB = bSerie in seriePosMap ? seriePosMap[bSerie] : 999999;
+      if (posA !== posB) return posA - posB;
+      const brandCmp = (a.series || '').localeCompare(b.series || '');
+      if (brandCmp !== 0) return brandCmp;
+      return (a.name || '').localeCompare(b.name || '');
     };
     categoryProductsFull.sort(sorter);
 

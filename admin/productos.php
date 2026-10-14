@@ -161,6 +161,7 @@ include 'header.php';
                         <option value="<?= htmlspecialchars($s['name']) ?>"><?= htmlspecialchars($s['name']) ?></option>
                     <?php endforeach; ?>
                 </select>
+                <a href="series.php" style="font-size:12px; color:#457b9d; text-decoration:none; font-weight:600; display:inline-flex; align-items:center; gap:4px; background:#eef6fc; padding:8px 12px; border-radius:6px; border:1px solid #d0e2f2;" title="Configurar el orden de las series">⚙️ Ordenar series</a>
             </div>
 
                 <input type="text" id="searchInput" placeholder="Buscar equipo o SKU..." style="padding:8px 12px; background:#f7f7f7; border:1px solid #e5e5e5; border-radius:6px; outline:none; font-size:13px; width:250px;">
@@ -209,7 +210,10 @@ include 'header.php';
                     </th>
                     <th style="width: 150px">
                         <div style="display:flex; flex-direction:column; gap:6px;">
-                            <span>SERIE</span>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span>SERIE</span>
+                                <a href="series.php" style="font-size:10px; color:#457b9d; text-decoration:underline; font-weight:normal;" title="Configurar orden de series">⚙️ Orden</a>
+                            </div>
                             <select id="serieFilter" style="padding:4px 8px; background:#f7f7f7; border:1px solid #ccc; border-radius:4px; outline:none; font-size:11px; font-weight:normal; width:100%;">
                                 <option value="">Todas (Filtro)</option>
                                 <option value="NONE">- Sin serie -</option>
