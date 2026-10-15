@@ -228,11 +228,11 @@ function createRow(data = {}) {
         </td>
         <td style="text-align: center; padding: 6px;">
             <input type="hidden" name="products[${idx}][img_base64]" id="img_base64_${idx}" value="">
-            <label style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 42px; border: 1px dashed #cbd5e1; border-radius: 6px; background: #ffffff; position: relative; overflow: hidden;" title="Subir foto del equipo">
-                <input type="file" accept="image/*" style="display: none;" onchange="handleRowFile(${idx}, this.files[0])">
+            <div id="dropzone_${idx}" class="row-dropzone" style="cursor: pointer; display: inline-flex; align-items: center; justify-content: center; width: 54px; height: 46px; border: 2px dashed #cbd5e1; border-radius: 6px; background: #ffffff; position: relative; overflow: hidden; transition: all 0.2s;" title="Haz clic o arrastra una foto aquí">
+                <input type="file" accept="image/*" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" onchange="handleRowFile(${idx}, this.files[0])">
                 <img id="preview_${idx}" src="" style="display: none; width: 100%; height: 100%; object-fit: contain;">
-                <span id="icon_${idx}" style="font-size: 18px; color: #94a3b8;">📷</span>
-            </label>
+                <span id="icon_${idx}" style="font-size: 20px; color: #94a3b8;">📷</span>
+            </div>
         </td>
         <td style="padding: 6px;">
             <input type="text" name="products[${idx}][name]" value="${data.name || ''}" placeholder="ej: Caminadora Profesional T90" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" required>
@@ -271,6 +271,7 @@ function createRow(data = {}) {
     }
 
     container.appendChild(tr);
+    attachDropzoneEvents(idx);
     updateRowNumbers();
 }
 
@@ -316,11 +317,50 @@ function handleRowFile(idx, file) {
             
             const prevImg = document.getElementById('preview_' + idx);
             const icon = document.getElementById('icon_' + idx);
+            const dropzone = document.getElementById('dropzone_' + idx);
             prevImg.src = dataUrl;
             prevImg.style.display = 'block';
             icon.style.display = 'none';
+            if (dropzone) {
+                dropzone.style.borderColor = '#16a34a';
+                dropzone.style.background = '#f0fdf4';
+            }
         };
     };
+}
+
+function attachDropzoneEvents(idx) {
+    const dropzone = document.getElementById(`dropzone_${idx}`);
+    if (!dropzone) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.borderColor = '#2a9d8f';
+            dropzone.style.background = '#e6fffa';
+            dropzone.style.transform = 'scale(1.08)';
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropzone.style.transform = 'scale(1)';
+            const hasImg = !!document.getElementById(`img_base64_${idx}`).value;
+            dropzone.style.borderColor = hasImg ? '#16a34a' : '#cbd5e1';
+            dropzone.style.background = hasImg ? '#f0fdf4' : '#ffffff';
+        }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+            handleRowFile(idx, files[0]);
+        }
+    });
 }
 
 function duplicateRow(idx) {
