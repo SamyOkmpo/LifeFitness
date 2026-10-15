@@ -338,14 +338,13 @@ $seriesJson = json_encode($series);
       <div style="position:absolute;right:0;top:0;bottom:0;width:140px;z-index:2;pointer-events:none;background:linear-gradient(270deg,oklch(97% .002 270),oklch(97% .002 270 / 0))"></div>
       <div style="display:flex;width:max-content;gap:24px;animation:ticker 58s linear infinite">
         <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
-          <div onClick="{{p.onClick}}" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
-            <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" style="width:100%;height:100%;object-fit:contain;transform:scale({{p.zoom}});background:oklch(100% 0 0);padding:{{p.pad}};box-sizing:border-box;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
-            <div style="position:absolute;left:0;right:0;bottom:0;height:76px;background:oklch(16% .006 270)"></div>
-            <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;transition:opacity .5s ease" style-hover="opacity:1"></div>
-            <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 18px;display:flex;flex-direction:column;gap:3px">
+          <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
+            <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" style="width:100%;height:100%;object-fit:contain;transform:scale({{p.zoom}});background:oklch(100% 0 0);padding:{{p.pad}};box-sizing:border-box;pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:76px;background:oklch(16% .006 270);pointer-events:none"></div>
+            <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease" style-hover="opacity:1"></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 18px;display:flex;flex-direction:column;gap:3px;pointer-events:none">
               <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:oklch(75% .2 27);transition:transform .4s ease" style-hover="transform:translateX(5px)">{{p.tag}}</span>
               <h3 style="font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
-              
             </div>
           </div>
         </sc-for>
@@ -1648,7 +1647,7 @@ class Component extends DCLogic {
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems].map((c, i) => ({
-      img: c.img, name: c.name, tag: c.tag, pad: c.pad || '18px', zoom: c.zoom || 1, onClick: () => this.goToCategory(c.slug), key: i,
+      img: c.img, name: c.name, tag: c.tag, pad: c.pad || '18px', zoom: c.zoom || 1, onClick: this.goCat(c.slug), key: i,
     }));
 
     const currentCategory = CATEGORIES[this.state.categorySlug] || Object.values(CATEGORIES)[0];
