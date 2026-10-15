@@ -1642,11 +1642,11 @@ class Component extends DCLogic {
       { img: R('uploads/estaticas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
       { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'trotadoras', pad: '4px' },
       { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'bicicletas' },
-      { img: R('uploads/selectorizado.jpeg'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
-      { img: R('assets/cat_peso_libre.webp'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesas', pad: '0px', zoom: 1.05 },
-      { img: R('uploads/circuito.jpeg'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'pesas' },
+      { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
+      { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesas' },
+      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'pesas', pad: '0px', zoom: 1.12 },
       { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'pesas' },
-      { img: R('assets/cat_accesorios_v3.webp'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'pesas', pad: '0px' },
+      { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'pesas' },
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems].map((c, i) => ({
