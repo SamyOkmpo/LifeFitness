@@ -639,9 +639,9 @@ $seriesJson = json_encode($series);
     <main style="padding-bottom:100px;background:oklch(97% .004 270);min-height:100vh">
       <section style="background:oklch(14% .005 270);padding:80px 24px 60px;text-align:center">
         <div style="max-width:800px;margin:0 auto">
-          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Catálogo Completo</div>
-          <h1 style="font-family:Oswald,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;margin:0 0 20px;color:white">Todos nuestros equipos</h1>
-          <p style="color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0">Explora nuestra colección completa de maquinaria de fuerza y cardio.</p>
+          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Catálogo de Equipos</div>
+          <h1 style="font-family:Oswald,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;margin:0 0 20px;color:white;text-transform:uppercase">{{currentCategoryName}}</h1>
+          <p style="color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0">{{currentCategorySub}}</p>
         </div>
       </section>
       
@@ -692,8 +692,9 @@ $seriesJson = json_encode($series);
 
         <!-- CUADRÍCULA DE PRODUCTOS -->
         <div style="flex-grow:1;min-width:0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-            <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270)">Equipos</h2>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+            <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">{{currentCategoryName}}</h2>
+            <span style="font-size:13px;font-weight:600;color:oklch(45% .008 270);background:oklch(94% 0 0);padding:4px 12px;border-radius:999px">{{catalogoTotal}} productos</span>
           </div>
 
           <!-- Barra de Control: Filtros y Ordenamiento -->
@@ -1814,6 +1815,12 @@ class Component extends DCLogic {
         (window.DB_CATEGORIAS || []).map(c => ({ id: c.slug, label: c.name }))
     );
     
+    const activeCatDef = filterDefs.find(f => f.id === this.state.catalogoFilter);
+    const currentCategoryName = activeCatDef ? activeCatDef.label : 'Todos nuestros equipos';
+    const currentCategorySub = activeCatDef && activeCatDef.id !== 'todos' 
+      ? 'Equipos de la categoría ' + activeCatDef.label + ' para gimnasios y entrenamiento profesional.'
+      : 'Explora nuestra colección completa de maquinaria de fuerza y cardio.';
+    
     const catalogoFilters = filterDefs.map(f => {
       const active = this.state.catalogoFilter === f.id;
       return {
@@ -2074,6 +2081,8 @@ class Component extends DCLogic {
       catalogoTotal: catalogoProductsFull.length,
       gridCols: this.state.isMobile ? 'repeat(auto-fill, minmax(160px, 1fr))' : 'repeat(auto-fill, minmax(200px, 1fr))',
 
+      currentCategoryName,
+      currentCategorySub,
       noCatalogoProducts: catalogoProducts.length === 0,
       goToCatalogo: this.goToCatalogo,
       isContacto: this.state.page === 'contacto',
