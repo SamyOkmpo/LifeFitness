@@ -295,6 +295,26 @@ include 'header.php';
         <div id="noResultsGrid" style="display:none; grid-column: 1 / -1; text-align: center; padding: 40px; color: #888;">No se encontraron productos.</div>
     </div>
 
+    <!-- Paginación para Tabla y Bloques -->
+    <div id="paginationContainer" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-top: 24px; padding-top: 18px; border-top: 1px solid #eee; font-family: 'Inter', sans-serif;">
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; color: #64748b;">
+            <span id="paginationInfo">Mostrando 0 - 0 de 0 productos</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span>Mostrar:</span>
+                <select id="itemsPerPageSelect" style="padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: #fff; color: #1e293b; outline: none; cursor: pointer;">
+                    <option value="20" selected>20 por pág.</option>
+                    <option value="50">50 por pág.</option>
+                    <option value="100">100 por pág.</option>
+                    <option value="all">Ver todos</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="paginationNav" style="display: flex; align-items: center; gap: 6px;">
+            <!-- Botones dinámicos generados por JS -->
+        </div>
+    </div>
+
 </div>
 
 <!-- Barra Flotante de Acciones en Lote -->
@@ -605,67 +625,192 @@ document.addEventListener('DOMContentLoaded', function() {
             viewToggleBtn.textContent = '🔲 Bloques';
             topFilters.style.display = 'none';
         }
+        renderPage();
         updateSelectionUI();
     });
+
+    // --- Paginación ---
+    let currentPage = 1;
+    let itemsPerPage = 20; // 20, 50, 100, o Infinity ('all')
+
+    const paginationContainer = document.getElementById('paginationContainer');
+    const paginationInfo = document.getElementById('paginationInfo');
+    const paginationNav = document.getElementById('paginationNav');
+    const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
+
+    let matchingRows = Array.from(rows);
+    let matchingCards = Array.from(cards);
+
+    if (itemsPerPageSelect) {
+        itemsPerPageSelect.addEventListener('change', function() {
+            const val = this.value;
+            itemsPerPage = (val === 'all') ? Infinity : parseInt(val, 10);
+            currentPage = 1;
+            renderPage();
+        });
+    }
+
+    function renderPage() {
+        const totalItems = isGridView ? matchingCards.length : matchingRows.length;
+        const totalPages = itemsPerPage === Infinity ? 1 : Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = (itemsPerPage === Infinity) ? totalItems : Math.min(startIndex + itemsPerPage, totalItems);
+
+        // Ocultar todos los rows primero
+        rows.forEach(r => r.style.display = 'none');
+        // Mostrar solo los del rango en la página actual
+        matchingRows.slice(startIndex, endIndex).forEach(r => r.style.display = '');
+
+        // Ocultar todos los cards primero
+        cards.forEach(c => c.style.display = 'none');
+        // Mostrar solo los del rango en la página actual
+        matchingCards.slice(startIndex, endIndex).forEach(c => c.style.display = 'flex');
+
+        // Mostrar estados de "no hay resultados"
+        noResultsRow.style.display = (matchingRows.length === 0) ? '' : 'none';
+        noResultsGrid.style.display = (matchingCards.length === 0) ? 'block' : 'none';
+
+        // Actualizar texto informativo
+        if (totalItems === 0) {
+            paginationInfo.textContent = 'Mostrando 0 de 0 productos';
+        } else {
+            paginationInfo.textContent = `Mostrando ${startIndex + 1} - ${endIndex} de ${totalItems} productos`;
+        }
+
+        // Renderizar botones de paginación
+        renderPaginationButtons(totalPages);
+        updateSelectionUI();
+    }
+
+    function renderPaginationButtons(totalPages) {
+        if (!paginationNav) return;
+        paginationNav.innerHTML = '';
+
+        if (totalPages <= 1) {
+            return;
+        }
+
+        const createBtn = (html, page, isDisabled = false, isActive = false) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.innerHTML = html;
+            btn.disabled = isDisabled;
+            btn.style.cssText = `
+                min-width: 34px;
+                height: 34px;
+                padding: 0 8px;
+                border-radius: 6px;
+                border: 1px solid ${isActive ? '#457b9d' : '#cbd5e1'};
+                background: ${isActive ? '#457b9d' : (isDisabled ? '#f8fafc' : '#ffffff')};
+                color: ${isActive ? '#ffffff' : (isDisabled ? '#94a3b8' : '#1e293b')};
+                font-weight: ${isActive ? '700' : '600'};
+                font-size: 13px;
+                cursor: ${isDisabled ? 'not-allowed' : 'pointer'};
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.15s ease;
+            `;
+            if (!isDisabled && !isActive) {
+                btn.addEventListener('mouseenter', () => btn.style.background = '#f1f5f9');
+                btn.addEventListener('mouseleave', () => btn.style.background = '#ffffff');
+                btn.addEventListener('click', () => {
+                    currentPage = page;
+                    renderPage();
+                    window.scrollTo({ top: document.querySelector('.panel-card').offsetTop - 20, behavior: 'smooth' });
+                });
+            }
+            return btn;
+        };
+
+        // Botón Anterior
+        paginationNav.appendChild(createBtn('&laquo;', currentPage - 1, currentPage === 1));
+
+        // Rango de páginas con elipses
+        const delta = 2;
+        const range = [];
+        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+            range.push(i);
+        }
+
+        // Siempre primera página
+        paginationNav.appendChild(createBtn('1', 1, false, currentPage === 1));
+
+        if (range.length > 0 && range[0] > 2) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.style.cssText = 'padding: 0 4px; color: #94a3b8; font-weight: 600;';
+            paginationNav.appendChild(dots);
+        }
+
+        range.forEach(p => {
+            paginationNav.appendChild(createBtn(p.toString(), p, false, currentPage === p));
+        });
+
+        if (range.length > 0 && range[range.length - 1] < totalPages - 1) {
+            const dots = document.createElement('span');
+            dots.textContent = '...';
+            dots.style.cssText = 'padding: 0 4px; color: #94a3b8; font-weight: 600;';
+            paginationNav.appendChild(dots);
+        }
+
+        // Siempre última página si es > 1
+        if (totalPages > 1) {
+            paginationNav.appendChild(createBtn(totalPages.toString(), totalPages, false, currentPage === totalPages));
+        }
+
+        // Botón Siguiente
+        paginationNav.appendChild(createBtn('&raquo;', currentPage + 1, currentPage === totalPages));
+    }
 
     function filterTable() {
         const query = searchInput.value.toLowerCase().trim();
         const cat = catFilterTable.value;
         const brand = brandFilterTable.value;
         const serie = serieFilterTable.value;
-        let visibleCount = 0;
 
-        // Filter Table Rows
-        rows.forEach(row => {
-            let show = true;
-            if (cat === 'NONE') { if (row.getAttribute('data-cat') !== '') show = false; } else if (cat !== '' && row.getAttribute('data-cat') !== cat) show = false;
-            if (brand === 'NONE') { if (row.getAttribute('data-brand') !== '') show = false; } else if (brand !== '' && row.getAttribute('data-brand') !== brand) show = false;
-            if (serie === 'NONE') { if (row.getAttribute('data-serie') !== '') show = false; } else if (serie !== '' && row.getAttribute('data-serie') !== serie) show = false;
+        // Filtrar filas de tabla
+        matchingRows = Array.from(rows).filter(row => {
+            if (cat === 'NONE') { if (row.getAttribute('data-cat') !== '') return false; } else if (cat !== '' && row.getAttribute('data-cat') !== cat) return false;
+            if (brand === 'NONE') { if (row.getAttribute('data-brand') !== '') return false; } else if (brand !== '' && row.getAttribute('data-brand') !== brand) return false;
+            if (serie === 'NONE') { if (row.getAttribute('data-serie') !== '') return false; } else if (serie !== '' && row.getAttribute('data-serie') !== serie) return false;
 
-            if (show && query !== '') {
+            if (query !== '') {
                 const searchData = Array.from(row.querySelectorAll('.searchable'))
                                       .map(td => td.textContent.toLowerCase())
                                       .join(' ');
-                if (!searchData.includes(query)) show = false;
+                if (!searchData.includes(query)) return false;
             }
-
-            if (show) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
+            return true;
         });
-        noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
 
-        // Filter Grid Cards
-        let gridVisibleCount = 0;
-        cards.forEach(card => {
-            let show = true;
-            if (cat === 'NONE') { if (card.getAttribute('data-cat') !== '') show = false; } else if (cat !== '' && card.getAttribute('data-cat') !== cat) show = false;
-            if (brand === 'NONE') { if (card.getAttribute('data-brand') !== '') show = false; } else if (brand !== '' && card.getAttribute('data-brand') !== brand) show = false;
-            if (serie === 'NONE') { if (card.getAttribute('data-serie') !== '') show = false; } else if (serie !== '' && card.getAttribute('data-serie') !== serie) show = false;
+        // Filtrar cards de grid
+        matchingCards = Array.from(cards).filter(card => {
+            if (cat === 'NONE') { if (card.getAttribute('data-cat') !== '') return false; } else if (cat !== '' && card.getAttribute('data-cat') !== cat) return false;
+            if (brand === 'NONE') { if (card.getAttribute('data-brand') !== '') return false; } else if (brand !== '' && card.getAttribute('data-brand') !== brand) return false;
+            if (serie === 'NONE') { if (card.getAttribute('data-serie') !== '') return false; } else if (serie !== '' && card.getAttribute('data-serie') !== serie) return false;
 
-            if (show && query !== '') {
+            if (query !== '') {
                 const searchData = Array.from(card.querySelectorAll('.searchable-card'))
                                       .map(div => div.textContent.toLowerCase())
                                       .join(' ');
-                if (!searchData.includes(query)) show = false;
+                if (!searchData.includes(query)) return false;
             }
-
-            if (show) {
-                card.style.display = 'flex';
-                gridVisibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
+            return true;
         });
-        noResultsGrid.style.display = (gridVisibleCount === 0) ? 'block' : 'none';
 
-        updateSelectionUI();
+        currentPage = 1;
+        renderPage();
     }
 
     searchInput.addEventListener('input', filterTable);
+
+    // Inicializar la primera página al cargar
+    filterTable();
     
 });
 </script>
