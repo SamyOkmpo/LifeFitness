@@ -514,7 +514,7 @@ $seriesJson = json_encode($series);
         <div style="display:flex;width:max-content;gap:56px;align-items:center;animation:ticker 30s linear infinite">
           <sc-for list="{{brandsTicker}}" as="brand" hint-placeholder-count="14">
             <div style="flex-shrink:0;width:170px;height:78px;display:flex;align-items:center;justify-content:center;transition:transform .3s ease" style-hover="transform:translateY(-4px)">
-              <img loading="lazy" sc-camel-src="{{brand.img}}" alt="{{brand.name}}" style="width:{{brand.w}};height:{{brand.h}};object-fit:contain"/>
+              <img loading="lazy" src="{{brand.img}}" alt="{{brand.name}}" style="width:{{brand.w}};height:{{brand.h}};object-fit:contain"/>
             </div>
           </sc-for>
         </div>
