@@ -931,9 +931,11 @@ $seriesJson = json_encode($series);
         </div>
         <div style="background:oklch(98% 0 0);border:1px solid oklch(83% .006 270);padding:{{modalPadding}};order:{{contactFormOrder}}">
           <sc-if value="{{formSubmitted}}" hint-placeholder-val="{{false}}">
-            <div style="text-align:center;padding:40px 0">
-              <h3 style="font-family:Oswald,sans-serif;font-size:24px;font-weight:600;margin:0 0 12px;color:oklch(58% .22 25)">¡Solicitud enviada!</h3>
-              <p style="color:oklch(42% .01 270);font-size:14px;margin:0">Un asesor de Fitness Life se pondrá en contacto contigo pronto.</p>
+            <div style="text-align:center;padding:40px 16px">
+              <div style="width:64px;height:64px;background:oklch(96% .05 145);color:#10b981;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px">✓</div>
+              <h3 style="font-family:Oswald,sans-serif;font-size:24px;font-weight:600;margin:0 0 10px;color:oklch(20% .005 270);text-transform:uppercase">¡Solicitud recibida con éxito!</h3>
+              <p style="color:oklch(40% .01 270);font-size:15px;line-height:1.5;margin:0 0 12px">Hemos enviado un resumen detallado de tu cotización a tu correo electrónico.</p>
+              <p style="color:oklch(55% .01 270);font-size:13px;margin:0">Un asesor comercial de Fitness Life se pondrá en contacto contigo muy pronto.</p>
             </div>
           </sc-if>
           <sc-if value="{{formNotSubmitted}}" hint-placeholder-val="{{true}}">
@@ -941,16 +943,16 @@ $seriesJson = json_encode($series);
               <h3 style="font-family:Oswald,sans-serif;font-size:22px;font-weight:600;margin:0 0 4px">Solicita tu cotización</h3>
               <input name="name" required="{{true}}" placeholder="Nombre completo" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
               <input name="email" required="{{true}}" type="email" placeholder="Correo electrónico" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
-              <input name="phone" required="{{true}}" type="tel" placeholder="Teléfono" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
+              <input name="phone" required="{{true}}" type="tel" placeholder="Teléfono / Celular" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
               <select name="type" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px">
-                <option>Tipo de equipo</option>
-                <option>Línea Comercial</option>
-                <option>Paquete para gimnasio</option>
-                <option>Equipos para hogar</option>
-                <option>Línea Institucional</option>
+                <option value="">Tipo de equipo / Proyecto</option>
+                <option>Línea Comercial de Alto Tráfico</option>
+                <option>Paquete / Dotación para Gimnasio</option>
+                <option>Equipos para Conjunto / Institucional</option>
+                <option>Equipos de Fuerza & Cardio para Hogar</option>
               </select>
-              <textarea name="message" placeholder="Cuéntanos qué necesitas" rows="4" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px;resize:vertical"></textarea>
-              <button type="submit" style="background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:16px;font-weight:700;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">Enviar Solicitud</button>
+              <textarea name="message" placeholder="Cuéntanos detalles de tu proyecto o inquietudes adicionales..." rows="4" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px;resize:vertical"></textarea>
+              <button type="submit" disabled="{{formSubmitting}}" style="background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:16px;font-weight:700;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;opacity:{{submitBtnOpacity}}">{{submitBtnText}}</button>
             </form>
           </sc-if>
         </div>
@@ -1507,9 +1509,18 @@ class Component extends DCLogic {
 
   submitForm = async (e) => {
     e.preventDefault();
+    if (this.state.formSubmitting) return;
+
+    this.setState({ formSubmitting: true });
     const fd = new FormData(e.target);
     const data = Object.fromEntries(fd.entries());
-    data.items = this.state.cart.map(c => ({ item_no: c.item_no, name: c.name, qty: c.qty || 1 }));
+    data.items = this.state.cart.map(c => ({
+      item_no: c.item_no || 'N/A',
+      name: c.name,
+      serie: c.serie || c.series || '',
+      img: c.image || c.img || '',
+      qty: c.qty || 1
+    }));
     
     try {
       await fetch('v1/cotizaciones/send_quote.php', {
@@ -1521,7 +1532,7 @@ class Component extends DCLogic {
       console.error(err);
     }
     
-    this.setState({ formSubmitted: true, cart: [] });
+    this.setState({ formSubmitted: true, formSubmitting: false, cart: [] });
   };
 
   renderVals() {
@@ -2007,6 +2018,9 @@ class Component extends DCLogic {
       navVisibility: this.state.globalSearchOpen ? "hidden" : "visible",
       formSubmitted: this.state.formSubmitted,
       formNotSubmitted: !this.state.formSubmitted,
+      formSubmitting: !!this.state.formSubmitting,
+      submitBtnText: this.state.formSubmitting ? 'Enviando solicitud...' : 'Enviar Solicitud',
+      submitBtnOpacity: this.state.formSubmitting ? 0.7 : 1,
       categoriasRef: this.setCategoriasRef,
       categoriesHeaderOpacity: 1,
       categoriesHeaderTransform: 'translateY(0)',
