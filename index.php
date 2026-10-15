@@ -209,13 +209,13 @@ $seriesJson = json_encode($series);
       <div style="display:{{headerSearchDisplay}};flex:1;margin:0 8px;max-width:600px">
         <input type="text" id="headerSearchInput" placeholder="Ej. Cybex, Abdominal..." value="{{catalogoSearch}}" onInput="{{onHeaderSearch}}" style="width:100%;box-sizing:border-box;padding:10px 16px;border:1px solid oklch(85% 0 0);border-radius:999px;font-size:14px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05)" />
       </div>
-      <nav style="display:{{navDisplay}};align-items:center;gap:24px;flex-wrap:wrap">
+      <nav style="display:{{navDisplay}};align-items:center;gap:28px">
         <a href="#inicio" onClick="{{goHome}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Inicio</a>
-        <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Catálogo</a>
         <div style="position:relative;display:flex;align-items:center" onMouseEnter="{{openEquipos}}" onMouseLeave="{{closeEquipos}}">
-          <a href="#categorias" onClick="{{scrollTo_categorias}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);display:flex;align-items:center;gap:6px">Equipos<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{equiposArrow}};transition:transform .25s ease"><path d="M6 9l6 6 6-6"></path></svg></a>
+          <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);display:flex;align-items:center;gap:6px">Catálogo<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{equiposArrow}};transition:transform .25s ease"><path d="M6 9l6 6 6-6"></path></svg></a>
           <div style="display:{{equiposMenuDisplay}};position:absolute;top:100%;left:-12px;padding-top:14px;z-index:60">
             <div style="background:oklch(99% 0 0);border:1px solid oklch(88% .006 270);box-shadow:0 18px 38px -14px oklch(20% .01 270 / .35);min-width:230px;max-height:420px;overflow-y:auto;overflow-x:hidden">
+              <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:700;color:oklch(58% .22 25);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease;border-bottom:1px solid oklch(92% 0 0);background:oklch(98% .005 270)" style-hover="background:oklch(58% .22 25);color:white">Ver todo el catálogo →</a>
               <sc-for list="{{navCategories}}" as="nc">
                 <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:10px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease;border-bottom:1px solid oklch(95% 0 0)" style-hover="background:oklch(58% .22 25);color:white">{{nc.name}}</a>
               </sc-for>
@@ -223,10 +223,7 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Soluciones</a>
-        <a href="#circuitos" onClick="{{scrollTo_circuitos}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Circuitos</a>
-        <a href="#personalizacion" onClick="{{scrollTo_personalizacion}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Personalización</a>
         <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Marcas</a>
-        <a href="#clientes" onClick="{{scrollTo_clientes}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Clientes</a>
         <a href="#" onClick="{{goToContacto}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Contacto</a>
       </nav>
       <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
@@ -244,16 +241,12 @@ $seriesJson = json_encode($series);
     <div style="display:{{mobileMenuDisplay}};border-top:1px solid oklch(90% .006 270);background:oklch(99% 0 0);padding:8px 24px 20px">
       <nav style="display:flex;flex-direction:column">
         <a href="#inicio" onClick="{{goHome}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Inicio</a>
-        <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo</a>
-        <a href="#categorias" onClick="{{scrollTo_categorias}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Equipos</a>
+        <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo (Ver Todo)</a>
         <sc-for list="{{navCategories}}" as="nc">
           <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">{{nc.name}}</a>
         </sc-for>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
-        <a href="#circuitos" onClick="{{scrollTo_circuitos}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Circuitos</a>
-        <a href="#personalizacion" onClick="{{scrollTo_personalizacion}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Personalización</a>
         <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Marcas</a>
-        <a href="#clientes" onClick="{{scrollTo_clientes}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Clientes</a>
         <a href="#" onClick="{{goToContacto}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Contacto</a>
       </nav>
       <button onClick="{{goToContacto}}" style="width:100%;margin-top:18px;background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:15px;font-weight:700;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">Cotizar</button>
