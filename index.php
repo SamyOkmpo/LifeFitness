@@ -1701,27 +1701,25 @@ class Component extends DCLogic {
       selected: this.state.catalogoBrands.includes(m.name)
     }));
 
-    let relevantSeriesDb = (window.DB_SERIES || []);
-    if (currentCatId) {
-      relevantSeriesDb = relevantSeriesDb.filter(s => s.categoria_id == currentCatId || !s.categoria_id);
-    }
-    // Mantener el orden configurado en DB_SERIES (pos ASC)
+    // Las series SOLO se muestran en aquellas categorías que tengan series definidas
     const knownSeries = [];
-    relevantSeriesDb.forEach(s => {
-      const sName = (s.name || '').trim();
-      if (sName && !knownSeries.includes(sName)) {
-        // Asegurarse de que si hay categoría seleccionada, solo se muestren series con productos en esa categoría o configuradas para ella
-        knownSeries.push(sName);
-      }
-    });
+    if (currentCatId) {
+      // 1. Series asociadas específicamente a esta categoría en la base de datos
+      const relevantSeriesDb = (window.DB_SERIES || []).filter(s => s.categoria_id == currentCatId);
+      relevantSeriesDb.forEach(s => {
+        const sName = (s.name || '').trim();
+        if (sName && !knownSeries.includes(sName)) {
+          knownSeries.push(sName);
+        }
+      });
 
-    // Auto-descubrir de productos de la categoría si falta alguna
-    (this.state.allProducts || []).forEach(p => {
-      if (currentCatId && p.categoria_id != currentCatId) return;
-      if (p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
-        knownSeries.push(p.serie.trim());
-      }
-    });
+      // 2. Series de productos pertenecientes a esta categoría
+      (this.state.allProducts || []).forEach(p => {
+        if (p.categoria_id == currentCatId && p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
+          knownSeries.push(p.serie.trim());
+        }
+      });
+    }
 
     // Ordenar knownSeries según pos dentro de la categoría
     knownSeries.sort((s1, s2) => {
