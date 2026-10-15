@@ -453,7 +453,7 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
           <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
-            <video ref="{{rs800Ref}}" src="{{rs800Video}}" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="auto" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_loop.mp4" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="auto" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
               <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:oklch(72% .2 27);margin-bottom:4px">Realleader USA</div>
@@ -462,7 +462,7 @@ $seriesJson = json_encode($series);
           </div>
           <div style="display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0;opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease .15s,transform .8s cubic-bezier(.2,.8,.2,1) .15s">
             <div style="border-radius:20px;overflow:hidden;background:white;border:1px solid oklch(88% .006 270);box-shadow:0 24px 50px -24px oklch(20% .01 270 / .25)">
-              <img src="{{colorsImg}}" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
+              <img src="assets/personalizacion_colores.png" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:12px">
               <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 colores de cojinería</span>
