@@ -1638,13 +1638,13 @@ class Component extends DCLogic {
       { img: R('uploads/elipticas.jpeg'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas', pad: '46px' },
       { img: R('uploads/trotadoras.jpeg'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
       { img: R('uploads/estaticas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
-      { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'trotadoras', pad: '4px' },
+      { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras', pad: '4px' },
       { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'bicicletas' },
       { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
-      { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesas' },
-      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'pesas', pad: '0px', zoom: 1.12 },
-      { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'pesas' },
-      { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'pesas' },
+      { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
+      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', pad: '0px', zoom: 1.12 },
+      { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
+      { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems].map((c, i) => ({
