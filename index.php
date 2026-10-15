@@ -1639,7 +1639,7 @@ class Component extends DCLogic {
       { img: R('uploads/trotadoras.jpeg'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
       { img: R('uploads/estaticas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
       { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras', pad: '4px' },
-      { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'bicicletas' },
+      { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
       { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
       { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
       { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', pad: '0px', zoom: 1.12 },
