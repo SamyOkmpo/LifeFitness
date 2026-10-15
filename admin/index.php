@@ -495,18 +495,6 @@ try {
         </div>
         <?php endif; ?>
     </div>
-
-    <div class="quick-bar">
-        <span style="font-size:13px; color:var(--text-muted);">
-            <strong>Accesos Rápidos:</strong> Puedes regresar a este Centro de Control en cualquier momento desde el menú superior.
-        </span>
-        <div class="quick-links">
-            <a href="../index.php" target="_blank" class="quick-link">🌐 Ver Página Web</a>
-            <?php if ($hasCotiz): ?>
-            <a href="../v1/cotizaciones/mis_cotizaciones.html" class="quick-link">📂 Ver Cotizaciones Guardadas</a>
-            <?php endif; ?>
-        </div>
-    </div>
 </div>
 
 <?php if (!empty($_SESSION['token'])): ?>
