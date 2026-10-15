@@ -344,10 +344,23 @@ try {
             color: var(--primary);
         }
 
-        @media (max-width: 768px) {
-            .header { padding: 14px 18px; }
-            .container { margin: 20px auto; padding: 0 16px; }
+        @media (max-width: 900px) {
             .modules-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .header { padding: 14px 16px; flex-direction: column; align-items: stretch; gap: 14px; }
+            .logo-wrap { justify-content: center; }
+            .user-nav { justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 10px; width: 100%; }
+            .user-info { text-align: left; }
+            .container { margin: 16px auto; padding: 0 12px; }
+            .hero-title h2 { font-size: 24px; }
+            .hero-title p { font-size: 13px; }
+            .card-top { padding: 18px 20px 14px; }
+            .card-title { font-size: 20px; }
+            .links-list { padding: 16px 20px; }
+            .nav-item { padding: 10px 14px; font-size: 13px; }
+            .quick-bar { padding: 16px 20px; flex-direction: column; align-items: stretch; text-align: center; }
+            .quick-links { justify-content: center; }
         }
     </style>
 </head>
