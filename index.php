@@ -670,7 +670,7 @@ $seriesJson = json_encode($series);
             <div style="display:flex;flex-direction:{{catListDir}};flex-wrap:{{catListWrap}};gap:4px;padding-right:8px;">
               <div style="display:flex;flex-direction:{{catListDir}};gap:4px;flex-grow:1;flex-wrap:wrap;">
               <sc-for list="{{catalogoFilters}}" as="f">
-                <button onClick="{{f.onClick}}" style="text-align:left;background:{{f.bg}};color:{{f.color}};border:1px solid {{f.border}};padding:8px 12px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s ease">{{f.label}}</button>
+                <button onClick="{{f.onClick}}" style="text-align:left;background:{{f.bg}};color:{{f.color}};border:1px solid {{f.border}};padding:9px 14px;border-radius:6px;font-size:13px;font-weight:{{f.weight}};box-shadow:{{f.shadow}};cursor:pointer;transition:all .2s ease;width:100%">{{f.label}}</button>
               </sc-for>
               </div>
             </div>
@@ -1827,9 +1827,11 @@ class Component extends DCLogic {
       return {
         label: f.label,
         onClick: this.setCatalogoFilter(f.id),
-        bg: active ? 'oklch(96% 0 0)' : 'white',
-        color: active ? 'oklch(58% .22 25)' : 'oklch(30% .008 270)',
-        border: active ? 'oklch(58% .22 25)' : 'oklch(80% .008 270)'
+        bg: active ? 'oklch(58% .22 25)' : 'white',
+        color: active ? 'white' : 'oklch(25% .008 270)',
+        border: active ? 'oklch(58% .22 25)' : 'oklch(85% 0 0)',
+        weight: active ? '700' : '500',
+        shadow: active ? '0 4px 12px oklch(58% .22 25 / .28)' : 'none'
       };
     });
 
