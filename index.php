@@ -1284,7 +1284,7 @@ class Component extends DCLogic {
     });
   };
   resetQuote = () => this.setState({ quoteSent: false, quote: { name: '', company: '', email: '', phone: '', type: '', message: '' }, quoteErrors: {} });
-  scrollTo_personalizacion: this.navTo('personalizacion'),
+  scrollTo_personalizacion = (e) => this.navTo('personalizacion')(e);
 
   toggleRs800Sound = () => {
     const el = this._rs800El;
