@@ -321,6 +321,7 @@ include 'header.php';
 <div id="bulkActionBar" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1d3557; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; align-items: center; gap: 16px; z-index: 1000; font-family: 'Inter', sans-serif;">
     <span style="font-weight: 600; font-size: 14px;"><span id="selectedCountBadge" style="background: #e63946; color: white; padding: 3px 10px; border-radius: 12px; margin-right: 6px; font-weight: bold;">0</span> seleccionados</span>
     <button id="openBulkModalBtn" type="button" style="background: #457b9d; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">⚡ Editar en masa</button>
+    <button id="openBulkImagesBtn" type="button" style="background: #2a9d8f; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">🖼️ Cambiar Imágenes</button>
     <button id="clearSelectionBtn" type="button" style="background: transparent; color: #cbd5e0; border: 1px solid rgba(255,255,255,0.3); padding: 8px 14px; border-radius: 20px; font-weight: 500; cursor: pointer; font-size: 12px;">Deseleccionar</button>
 </div>
 
@@ -551,6 +552,23 @@ document.addEventListener('DOMContentLoaded', function() {
             bulkItemNoInput.value = '';
             bulkItemNoInput.style.display = 'none';
             bulkModal.style.display = 'flex';
+        });
+    }
+
+    const openBulkImagesBtn = document.getElementById('openBulkImagesBtn');
+    if (openBulkImagesBtn) {
+        openBulkImagesBtn.addEventListener('click', function() {
+            if (selectedIds.size === 0) return;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'productos_imagenes.php';
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'selected_ids';
+            input.value = Array.from(selectedIds).join(',');
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
         });
     }
 
