@@ -22,8 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['username'] = $usuario['username'];
             $_SESSION['nombre'] = $usuario['nombre'];
             $_SESSION['rol'] = $usuario['rol'];
-            $_SESSION['acceso_web'] = (int)($usuario['acceso_web'] ?? 1);
-            $_SESSION['acceso_cotizador'] = (int)($usuario['acceso_cotizador'] ?? 1);
+            $_SESSION['rol_web'] = $usuario['rol_web'] ?? (!empty($usuario['acceso_web']) ? ($usuario['rol'] === 'admin' ? 'admin' : 'admin') : 'none');
+            $_SESSION['rol_cotizador'] = $usuario['rol_cotizador'] ?? (!empty($usuario['acceso_cotizador']) ? ($usuario['rol'] === 'admin' ? 'admin' : 'comercial') : 'none');
+            $_SESSION['acceso_web'] = ($_SESSION['rol_web'] !== 'none') ? 1 : 0;
+            $_SESSION['acceso_cotizador'] = ($_SESSION['rol_cotizador'] !== 'none') ? 1 : 0;
 
             // Generar o reusar token para que el cotizador no pida contraseña nuevamente (Single Sign-On)
             $token = $usuario['token'] ?? '';

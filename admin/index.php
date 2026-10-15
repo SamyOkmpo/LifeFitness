@@ -6,7 +6,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Asegurar que la sesión siempre tenga los datos actualizados de la BD (ej. cambio de nombre)
-$stmtUser = $pdo->prepare("SELECT username, nombre, rol, token, acceso_web, acceso_cotizador FROM usuarios WHERE id = ?");
+$stmtUser = $pdo->prepare("SELECT username, nombre, rol, token, acceso_web, acceso_cotizador, rol_web, rol_cotizador FROM usuarios WHERE id = ?");
 $stmtUser->execute([$_SESSION['user_id']]);
 $uData = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
@@ -14,8 +14,10 @@ if ($uData) {
     $_SESSION['username'] = $uData['username'];
     $_SESSION['nombre'] = $uData['nombre'];
     $_SESSION['rol'] = $uData['rol'];
-    $_SESSION['acceso_web'] = (int)($uData['acceso_web'] ?? 1);
-    $_SESSION['acceso_cotizador'] = (int)($uData['acceso_cotizador'] ?? 1);
+    $_SESSION['rol_web'] = $uData['rol_web'] ?? (!empty($uData['acceso_web']) ? ($uData['rol'] === 'admin' ? 'admin' : 'admin') : 'none');
+    $_SESSION['rol_cotizador'] = $uData['rol_cotizador'] ?? (!empty($uData['acceso_cotizador']) ? ($uData['rol'] === 'admin' ? 'admin' : 'comercial') : 'none');
+    $_SESSION['acceso_web'] = ($_SESSION['rol_web'] !== 'none') ? 1 : 0;
+    $_SESSION['acceso_cotizador'] = ($_SESSION['rol_cotizador'] !== 'none') ? 1 : 0;
 
     $dbToken = $uData['token'];
     if (empty($dbToken)) {
@@ -389,7 +391,9 @@ try {
     <?php 
     $hasWeb = !isset($_SESSION['acceso_web']) || $_SESSION['acceso_web'] == 1;
     $hasCotiz = !isset($_SESSION['acceso_cotizador']) || $_SESSION['acceso_cotizador'] == 1;
-    $isAdmin = ($_SESSION['rol'] ?? '') === 'admin';
+    $isAdminWeb = ($_SESSION['rol_web'] ?? '') === 'admin';
+    $isAdminCotiz = ($_SESSION['rol_cotizador'] ?? '') === 'admin';
+    $isAdmin = $isAdminWeb || $isAdminCotiz || ($_SESSION['rol'] ?? '') === 'admin';
     ?>
 
     <div class="modules-grid" style="<?= (!$hasWeb || !$hasCotiz) ? 'max-width:680px; margin:0 auto 40px;' : '' ?>">
@@ -429,7 +433,7 @@ try {
                         <span>Series por Categoría</span>
                     </div>
                 </a>
-                <?php if ($isAdmin): ?>
+                <?php if ($isAdminWeb): ?>
                 <a href="usuarios.php" class="nav-item" style="border-left:3px solid #1d3557;">
                     <div class="nav-item-left">
                         <span class="nav-icon">👥</span>
@@ -471,7 +475,7 @@ try {
                     <span class="nav-item-badge" style="background:#fee2e2;color:#b91c1c"><?= $stats['cotizaciones_app'] ?></span>
                     <?php endif; ?>
                 </a>
-                <?php if ($isAdmin): ?>
+                <?php if ($isAdminCotiz): ?>
                 <a href="usuarios.php" class="nav-item" style="border-left:3px solid #e63946;">
                     <div class="nav-item-left">
                         <span class="nav-icon">👥</span>

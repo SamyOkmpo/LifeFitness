@@ -77,9 +77,8 @@ include 'header.php';
                 <tr>
                     <th>Nombre Completo</th>
                     <th>Usuario</th>
-                    <th>Rol</th>
-                    <th style="text-align:center;">Acceso Web</th>
-                    <th style="text-align:center;">Acceso Cotizador</th>
+                    <th style="text-align:center;">Rol Web</th>
+                    <th style="text-align:center;">Rol Cotizador</th>
                     <th>Fecha Alta</th>
                     <th style="text-align:right;">Acciones</th>
                 </tr>
@@ -94,36 +93,33 @@ include 'header.php';
                             <?php endif; ?>
                         </td>
                         <td style="color:#4a5568;"><?= htmlspecialchars($u['username']) ?></td>
-                        <td>
-                            <?php if ($u['rol'] === 'admin'): ?>
-                                <span style="background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase;">
-                                    Administrador
+                        <td style="text-align:center;">
+                            <?php 
+                            $rWeb = $u['rol_web'] ?? (!empty($u['acceso_web']) ? ($u['rol'] === 'admin' ? 'admin' : 'admin') : 'none');
+                            if ($rWeb === 'admin'): ?>
+                                <span style="display:inline-flex; align-items:center; gap:4px; color:#0369a1; font-weight:700; font-size:11px; background:#e0f2fe; padding:4px 10px; border-radius:12px; border:1px solid #bae6fd; text-transform:uppercase;">
+                                    🛡️ Admin Web
                                 </span>
                             <?php else: ?>
-                                <span style="background:#e2e8f0; color:#475569; padding:3px 8px; border-radius:12px; font-weight:700; font-size:11px; text-transform:uppercase;">
-                                    Comercial
+                                <span style="display:inline-flex; align-items:center; gap:4px; color:#dc2626; font-weight:600; font-size:11px; background:#fef2f2; padding:3px 8px; border-radius:6px; border:1px solid #fecaca;">
+                                    🚫 Sin Acceso
                                 </span>
                             <?php endif; ?>
                         </td>
                         <td style="text-align:center;">
-                            <?php if ($u['acceso_web']): ?>
-                                <span style="display:inline-flex; align-items:center; gap:4px; color:#16a34a; font-weight:600; font-size:12px; background:#f0fdf4; padding:3px 8px; border-radius:6px; border:1px solid #bbf7d0;">
-                                    ✓ Permitido
+                            <?php 
+                            $rCotiz = $u['rol_cotizador'] ?? (!empty($u['acceso_cotizador']) ? ($u['rol'] === 'admin' ? 'admin' : 'comercial') : 'none');
+                            if ($rCotiz === 'admin'): ?>
+                                <span style="display:inline-flex; align-items:center; gap:4px; color:#b91c1c; font-weight:700; font-size:11px; background:#fee2e2; padding:4px 10px; border-radius:12px; border:1px solid #fecaca; text-transform:uppercase;">
+                                    👑 Admin Cotizador
+                                </span>
+                            <?php elseif ($rCotiz === 'comercial'): ?>
+                                <span style="display:inline-flex; align-items:center; gap:4px; color:#16a34a; font-weight:600; font-size:11px; background:#f0fdf4; padding:3px 8px; border-radius:6px; border:1px solid #bbf7d0;">
+                                    👤 Asesor Comercial
                                 </span>
                             <?php else: ?>
-                                <span style="display:inline-flex; align-items:center; gap:4px; color:#dc2626; font-weight:600; font-size:12px; background:#fef2f2; padding:3px 8px; border-radius:6px; border:1px solid #fecaca;">
-                                    ✗ Bloqueado
-                                </span>
-                            <?php endif; ?>
-                        </td>
-                        <td style="text-align:center;">
-                            <?php if ($u['acceso_cotizador']): ?>
-                                <span style="display:inline-flex; align-items:center; gap:4px; color:#16a34a; font-weight:600; font-size:12px; background:#f0fdf4; padding:3px 8px; border-radius:6px; border:1px solid #bbf7d0;">
-                                    ✓ Permitido
-                                </span>
-                            <?php else: ?>
-                                <span style="display:inline-flex; align-items:center; gap:4px; color:#dc2626; font-weight:600; font-size:12px; background:#fef2f2; padding:3px 8px; border-radius:6px; border:1px solid #fecaca;">
-                                    ✗ Bloqueado
+                                <span style="display:inline-flex; align-items:center; gap:4px; color:#dc2626; font-weight:600; font-size:11px; background:#fef2f2; padding:3px 8px; border-radius:6px; border:1px solid #fecaca;">
+                                    🚫 Sin Acceso
                                 </span>
                             <?php endif; ?>
                         </td>
