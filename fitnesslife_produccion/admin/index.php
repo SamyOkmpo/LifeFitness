@@ -5,6 +5,18 @@ if (!isset($_SESSION['user_id'])) {
     exit; 
 }
 
+// Asegurar token de Single Sign-On para el módulo de cotizaciones
+if (empty($_SESSION['token'])) {
+    $stmtTok = $pdo->prepare("SELECT token FROM usuarios WHERE id = ?");
+    $stmtTok->execute([$_SESSION['user_id']]);
+    $dbToken = $stmtTok->fetchColumn();
+    if (empty($dbToken)) {
+        $dbToken = bin2hex(random_bytes(32));
+        $pdo->prepare("UPDATE usuarios SET token = ? WHERE id = ?")->execute([$dbToken, $_SESSION['user_id']]);
+    }
+    $_SESSION['token'] = $dbToken;
+}
+
 // Obtener estadísticas rápidas
 $stats = [
     'productos' => $pdo->query("SELECT COUNT(*) FROM productos")->fetchColumn(),
@@ -477,6 +489,27 @@ try {
         </div>
     </div>
 </div>
+
+<?php if (!empty($_SESSION['token'])): ?>
+<script>
+// Single Sign-On: Sincronizar automáticamente la sesión activa con la App del Cotizador
+(function() {
+    const token = <?= json_encode($_SESSION['token']) ?>;
+    const user = {
+        id: <?= (int)$_SESSION['user_id'] ?>,
+        username: <?= json_encode($_SESSION['username'] ?? '') ?>,
+        nombre: <?= json_encode($_SESSION['nombre'] ?? '') ?>,
+        rol: <?= json_encode($_SESSION['rol'] ?? 'admin') ?>,
+        acceso_web: <?= (int)($_SESSION['acceso_web'] ?? 1) ?>,
+        acceso_cotizador: <?= (int)($_SESSION['acceso_cotizador'] ?? 1) ?>
+    };
+    try {
+        localStorage.setItem('fl_auth_token', token);
+        localStorage.setItem('fl_auth_user', JSON.stringify(user));
+    } catch(e) {}
+})();
+</script>
+<?php endif; ?>
 
 </body>
 </html>

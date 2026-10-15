@@ -25,6 +25,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['acceso_web'] = (int)($usuario['acceso_web'] ?? 1);
             $_SESSION['acceso_cotizador'] = (int)($usuario['acceso_cotizador'] ?? 1);
 
+            // Generar o reusar token para que el cotizador no pida contraseña nuevamente (Single Sign-On)
+            $token = $usuario['token'] ?? '';
+            if (empty($token)) {
+                $token = bin2hex(random_bytes(32));
+                $pdo->prepare("UPDATE usuarios SET token = ? WHERE id = ?")->execute([$token, $usuario['id']]);
+            }
+            $_SESSION['token'] = $token;
+
             // Redirección inteligente si solo tiene acceso a un módulo
             if ($_SESSION['acceso_web'] == 1 && $_SESSION['acceso_cotizador'] == 0) {
                 header("Location: productos.php");
