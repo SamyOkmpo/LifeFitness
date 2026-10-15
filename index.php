@@ -225,6 +225,7 @@ $seriesJson = json_encode($series);
         </div>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Soluciones</a>
         <a href="#circuitos" onClick="{{scrollTo_circuitos}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Circuitos</a>
+        <a href="#personalizacion" onClick="{{scrollTo_personalizacion}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Personalización</a>
         <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Marcas</a>
         <a href="#clientes" onClick="{{scrollTo_clientes}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Clientes</a>
         <a href="#" onClick="{{goToContacto}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Contacto</a>
@@ -252,6 +253,7 @@ $seriesJson = json_encode($series);
         <a href="#" onClick="{{goCat_pesas}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">Máquinas de Pesas</a>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
         <a href="#circuitos" onClick="{{scrollTo_circuitos}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Circuitos</a>
+        <a href="#personalizacion" onClick="{{scrollTo_personalizacion}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Personalización</a>
         <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Marcas</a>
         <a href="#clientes" onClick="{{scrollTo_clientes}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Clientes</a>
         <a href="#" onClick="{{goToContacto}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Contacto</a>
@@ -441,6 +443,38 @@ $seriesJson = json_encode($series);
       </div>
       </div>
     </section>
+
+    <section id="personalizacion" ref="{{colorsRef}}" style="padding:{{secPad}};background:oklch(98% 0 0)">
+      <div style="max-width:1280px;margin:0 auto">
+        <div style="text-align:center;max-width:640px;margin:0 auto 44px;opacity:{{colorsOpacity}};transform:{{colorsTransform}};transition:opacity .6s ease,transform .6s ease">
+          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Personalización</div>
+          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Diseña tu equipo <span style="color:oklch(58% .22 25)">a tu medida</span></h2>
+          <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Elige el color de la estructura, la cojinería y los pines para que tus equipos combinen con la identidad de tu gimnasio.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
+          <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
+            <video ref="{{rs800Ref}}" src="{{rs800Video}}" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="auto" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
+              <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:oklch(72% .2 27);margin-bottom:4px">Realleader USA</div>
+              <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0;opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease .15s,transform .8s cubic-bezier(.2,.8,.2,1) .15s">
+            <div style="border-radius:20px;overflow:hidden;background:white;border:1px solid oklch(88% .006 270);box-shadow:0 24px 50px -24px oklch(20% .01 270 / .25)">
+              <img src="{{colorsImg}}" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px">
+              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 colores de cojinería</span>
+              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 acabados de estructura</span>
+              <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);color:white;border-radius:999px;padding:10px 22px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:transform .3s ease" style-hover="transform:translateY(-3px);color:white">Cotiza tu combinación →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    
 
     <section ref="{{processRef}}" style="padding:{{secPad}};background:oklch(93% .004 270)">
       <div style="max-width:1280px;margin:0 auto">
@@ -1113,6 +1147,8 @@ class Component extends DCLogic {
     showTop: false,
     globalSearchOpen: false,
     solucionesVisible: false,
+    colorsVisible: false,
+    rs800Sound: false,
     circuitosVisible: false,
     processVisible: false,
     marcasVisible: false,
@@ -1248,6 +1284,33 @@ class Component extends DCLogic {
     });
   };
   resetQuote = () => this.setState({ quoteSent: false, quote: { name: '', company: '', email: '', phone: '', type: '', message: '' }, quoteErrors: {} });
+  scrollTo_personalizacion: this.navTo('personalizacion'),
+
+  toggleRs800Sound = () => {
+    const el = this._rs800El;
+    const on = !this.state.rs800Sound;
+    if (el) {
+      el.muted = !on;
+      if (on) {
+        el.volume = 1;
+        el.play().catch(() => {
+          el.muted = true;
+          el.play().catch(() => {});
+          this.setState({ rs800Sound: false });
+        });
+      }
+    }
+    this.setState({ rs800Sound: on });
+  };
+
+  setRs800Ref = (el) => {
+    if (el && el !== this._rs800El) {
+      this._rs800El = el;
+      el.muted = !this.state.rs800Sound; el.defaultMuted = true; el.playsInline = true;
+      el.play().catch(() => {});
+    }
+  };
+
   openEquipos = () => this.setState({ equiposOpen: true });
   closeEquipos = () => this.setState({ equiposOpen: false });
   goCat = (slug) => (e) => { e.preventDefault(); this.setState({ menuOpen: false, equiposOpen: false }); this.goToCategory(slug); };
@@ -2037,6 +2100,21 @@ class Component extends DCLogic {
       circRow2ImgTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(40px)',
       circRow2TextOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow2TextTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(-40px)',
+      colorsRef: this.setSectionRef('colorsVisible'),
+      colorsImg: R('assets/personalizacion_colores.png'),
+      persCols: this.state.isMobile ? '1fr' : 'minmax(0,340px) minmax(0,1fr)',
+      persVideoMaxH: this.state.isMobile ? '560px' : '640px',
+      persVideoW: this.state.isMobile ? 'min(100%, 315px)' : '100%',
+      rs800Video: R('assets/realleader_rs800_loop.mp4'),
+      rs800Ref: this.setRs800Ref,
+      toggleRs800Sound: this.toggleRs800Sound,
+      rs800Muted: !this.state.rs800Sound,
+      rs800SoundLabel: this.state.rs800Sound ? 'Silenciar' : 'Activar sonido',
+      rs800SoundIcon: this.state.rs800Sound ? '🔊' : '🔇',
+      colorsOpacity: this.state.colorsVisible ? 1 : 0,
+      colorsTransform: this.state.colorsVisible ? 'translateY(0)' : 'translateY(28px)',
+      colorsImgTransform: this.state.colorsVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(.97)',
+      scrollTo_personalizacion: this.scrollTo_personalizacion,
       processRef: this.setSectionRef('processVisible'),
       processHeaderOpacity: 1,
       processHeaderTransform: 'translateY(0)',
