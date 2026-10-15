@@ -909,7 +909,6 @@ $seriesJson = json_encode($series);
               </div>
             </sc-for>
           </div>
-          </sc-if>
         </div>
       </sc-if>
 
@@ -1364,18 +1363,19 @@ class Component extends DCLogic {
     e.preventDefault();
     e.stopPropagation();
     const cart = [...this.state.cart];
-    const idx = cart.findIndex(p => p.item_no === prod.item_no);
+    const prodId = prod.id || prod.item_no;
+    const idx = cart.findIndex(p => (p.id || p.item_no) === prodId);
     let added = false;
     if (idx >= 0) {
       cart.splice(idx, 1);
     } else {
-      cart.push({ ...prod, qty: 1 });
+      cart.push({ ...prod, id: prodId, qty: 1 });
       added = true;
     }
     this.setState({ cart });
     
     // Si lo agregó desde el modal, cerramos el modal para que vea el carrito flotante
-    if (added && this.state.modalProduct && this.state.modalProduct.item_no === prod.item_no) {
+    if (added && this.state.modalProduct && (this.state.modalProduct.id || this.state.modalProduct.item_no) === prodId) {
       setTimeout(() => {
         this.setState({ modalProduct: null });
       }, 300);
@@ -1383,19 +1383,19 @@ class Component extends DCLogic {
   };
   
 
-  updateCartQty = (item_no, delta) => (e) => {
+  updateCartQty = (prodId, delta) => (e) => {
     e.preventDefault();
     const cart = [...this.state.cart];
-    const idx = cart.findIndex(p => p.item_no === item_no);
+    const idx = cart.findIndex(p => (p.id || p.item_no) === prodId);
     if (idx >= 0) {
       cart[idx].qty = Math.max(1, cart[idx].qty + delta);
       this.setState({ cart });
     }
   };
 
-  removeFromCart = (item_no) => (e) => {
+  removeFromCart = (prodId) => (e) => {
     e.preventDefault();
-    this.setState({ cart: this.state.cart.filter(p => p.item_no !== item_no) });
+    this.setState({ cart: this.state.cart.filter(p => (p.id || p.item_no) !== prodId) });
   };
   
   goToCart = (e) => {
@@ -1599,16 +1599,17 @@ class Component extends DCLogic {
       }
       if (image && !image.startsWith('http') && !image.startsWith('cotizaciones/') && !image.startsWith('v1/cotizaciones/')) { image = 'cotizaciones/' + image; }
       const item_no = p.item_no || 'N/A';
-      const inCart = this.state.cart.some(c => c.item_no === item_no);
+      const prodId = p.id || item_no;
+      const inCart = this.state.cart.some(c => (c.id || c.item_no) === prodId);
       const cartText = inCart ? 'Añadido ✓' : 'Añadir';
       const cartBg = inCart ? 'oklch(96% 0 0)' : 'oklch(97% 0 0)';
       const cartBgHover = inCart ? 'oklch(40% 0 0)' : 'oklch(58% .22 25)';
       const cartColor = inCart ? 'oklch(20% .005 270)' : 'oklch(20% .005 270)';
-            const cartBorder = inCart ? '1px solid oklch(80% 0 0)' : '1px solid transparent';
+      const cartBorder = inCart ? '1px solid oklch(80% 0 0)' : '1px solid transparent';
       const waMsg = encodeURIComponent('Hola, estoy interesado en recibir información y precios del equipo ' + p.name + ' (SKU: ' + item_no + ').');
             
-      const onOpen = this.openModal({ ...p, image, item_no, hasDims, hasWeight, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
-      return { ...p, image, hasDims, hasWeight, item_no, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no }), onOpen };
+      const onOpen = this.openModal({ ...p, image, item_no, prodId, hasDims, hasWeight, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
+      return { ...p, image, hasDims, hasWeight, item_no, prodId, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no, id: prodId }), onOpen };
     });
     
     
@@ -1775,12 +1776,13 @@ class Component extends DCLogic {
       }
       if (image && !image.startsWith('http') && !image.startsWith('cotizaciones/') && !image.startsWith('v1/cotizaciones/')) { image = 'cotizaciones/' + image; }
       const item_no = p.item_no || 'N/A';
+      const prodId = p.id || item_no;
       const hasDims = p.set_up_dimension && p.set_up_dimension.trim() !== '';
       const hasWeight = p.weight_stack && p.weight_stack.trim() !== '';
       const hasSerie = p.serie && p.serie.trim() !== '';
       const serie = p.serie ? p.serie.trim() : '';
       
-      const inCart = this.state.cart.some(c => c.item_no === item_no);
+      const inCart = this.state.cart.some(c => (c.id || c.item_no) === prodId);
       const cartText = inCart ? 'Añadido ✓' : 'Añadir';
       const cartBg = inCart ? 'oklch(96% 0 0)' : 'oklch(20% .005 270)';
       const cartBgHover = inCart ? 'oklch(40% 0 0)' : 'oklch(58% .22 25)';
@@ -1791,8 +1793,8 @@ class Component extends DCLogic {
       const waLink = 'https://wa.me/573128011838?text=' + waMsg;
       
       
-      const onOpen = this.openModal({ ...p, image, item_no, hasDims, hasWeight, hasSerie, serie, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
-      return { ...p, image, hasDims, hasWeight, hasSerie, serie, item_no, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no }), onOpen };
+      const onOpen = this.openModal({ ...p, image, item_no, prodId, hasDims, hasWeight, hasSerie, serie, waLink, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder });
+      return { ...p, image, hasDims, hasWeight, hasSerie, serie, item_no, prodId, inCart, cartText, cartBg, cartBgHover, cartColor, cartBorder, waLink, onToggleCart: this.toggleCart({ ...p, image, item_no, id: prodId }), onOpen };
     });
     
     catalogoProductsFull.sort(sorter);
@@ -1931,19 +1933,21 @@ class Component extends DCLogic {
         const mp = this.state.modalProduct;
         if (!mp) return {};
         const item_no = mp.item_no || 'N/A';
-        const inCart = this.state.cart.some(c => c.item_no === item_no);
+        const prodId = mp.id || item_no;
+        const inCart = this.state.cart.some(c => (c.id || c.item_no) === prodId);
         const cartText = inCart ? 'Añadido ✓' : 'Añadir';
         const cartBg = inCart ? 'oklch(96% 0 0)' : 'oklch(20% .005 270)';
         const cartColor = inCart ? 'oklch(20% .005 270)' : 'white';
         const cartBorder = inCart ? '1px solid oklch(80% 0 0)' : '1px solid transparent';
         return { 
           ...mp, 
+          prodId,
           inCart, 
           cartText, 
           cartBg, 
           cartColor, 
           cartBorder,
-          onToggleCart: this.toggleCart({ ...mp, item_no }) 
+          onToggleCart: this.toggleCart({ ...mp, item_no, id: prodId }) 
         };
       })(),
       modalImages: (() => {
@@ -1968,7 +1972,7 @@ class Component extends DCLogic {
       hasCartItems: this.state.cart.length > 0,
       cartCount: this.state.cart.length,
       goToCart: this.goToCart,
-      cartItemsList: this.state.cart.map(c => ({...c, onRemove: this.removeFromCart(c.item_no), onInc: this.updateCartQty(c.item_no, 1), onDec: this.updateCartQty(c.item_no, -1)})),
+      cartItemsList: this.state.cart.map(c => ({...c, onRemove: this.removeFromCart(c.id || c.item_no), onInc: this.updateCartQty(c.id || c.item_no, 1), onDec: this.updateCartQty(c.id || c.item_no, -1)})),
       catalogoSearch: this.state.catalogoSearch,
       onCatalogoSearch: this.onCatalogoSearch,
       brandSearch: this.state.brandSearch,
