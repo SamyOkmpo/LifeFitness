@@ -215,11 +215,10 @@ $seriesJson = json_encode($series);
         <div style="position:relative;display:flex;align-items:center" onMouseEnter="{{openEquipos}}" onMouseLeave="{{closeEquipos}}">
           <a href="#categorias" onClick="{{scrollTo_categorias}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);display:flex;align-items:center;gap:6px">Equipos<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{equiposArrow}};transition:transform .25s ease"><path d="M6 9l6 6 6-6"></path></svg></a>
           <div style="display:{{equiposMenuDisplay}};position:absolute;top:100%;left:-12px;padding-top:14px;z-index:60">
-            <div style="background:oklch(99% 0 0);border:1px solid oklch(88% .006 270);box-shadow:0 18px 38px -14px oklch(20% .01 270 / .35);min-width:230px;overflow:hidden">
-              <a href="#" onClick="{{goCat_elipticas}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease" style-hover="background:oklch(58% .22 25);color:white">Elípticas</a>
-              <a href="#" onClick="{{goCat_bicicletas}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease" style-hover="background:oklch(58% .22 25);color:white">Bicicletas Estáticas</a>
-              <a href="#" onClick="{{goCat_trotadoras}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease" style-hover="background:oklch(58% .22 25);color:white">Trotadoras</a>
-              <a href="#" onClick="{{goCat_pesas}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease" style-hover="background:oklch(58% .22 25);color:white">Máquinas de Pesas</a>
+            <div style="background:oklch(99% 0 0);border:1px solid oklch(88% .006 270);box-shadow:0 18px 38px -14px oklch(20% .01 270 / .35);min-width:230px;max-height:420px;overflow-y:auto;overflow-x:hidden">
+              <sc-for list="{{navCategories}}" as="nc">
+                <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(24% .006 270);padding:10px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease;border-bottom:1px solid oklch(95% 0 0)" style-hover="background:oklch(58% .22 25);color:white">{{nc.name}}</a>
+              </sc-for>
             </div>
           </div>
         </div>
@@ -247,10 +246,9 @@ $seriesJson = json_encode($series);
         <a href="#inicio" onClick="{{goHome}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Inicio</a>
         <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo</a>
         <a href="#categorias" onClick="{{scrollTo_categorias}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Equipos</a>
-        <a href="#" onClick="{{goCat_elipticas}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">Elípticas</a>
-        <a href="#" onClick="{{goCat_bicicletas}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">Bicicletas Estáticas</a>
-        <a href="#" onClick="{{goCat_trotadoras}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">Trotadoras</a>
-        <a href="#" onClick="{{goCat_pesas}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">Máquinas de Pesas</a>
+        <sc-for list="{{navCategories}}" as="nc">
+          <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">{{nc.name}}</a>
+        </sc-for>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
         <a href="#circuitos" onClick="{{scrollTo_circuitos}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Circuitos</a>
         <a href="#personalizacion" onClick="{{scrollTo_personalizacion}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Personalización</a>
@@ -1764,7 +1762,7 @@ class Component extends DCLogic {
       selected: this.state.catalogoBrands.includes(m.name)
     }));
 
-    // Las series SOLO se muestran en aquellas categorías que tengan series definidas
+    // Las series se muestran asociadas a la categoría seleccionada, o todas las series si está en 'todos'
     const knownSeries = [];
     if (currentCatId) {
       // 1. Series asociadas específicamente a esta categoría en la base de datos
@@ -1779,6 +1777,19 @@ class Component extends DCLogic {
       // 2. Series de productos pertenecientes a esta categoría
       (this.state.allProducts || []).forEach(p => {
         if (p.categoria_id == currentCatId && p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
+          knownSeries.push(p.serie.trim());
+        }
+      });
+    } else {
+      // Todas las series disponibles en la base de datos y productos
+      (window.DB_SERIES || []).forEach(s => {
+        const sName = (s.name || '').trim();
+        if (sName && !knownSeries.includes(sName)) {
+          knownSeries.push(sName);
+        }
+      });
+      (this.state.allProducts || []).forEach(p => {
+        if (p.serie && p.serie.trim() && !knownSeries.includes(p.serie.trim())) {
           knownSeries.push(p.serie.trim());
         }
       });
@@ -2205,6 +2216,11 @@ class Component extends DCLogic {
       equiposArrow: this.state.equiposOpen ? 'rotate(180deg)' : 'rotate(0deg)',
       openEquipos: this.openEquipos,
       closeEquipos: this.closeEquipos,
+      navCategories: (window.DB_CATEGORIAS || []).map(c => ({
+        name: c.name,
+        slug: c.slug,
+        onClick: this.goCat(c.slug)
+      })),
       goCat_elipticas: this.goCat('elipticas'),
       goCat_bicicletas: this.goCat('bicicletas'),
       goCat_trotadoras: this.goCat('trotadoras'),
