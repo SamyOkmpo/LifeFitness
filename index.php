@@ -1613,7 +1613,19 @@ class Component extends DCLogic {
       onClick: () => this.setState({ heroIndex: i }, () => this.scheduleHero()),
     }));
 
-    const categories = Object.values(CATEGORIES).filter(c => c.slug !== 'todos' && c.mostrar_home === 1).map((c, i) => ({
+    const allProds = this.state.allProducts || [];
+    const prodsByCatId = {};
+    allProds.forEach(p => {
+      if (p.categoria_id) {
+        prodsByCatId[p.categoria_id] = (prodsByCatId[p.categoria_id] || 0) + 1;
+      }
+    });
+
+    const categories = Object.values(CATEGORIES).filter(c => {
+      if (c.slug === 'todos' || c.mostrar_home !== 1) return false;
+      const catObj = (window.DB_CATEGORIAS || []).find(dbC => dbC.slug === c.slug);
+      return catObj && (prodsByCatId[catObj.id] || 0) > 0;
+    }).map((c, i) => ({
       slug: c.slug, name: c.name, tag: c.tag, img: c.img, badge: c.badge,
       onClick: () => this.goToCategory(c.slug),
       revealOpacity: 1,
@@ -1812,7 +1824,7 @@ class Component extends DCLogic {
     const noSeriesFilter = !hasSeriesFilter;
 
         const filterDefs = [{ id: 'todos', label: 'Todos' }].concat(
-        (window.DB_CATEGORIAS || []).map(c => ({ id: c.slug, label: c.name }))
+        (window.DB_CATEGORIAS || []).filter(c => (prodsByCatId[c.id] || 0) > 0).map(c => ({ id: c.slug, label: c.name }))
     );
     
     const activeCatDef = filterDefs.find(f => f.id === this.state.catalogoFilter);
@@ -2219,7 +2231,7 @@ class Component extends DCLogic {
       equiposArrow: this.state.equiposOpen ? 'rotate(180deg)' : 'rotate(0deg)',
       openEquipos: this.openEquipos,
       closeEquipos: this.closeEquipos,
-      navCategories: (window.DB_CATEGORIAS || []).map(c => ({
+      navCategories: (window.DB_CATEGORIAS || []).filter(c => (prodsByCatId[c.id] || 0) > 0).map(c => ({
         name: c.name,
         slug: c.slug,
         onClick: this.goCat(c.slug)
