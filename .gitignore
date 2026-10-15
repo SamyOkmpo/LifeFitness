@@ -14,3 +14,14 @@ restore_api.js
 generate_static_products.js
 fitnesslife_produccion.zip
 Plantilla_Precios_Fitness_Life.xlsx
+*.py
+*.js
+node_modules/
+check_cats.php
+fix_db.php
+get_rack.php
+patch_api.php
+patch_api_2.php
+query_db.php
+fitnesslife_produccion 2/
+

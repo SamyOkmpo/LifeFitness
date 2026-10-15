@@ -5,11 +5,19 @@ if (!isset($_SESSION['user_id'])) {
     exit; 
 }
 
-// Asegurar token de Single Sign-On para el módulo de cotizaciones
-if (empty($_SESSION['token'])) {
-    $stmtTok = $pdo->prepare("SELECT token FROM usuarios WHERE id = ?");
-    $stmtTok->execute([$_SESSION['user_id']]);
-    $dbToken = $stmtTok->fetchColumn();
+// Asegurar que la sesión siempre tenga los datos actualizados de la BD (ej. cambio de nombre)
+$stmtUser = $pdo->prepare("SELECT username, nombre, rol, token, acceso_web, acceso_cotizador FROM usuarios WHERE id = ?");
+$stmtUser->execute([$_SESSION['user_id']]);
+$uData = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+if ($uData) {
+    $_SESSION['username'] = $uData['username'];
+    $_SESSION['nombre'] = $uData['nombre'];
+    $_SESSION['rol'] = $uData['rol'];
+    $_SESSION['acceso_web'] = (int)($uData['acceso_web'] ?? 1);
+    $_SESSION['acceso_cotizador'] = (int)($uData['acceso_cotizador'] ?? 1);
+
+    $dbToken = $uData['token'];
     if (empty($dbToken)) {
         $dbToken = bin2hex(random_bytes(32));
         $pdo->prepare("UPDATE usuarios SET token = ? WHERE id = ?")->execute([$dbToken, $_SESSION['user_id']]);
