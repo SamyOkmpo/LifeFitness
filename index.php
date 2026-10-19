@@ -19,52 +19,54 @@ if ($entorno === "LOCAL") {
 try {
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // Auto migration: ensure mostrar_home and series exist, and auto-discover series from products
-    try {
-        $checkCol = $pdo->query("SHOW COLUMNS FROM categorias LIKE 'mostrar_home'")->fetch();
-        if (!$checkCol) {
-            $pdo->exec("ALTER TABLE categorias ADD COLUMN mostrar_home TINYINT(1) DEFAULT 1");
-        }
-        $pdo->exec("CREATE TABLE IF NOT EXISTS series (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            categoria_id INT DEFAULT NULL,
-            name VARCHAR(100) NOT NULL,
-            pos INT DEFAULT 0
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+    // Auto migration: run only if explicitly requested via ?migrate=1 to keep normal page loads fast
+    if (!empty($_GET['migrate'])) {
         try {
-            $pdo->exec("ALTER TABLE series DROP INDEX name");
-        } catch (Exception $e) {}
-        $checkCatCol = $pdo->query("SHOW COLUMNS FROM series LIKE 'categoria_id'")->fetch();
-        if (!$checkCatCol) {
-            $pdo->exec("ALTER TABLE series ADD COLUMN categoria_id INT DEFAULT NULL");
-        }
-        $chkSerie = $pdo->query("SHOW COLUMNS FROM productos LIKE 'serie'")->fetch();
-        if (!$chkSerie) {
-            $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL;");
-        }
-        // Auto-discover series per category
-        $distinctPairs = $pdo->query("SELECT DISTINCT serie, categoria_id FROM productos WHERE serie IS NOT NULL AND TRIM(serie) != ''")->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($distinctPairs as $dp) {
-            $sName = trim($dp['serie']);
-            $cId = !empty($dp['categoria_id']) ? (int)$dp['categoria_id'] : null;
-            if ($cId !== null) {
-                $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id = ?");
-                $chk->execute([$sName, $cId]);
-            } else {
-                $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id IS NULL");
-                $chk->execute([$sName]);
+            $checkCol = $pdo->query("SHOW COLUMNS FROM categorias LIKE 'mostrar_home'")->fetch();
+            if (!$checkCol) {
+                $pdo->exec("ALTER TABLE categorias ADD COLUMN mostrar_home TINYINT(1) DEFAULT 1");
             }
-            if (!$chk->fetch()) {
-                $maxPos = (int)$pdo->query("SELECT COALESCE(MAX(pos), 0) FROM series WHERE " . ($cId ? "categoria_id = $cId" : "categoria_id IS NULL"))->fetchColumn();
-                $ins = $pdo->prepare("INSERT INTO series (categoria_id, name, pos) VALUES (?, ?, ?)");
-                $ins->execute([$cId, $sName, $maxPos + 1]);
+            $pdo->exec("CREATE TABLE IF NOT EXISTS series (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                categoria_id INT DEFAULT NULL,
+                name VARCHAR(100) NOT NULL,
+                pos INT DEFAULT 0
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+            try {
+                $pdo->exec("ALTER TABLE series DROP INDEX name");
+            } catch (Exception $e) {}
+            $checkCatCol = $pdo->query("SHOW COLUMNS FROM series LIKE 'categoria_id'")->fetch();
+            if (!$checkCatCol) {
+                $pdo->exec("ALTER TABLE series ADD COLUMN categoria_id INT DEFAULT NULL");
             }
-        }
-        try {
-            $pdo->exec("ALTER TABLE series CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
-            $pdo->exec("ALTER TABLE productos MODIFY COLUMN serie VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL;");
+            $chkSerie = $pdo->query("SHOW COLUMNS FROM productos LIKE 'serie'")->fetch();
+            if (!$chkSerie) {
+                $pdo->exec("ALTER TABLE productos ADD COLUMN serie VARCHAR(100) DEFAULT NULL;");
+            }
+            // Auto-discover series per category
+            $distinctPairs = $pdo->query("SELECT DISTINCT serie, categoria_id FROM productos WHERE serie IS NOT NULL AND TRIM(serie) != ''")->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($distinctPairs as $dp) {
+                $sName = trim($dp['serie']);
+                $cId = !empty($dp['categoria_id']) ? (int)$dp['categoria_id'] : null;
+                if ($cId !== null) {
+                    $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id = ?");
+                    $chk->execute([$sName, $cId]);
+                } else {
+                    $chk = $pdo->prepare("SELECT id FROM series WHERE name = ? AND categoria_id IS NULL");
+                    $chk->execute([$sName]);
+                }
+                if (!$chk->fetch()) {
+                    $maxPos = (int)$pdo->query("SELECT COALESCE(MAX(pos), 0) FROM series WHERE " . ($cId ? "categoria_id = $cId" : "categoria_id IS NULL"))->fetchColumn();
+                    $ins = $pdo->prepare("INSERT INTO series (categoria_id, name, pos) VALUES (?, ?, ?)");
+                    $ins->execute([$cId, $sName, $maxPos + 1]);
+                }
+            }
+            try {
+                $pdo->exec("ALTER TABLE series CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;");
+                $pdo->exec("ALTER TABLE productos MODIFY COLUMN serie VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL;");
+            } catch (Exception $e) {}
         } catch (Exception $e) {}
-    } catch (Exception $e) {}
+    }
 
     $stmt = $pdo->query("SELECT p.*, COALESCE(s.pos, 999999) AS serie_pos FROM productos p LEFT JOIN series s ON (p.serie COLLATE utf8mb4_general_ci = s.name COLLATE utf8mb4_general_ci AND (s.categoria_id = p.categoria_id OR s.categoria_id IS NULL)) ORDER BY serie_pos ASC, p.series ASC, p.name ASC");
     $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -106,6 +108,7 @@ $seriesJson = json_encode($series);
 <meta name="twitter:image" content="https://www.fitnesslife.com.co/assets/logo.webp"/>
 <meta name="theme-color" content="#c62828"/>
 <link rel="icon" type="image/png" href="assets/logo.webp">
+<script>window.__resources = window.__resources || {};</script>
 <script src="js/support.js"></script>
 <style>
               .grid-catalogo {
@@ -161,6 +164,8 @@ $seriesJson = json_encode($series);
 <meta name="ext-resource-dependency" content="assets/cat_escaleras_v3.webp" data-resource-id="assets/cat_escaleras_v3.webp"/>
 <meta name="ext-resource-dependency" content="uploads/spinning.jpeg" data-resource-id="uploads/spinning.jpeg"/>
 <meta name="ext-resource-dependency" content="uploads/circuito.jpeg" data-resource-id="uploads/circuito.jpeg"/>
+<meta name="ext-resource-dependency" content="uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg" data-resource-id="uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg"/>
+<meta name="ext-resource-dependency" content="uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg" data-resource-id="uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg"/>
 <meta name="ext-resource-dependency" content="uploads/funcional.jpeg" data-resource-id="uploads/funcional.jpeg"/>
 <meta name="ext-resource-dependency" content="assets/sol_comercial.webp" data-resource-id="assets/sol_comercial.webp"/>
 <meta name="ext-resource-dependency" content="assets/sol_institucional.webp" data-resource-id="assets/sol_institucional.webp"/>
@@ -263,7 +268,7 @@ $seriesJson = json_encode($series);
             <img src="assets/hero_hoist.webp" data-sc-camel-src="{{slide.img}}" alt="{{slide.alt}}" ref="{{heroImgRef}}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:{{slide.fit}}"/>
           </sc-if>
           <sc-if value="{{slide.showVideo}}" hint-placeholder-val="{{false}}">
-            <video ref="{{videoRef}}" sc-camel-src="{{slide.videoSrc}}" autoPlay="{{true}}" muted="{{true}}" loop="{{true}}" playsInline="{{true}}" preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+            <video ref="{{videoRef}}" sc-camel-src="{{slide.videoSrc}}" autoPlay="{{true}}" muted="{{true}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
           </sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(105deg, oklch(16% .006 270 / .68) 0%, oklch(16% .006 270 / .42) 50%, oklch(16% .006 270 / .16) 100%)"></div>
           <div style="position:absolute;inset:0;background:linear-gradient(to right, oklch(12% .005 270 / .4), oklch(12% .005 270 / .18) 55%, oklch(12% .005 270 / .04))"></div>
@@ -388,7 +393,7 @@ $seriesJson = json_encode($series);
 
       <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center;margin-bottom:110px">
         <div style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
-          <img loading="lazy" src="uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+          <img loading="lazy" sc-camel-src="{{circRow1Img}}" src="uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;left:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;left:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
           <div style="position:absolute;bottom:22px;left:22px;background:oklch(58% .22 25);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow1ImgOpacity}};transition:opacity .6s ease .5s">HASTA −60%</div>
@@ -425,7 +430,7 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <div style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
-          <img loading="lazy" src="uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+          <img loading="lazy" sc-camel-src="{{circRow2Img}}" src="uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;right:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;right:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
           <div style="position:absolute;bottom:22px;right:22px;background:oklch(20% .005 270);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow2ImgOpacity}};transition:opacity .6s ease .5s">30 MIN / CUERPO COMPLETO</div>
@@ -443,7 +448,7 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
           <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
-            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_loop.mp4" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="auto" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_loop.mp4" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
               <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:oklch(72% .2 27);margin-bottom:4px">Realleader USA</div>
@@ -1130,25 +1135,27 @@ class Component extends DCLogic {
     menuOpen: false,
     equiposOpen: false,
     quote: { name: '', company: '', email: '', phone: '', type: '', message: '' },
-    allProducts: [],
+    allProducts: (typeof window !== 'undefined' && window.DB_PRODUCTS) ? window.DB_PRODUCTS : [],
     quoteErrors: {},
     quoteSent: false,
     quoteSending: false,
     quoteName: '',
     showTop: false,
     globalSearchOpen: false,
-    solucionesVisible: false,
-    colorsVisible: false,
+    solucionesVisible: true,
+    colorsVisible: true,
     rs800Sound: false,
-    circuitosVisible: false,
-    processVisible: false,
-    marcasVisible: false,
-    clientesVisible: false,
-    whyUsVisible: false,
+    circuitosVisible: true,
+    processVisible: true,
+    marcasVisible: true,
+    clientesVisible: true,
+    whyUsVisible: true,
   };
 
   componentDidMount() {
-        this.setState({ allProducts: window.DB_PRODUCTS || [] });
+    if ((!this.state.allProducts || !this.state.allProducts.length) && typeof window !== 'undefined' && window.DB_PRODUCTS) {
+      this.setState({ allProducts: window.DB_PRODUCTS });
+    }
     this.scheduleHero();
     this.handleResize();
     window.addEventListener('resize', this.handleResize);
@@ -2118,10 +2125,12 @@ class Component extends DCLogic {
       circuitosHeaderOpacity: this.state.circuitosVisible ? 1 : 0,
       circuitosHeaderTransform: this.state.circuitosVisible ? 'translateY(0)' : 'translateY(28px)',
       circBarScale: this.state.circuitosVisible ? 1 : 0,
+      circRow1Img: R('uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg'),
       circRow1ImgOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow1ImgTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(-40px)',
       circRow1TextOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow1TextTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(40px)',
+      circRow2Img: R('uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg'),
       circRow2ImgOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow2ImgTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(40px)',
       circRow2TextOpacity: this.state.circuitosVisible ? 1 : 0,
