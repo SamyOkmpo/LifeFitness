@@ -131,6 +131,25 @@ $seriesJson = json_encode($series);
                   grid-template-columns: repeat(1, minmax(0, 1fr));
                 }
               }
+              .portfolio-carousel-track::-webkit-scrollbar {
+                display: none;
+              }
+              .portfolio-carousel-track {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+              .portfolio-arrow-btn {
+                transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+              }
+              .portfolio-arrow-btn:hover {
+                transform: translateY(-50%) scale(1.12) !important;
+                background: oklch(58% .22 25) !important;
+                color: #ffffff !important;
+                box-shadow: 0 8px 24px -4px oklch(58% .22 25 / .6) !important;
+              }
+              .portfolio-arrow-btn:active {
+                transform: translateY(-50%) scale(0.96) !important;
+              }
             </style>
 </head>
 <body>
@@ -332,20 +351,35 @@ $seriesJson = json_encode($series);
         <h2 style="font-family:Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Equipos que <span style="color:oklch(58% .22 25)">Transforman Espacios</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Una muestra de nuestras líneas de cardio, fuerza y circuitos, instaladas en gimnasios y centros deportivos de todo el país.</p>
       </div>
-      <div style="position:absolute;left:0;top:0;bottom:0;width:140px;z-index:2;pointer-events:none;background:linear-gradient(90deg,oklch(97% .002 270),oklch(97% .002 270 / 0))"></div>
-      <div style="position:absolute;right:0;top:0;bottom:0;width:140px;z-index:2;pointer-events:none;background:linear-gradient(270deg,oklch(97% .002 270),oklch(97% .002 270 / 0))"></div>
-      <div style="display:flex;width:max-content;gap:24px;animation:ticker 58s linear infinite">
-        <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
-          <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
-            <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" style="width:100%;height:100%;object-fit:contain;transform:scale({{p.zoom}});background:oklch(100% 0 0);padding:{{p.pad}};box-sizing:border-box;pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
-            <div style="position:absolute;left:0;right:0;bottom:0;height:76px;background:oklch(16% .006 270);pointer-events:none"></div>
-            <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease" style-hover="opacity:1"></div>
-            <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 18px;display:flex;flex-direction:column;gap:3px;pointer-events:none">
-              <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:oklch(75% .2 27);transition:transform .4s ease" style-hover="transform:translateX(5px)">{{p.tag}}</span>
-              <h3 style="font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
+
+      <!-- Sombras de degradado en los extremos -->
+      <div style="position:absolute;left:0;top:0;bottom:0;width:100px;z-index:4;pointer-events:none;background:linear-gradient(90deg,oklch(97% .002 270),oklch(97% .002 270 / 0))"></div>
+      <div style="position:absolute;right:0;top:0;bottom:0;width:100px;z-index:4;pointer-events:none;background:linear-gradient(270deg,oklch(97% .002 270),oklch(97% .002 270 / 0))"></div>
+
+      <!-- Flechas de navegación -->
+      <button onClick="{{prevPortfolio}}" aria-label="Anterior" class="portfolio-arrow-btn" style="position:absolute;left:24px;top:58%;transform:translateY(-50%);z-index:10;width:52px;height:52px;border-radius:50%;background:oklch(98% 0 0 / .92);color:oklch(20% .005 270);border:1px solid oklch(85% .004 270);box-shadow:0 8px 24px -4px oklch(20% .01 270 / .18);cursor:pointer;display:flex;align-items:center;justify-content:center;outline:none;backdrop-filter:blur(8px)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      <button onClick="{{nextPortfolio}}" aria-label="Siguiente" class="portfolio-arrow-btn" style="position:absolute;right:24px;top:58%;transform:translateY(-50%);z-index:10;width:52px;height:52px;border-radius:50%;background:oklch(98% 0 0 / .92);color:oklch(20% .005 270);border:1px solid oklch(85% .004 270);box-shadow:0 8px 24px -4px oklch(20% .01 270 / .18);cursor:pointer;display:flex;align-items:center;justify-content:center;outline:none;backdrop-filter:blur(8px)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+
+      <!-- Contenedor deslizable e interactivo -->
+      <div ref="{{portfolioTrackRef}}" onMouseDown="{{onPortfolioMouseDown}}" class="portfolio-carousel-track" style="display:flex;overflow-x:auto;overflow-y:hidden;cursor:grab;padding:12px 24px 28px;user-select:none;-webkit-user-select:none">
+        <div style="display:flex;width:max-content;gap:24px;padding:0 20px">
+          <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
+            <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
+              <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" draggable="false" style="width:100%;height:100%;object-fit:contain;transform:scale({{p.zoom}});background:oklch(100% 0 0);padding:{{p.pad}};box-sizing:border-box;pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+              <div style="position:absolute;left:0;right:0;bottom:0;height:76px;background:oklch(16% .006 270);pointer-events:none"></div>
+              <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease" style-hover="opacity:1"></div>
+              <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 18px;display:flex;flex-direction:column;gap:3px;pointer-events:none">
+                <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:oklch(75% .2 27);transition:transform .4s ease" style-hover="transform:translateX(5px)">{{p.tag}}</span>
+                <h3 style="font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
+              </div>
             </div>
-          </div>
-        </sc-for>
+          </sc-for>
+        </div>
       </div>
     </section>
 
@@ -1180,12 +1214,192 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     clearTimeout(this._heroTimer);
+    if (this._portfolioRaf) cancelAnimationFrame(this._portfolioRaf);
+    window.removeEventListener('mousemove', this._onPortfolioMouseMove);
+    window.removeEventListener('mouseup', this._onPortfolioMouseUp);
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('scroll', this.handleScroll);
     Object.values(this._solObservers).forEach((o) => o.disconnect());
     if (this._categoriasObserver) this._categoriasObserver.disconnect();
     Object.values(this._sectionObservers).forEach((o) => o.disconnect());
   }
+
+  // Portfolio interactive slider (drag, velocity momentum, infinite wrap, arrows)
+  _portfolioTrack = null;
+  _portfolioIsDown = false;
+  _portfolioStartX = 0;
+  _portfolioScrollLeft = 0;
+  _portfolioLastX = 0;
+  _portfolioLastTime = 0;
+  _portfolioVelocity = 0;
+  _portfolioAutoSpeed = 0.55;
+  _portfolioIsHovered = false;
+  _portfolioRaf = null;
+
+  setPortfolioTrackRef = (el) => {
+    if (!el) return;
+    this._portfolioTrack = el;
+    if (!this._portfolioInitialized) {
+      this._portfolioInitialized = true;
+      this._bindPortfolioEvents();
+      this._startPortfolioLoop();
+    }
+  };
+
+  _bindPortfolioEvents = () => {
+    if (!this._portfolioTrack) return;
+    const track = this._portfolioTrack;
+
+    // Center scroll initially once rendered so user can drag in either direction immediately
+    requestAnimationFrame(() => {
+      if (track.scrollWidth > track.clientWidth) {
+        track.scrollLeft = track.scrollWidth / 3;
+      }
+    });
+
+    track.addEventListener('mouseenter', () => { this._portfolioIsHovered = true; });
+    track.addEventListener('mouseleave', () => { this._portfolioIsHovered = false; });
+
+    // Touch support for mobile swipe
+    let touchStartX = 0;
+    let touchScrollLeft = 0;
+    let touchLastX = 0;
+    let touchLastTime = 0;
+
+    track.addEventListener('touchstart', (e) => {
+      this._portfolioVelocity = 0;
+      this._portfolioIsDown = true;
+      touchStartX = e.touches[0].pageX;
+      touchScrollLeft = track.scrollLeft;
+      touchLastX = touchStartX;
+      touchLastTime = Date.now();
+    }, { passive: true });
+
+    track.addEventListener('touchmove', (e) => {
+      if (!this._portfolioIsDown) return;
+      const x = e.touches[0].pageX;
+      const now = Date.now();
+      const dt = now - touchLastTime;
+      if (dt > 0) {
+        this._portfolioVelocity = -((x - touchLastX) / dt) * 16;
+      }
+      touchLastX = x;
+      touchLastTime = now;
+      track.scrollLeft = touchScrollLeft - (x - touchStartX);
+      this._wrapPortfolio(track);
+    }, { passive: true });
+
+    track.addEventListener('touchend', () => {
+      this._portfolioIsDown = false;
+    }, { passive: true });
+  };
+
+  _startPortfolioLoop = () => {
+    const loop = () => {
+      const track = this._portfolioTrack;
+      if (track && this.state.page === 'home') {
+        if (!this._portfolioIsDown) {
+          // Apply velocity momentum
+          if (Math.abs(this._portfolioVelocity) > 0.05) {
+            track.scrollLeft += this._portfolioVelocity;
+            this._portfolioVelocity *= 0.94; // friction decay
+            this._wrapPortfolio(track);
+          } else {
+            this._portfolioVelocity = 0;
+            // Gentle continuous auto-play when not dragging or hovering
+            if (!this._portfolioIsHovered) {
+              track.scrollLeft += this._portfolioAutoSpeed;
+              this._wrapPortfolio(track);
+            }
+          }
+        }
+      }
+      this._portfolioRaf = requestAnimationFrame(loop);
+    };
+    this._portfolioRaf = requestAnimationFrame(loop);
+  };
+
+  _wrapPortfolio = (track) => {
+    const singleSetWidth = track.scrollWidth / 3;
+    if (singleSetWidth <= 0) return;
+    if (track.scrollLeft >= singleSetWidth * 2) {
+      track.scrollLeft -= singleSetWidth;
+    } else if (track.scrollLeft <= singleSetWidth * 0.1) {
+      track.scrollLeft += singleSetWidth;
+    }
+  };
+
+  onPortfolioMouseDown = (e) => {
+    if (!this._portfolioTrack) return;
+    // Only handle primary left click
+    if (e.button !== 0) return;
+    this._portfolioIsDown = true;
+    this._portfolioVelocity = 0;
+    this._portfolioStartX = e.pageX;
+    this._portfolioScrollLeft = this._portfolioTrack.scrollLeft;
+    this._portfolioLastX = e.pageX;
+    this._portfolioLastTime = Date.now();
+    this._portfolioHasDragged = false;
+    this._portfolioTrack.style.cursor = 'grabbing';
+
+    window.addEventListener('mousemove', this._onPortfolioMouseMove);
+    window.addEventListener('mouseup', this._onPortfolioMouseUp);
+  };
+
+  _onPortfolioMouseMove = (e) => {
+    if (!this._portfolioIsDown || !this._portfolioTrack) return;
+    const track = this._portfolioTrack;
+    const currentX = e.pageX;
+    const diff = Math.abs(currentX - this._portfolioStartX);
+    if (diff > 5) {
+      this._portfolioHasDragged = true;
+    }
+    e.preventDefault();
+    const now = Date.now();
+    const dt = now - this._portfolioLastTime;
+    if (dt > 0) {
+      // Sensitivity scale for fast hand movements
+      const instantVelocity = -((currentX - this._portfolioLastX) / dt) * 16;
+      this._portfolioVelocity = (this._portfolioVelocity * 0.4) + (instantVelocity * 0.6);
+    }
+    this._portfolioLastX = currentX;
+    this._portfolioLastTime = now;
+
+    const walk = (currentX - this._portfolioStartX);
+    track.scrollLeft = this._portfolioScrollLeft - walk;
+    this._wrapPortfolio(track);
+  };
+
+  _onPortfolioMouseUp = (e) => {
+    if (!this._portfolioIsDown) return;
+    this._portfolioIsDown = false;
+    if (this._portfolioTrack) {
+      this._portfolioTrack.style.cursor = 'grab';
+    }
+    window.removeEventListener('mousemove', this._onPortfolioMouseMove);
+    window.removeEventListener('mouseup', this._onPortfolioMouseUp);
+    setTimeout(() => { this._portfolioHasDragged = false; }, 80);
+  };
+
+  prevPortfolio = (e) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    if (!this._portfolioTrack) return;
+    const track = this._portfolioTrack;
+    const step = (this.state.isNarrow ? 260 : 340);
+    this._portfolioVelocity = -18; // Kick with backwards velocity
+    track.scrollBy({ left: -step, behavior: 'smooth' });
+    setTimeout(() => this._wrapPortfolio(track), 400);
+  };
+
+  nextPortfolio = (e) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    if (!this._portfolioTrack) return;
+    const track = this._portfolioTrack;
+    const step = (this.state.isNarrow ? 260 : 340);
+    this._portfolioVelocity = 18; // Kick with forwards velocity
+    track.scrollBy({ left: step, behavior: 'smooth' });
+    setTimeout(() => this._wrapPortfolio(track), 400);
+  };
 
 
   handlePopState = () => {
@@ -1311,7 +1525,12 @@ class Component extends DCLogic {
 
   openEquipos = () => this.setState({ equiposOpen: true });
   closeEquipos = () => this.setState({ equiposOpen: false });
-  goCat = (slug) => (e) => { e.preventDefault(); this.setState({ menuOpen: false, equiposOpen: false }); this.goToCategory(slug); };
+  goCat = (slug) => (e) => {
+    if (this._portfolioHasDragged) return;
+    if (e) e.preventDefault();
+    this.setState({ menuOpen: false, equiposOpen: false });
+    this.goToCategory(slug);
+  };
   navTo = (id) => {
     const fn = this.scrollToSection(id);
     return (e) => { this.setState({ menuOpen: false }); fn(e); };
@@ -1659,7 +1878,7 @@ class Component extends DCLogic {
       { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
 
-    const carouselCards = [...carouselItems, ...carouselItems].map((c, i) => ({
+    const carouselCards = [...carouselItems, ...carouselItems, ...carouselItems].map((c, i) => ({
       img: c.img, name: c.name, tag: c.tag, pad: c.pad || '18px', zoom: c.zoom || 1, onClick: this.goCat(c.slug), key: i,
     }));
 
@@ -2280,6 +2499,10 @@ class Component extends DCLogic {
       categoryProducts,
       noProducts: categoryProducts.length === 0,
       solutions: solutionsData,
+      portfolioTrackRef: this.setPortfolioTrackRef,
+      onPortfolioMouseDown: this.onPortfolioMouseDown,
+      prevPortfolio: this.prevPortfolio,
+      nextPortfolio: this.nextPortfolio,
       carouselCards,
       processSteps: processStepsData,
       brands: brandsData,
