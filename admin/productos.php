@@ -79,6 +79,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     header("Location: productos.php"); exit;
 }
 
+// Procesar eliminación masiva (en lote)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'bulk_delete') {
+    $ids = isset($_POST['selected_ids']) ? explode(',', $_POST['selected_ids']) : [];
+    $ids = array_filter(array_map('intval', $ids));
+    
+    if (!empty($ids)) {
+        $inPlaceholders = implode(',', array_fill(0, count($ids), '?'));
+        $stmt = $pdo->prepare("DELETE FROM productos WHERE id IN ($inPlaceholders)");
+        $stmt->execute($ids);
+        
+        $_SESSION['flash_msg'] = "Se eliminaron exitosamente " . count($ids) . " productos.";
+    }
+    header("Location: productos.php"); exit;
+}
+
 
 function getProductImgUrl($rawImg, $mediaJson = null) {
     $img = $rawImg ?? '';
@@ -319,10 +334,11 @@ include 'header.php';
 </div>
 
 <!-- Barra Flotante de Acciones en Lote -->
-<div id="bulkActionBar" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1d3557; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; align-items: center; gap: 16px; z-index: 1000; font-family: 'Inter', sans-serif;">
+<div id="bulkActionBar" style="position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #1d3557; color: white; padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: none; align-items: center; gap: 14px; z-index: 1000; font-family: 'Inter', sans-serif; flex-wrap: wrap; justify-content: center;">
     <span style="font-weight: 600; font-size: 14px;"><span id="selectedCountBadge" style="background: #e63946; color: white; padding: 3px 10px; border-radius: 12px; margin-right: 6px; font-weight: bold;">0</span> seleccionados</span>
     <button id="openBulkModalBtn" type="button" style="background: #457b9d; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">⚡ Editar en masa</button>
     <button id="openBulkImagesBtn" type="button" style="background: #2a9d8f; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">🖼️ Cambiar Imágenes</button>
+    <button id="bulkDeleteBtn" type="button" style="background: #e63946; color: white; border: none; padding: 8px 18px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 13px; transition: background 0.2s; display: flex; align-items: center; gap: 6px;">🗑️ Eliminar en masa</button>
     <button id="clearSelectionBtn" type="button" style="background: transparent; color: #cbd5e0; border: 1px solid rgba(255,255,255,0.3); padding: 8px 14px; border-radius: 20px; font-weight: 500; cursor: pointer; font-size: 12px;">Deseleccionar</button>
 </div>
 
@@ -568,6 +584,35 @@ document.addEventListener('DOMContentLoaded', function() {
             input.name = 'selected_ids';
             input.value = Array.from(selectedIds).join(',');
             form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    }
+
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', function() {
+            const count = selectedIds.size;
+            if (count === 0) return;
+            if (!confirm(`⚠️ ATENCIÓN: ¿Estás completamente seguro de eliminar permanentemente ${count} producto${count > 1 ? 's' : ''}? Esta acción no se puede deshacer.`)) {
+                return;
+            }
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'productos.php';
+
+            const actionInput = document.createElement('input');
+            actionInput.type = 'hidden';
+            actionInput.name = 'action';
+            actionInput.value = 'bulk_delete';
+            form.appendChild(actionInput);
+
+            const idsInput = document.createElement('input');
+            idsInput.type = 'hidden';
+            idsInput.name = 'selected_ids';
+            idsInput.value = Array.from(selectedIds).join(',');
+            form.appendChild(idsInput);
+
             document.body.appendChild(form);
             form.submit();
         });
