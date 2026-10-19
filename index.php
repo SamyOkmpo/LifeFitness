@@ -189,6 +189,7 @@ $seriesJson = json_encode($series);
 <meta name="ext-resource-dependency" content="assets/sol_comercial.webp" data-resource-id="assets/sol_comercial.webp"/>
 <meta name="ext-resource-dependency" content="assets/sol_institucional.webp" data-resource-id="assets/sol_institucional.webp"/>
 <meta name="ext-resource-dependency" content="assets/sol_hogar.webp" data-resource-id="assets/sol_hogar.webp"/>
+<meta name="ext-resource-dependency" content="assets/portfolio_glute_leader.png" data-resource-id="assets/portfolio_glute_leader.png"/>
 <meta name="ext-resource-dependency" content="assets/sol_accesorios.webp" data-resource-id="assets/sol_accesorios.webp"/>
 <meta name="ext-resource-dependency" content="assets/trim_brand_lifefitness.webp" data-resource-id="assets/trim_brand_lifefitness.webp"/>
 <meta name="ext-resource-dependency" content="assets/trim_brand_precor.webp" data-resource-id="assets/trim_brand_precor.webp"/>
@@ -1873,6 +1874,7 @@ class Component extends DCLogic {
       { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
       { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
       { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
+      { img: R('assets/portfolio_glute_leader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader', pad: '10px', zoom: 1.05 },
       { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', pad: '0px', zoom: 1.12 },
       { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
       { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
