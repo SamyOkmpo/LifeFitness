@@ -367,7 +367,7 @@ $seriesJson = json_encode($series);
       </button>
 
       <!-- Contenedor deslizable e interactivo -->
-      <div ref="{{portfolioTrackRef}}" onMouseDown="{{onPortfolioMouseDown}}" class="portfolio-carousel-track" style="display:flex;overflow-x:auto;overflow-y:hidden;cursor:grab;padding:12px 24px 28px;user-select:none;-webkit-user-select:none">
+      <div ref="{{portfolioTrackRef}}" onMouseDown="{{onPortfolioMouseDown}}" class="portfolio-carousel-track" style="display:flex;overflow-x:auto;overflow-y:hidden;cursor:grab;padding:28px 24px 36px;user-select:none;-webkit-user-select:none">
         <div style="display:flex;width:max-content;gap:24px;padding:0 20px">
           <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
             <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
