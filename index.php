@@ -1339,8 +1339,12 @@ class Component extends DCLogic {
       }
     });
 
-    track.addEventListener('mouseenter', () => { this._portfolioIsHovered = true; });
-    track.addEventListener('mouseleave', () => { this._portfolioIsHovered = false; });
+    track.addEventListener('mouseenter', () => { 
+      if (!this.state.isMobile) this._portfolioIsHovered = true; 
+    });
+    track.addEventListener('mouseleave', () => { 
+      this._portfolioIsHovered = false; 
+    });
 
     // Touch support for mobile swipe
     let touchStartX = 0;
@@ -1351,6 +1355,7 @@ class Component extends DCLogic {
     track.addEventListener('touchstart', (e) => {
       this._portfolioVelocity = 0;
       this._portfolioIsDown = true;
+      this._portfolioIsHovered = false;
       touchStartX = e.touches[0].pageX;
       touchScrollLeft = track.scrollLeft;
       touchLastX = touchStartX;
@@ -1373,6 +1378,12 @@ class Component extends DCLogic {
 
     track.addEventListener('touchend', () => {
       this._portfolioIsDown = false;
+      this._portfolioIsHovered = false;
+    }, { passive: true });
+
+    track.addEventListener('touchcancel', () => {
+      this._portfolioIsDown = false;
+      this._portfolioIsHovered = false;
     }, { passive: true });
   };
 
@@ -1389,7 +1400,8 @@ class Component extends DCLogic {
           } else {
             this._portfolioVelocity = 0;
             // Gentle continuous auto-play when not dragging or hovering
-            if (!this._portfolioIsHovered) {
+            const isHovered = this.state.isMobile ? false : this._portfolioIsHovered;
+            if (!isHovered) {
               track.scrollLeft += this._portfolioAutoSpeed;
               this._wrapPortfolio(track);
             }
@@ -2122,7 +2134,7 @@ class Component extends DCLogic {
       { img: R('assets/portfolio_norm/pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
       { img: R('assets/portfolio_norm/pesolibre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
       { img: R('assets/portfolio_norm/gluteleader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
-      { img: R('assets/portfolio_norm/circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos' },
+      { img: R('assets/portfolio_norm/circuitos_v2.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos' },
       { img: R('assets/portfolio_norm/funcional.png'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
       { img: R('assets/portfolio_norm/accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
