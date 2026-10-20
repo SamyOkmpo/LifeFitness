@@ -188,6 +188,8 @@ $seriesJson = json_encode($series);
               /* "backwards": al terminar no deja transform, que rompería los modales position:fixed de adentro */
               .page-in { animation: pageIn .4s cubic-bezier(.2,.8,.2,1) backwards; }
               .pc-card { animation: cardIn .45s cubic-bezier(.2,.8,.2,1) backwards; }
+              @keyframes countBump { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+              .tab-count { animation: countBump .35s ease; }
               .pc-photo { opacity: 0; transition: opacity .35s ease; }
               /* Silueta animada mientras la foto del producto no ha cargado */
               @keyframes skel { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
@@ -199,7 +201,7 @@ $seriesJson = json_encode($series);
                 .hc-grid > div:active, .pc-card:active, .tap-press:active { transform: scale(.975) !important; transition: transform .12s ease !important; }
               }
               @media (prefers-reduced-motion: reduce) {
-                .ticker-track, .page-in, .pc-card, .pc-img { animation: none !important; }
+                .ticker-track, .page-in, .pc-card, .pc-img, .tab-count { animation: none !important; }
                 .pc-photo { transition: none; }
               }
               .portfolio-carousel-track::-webkit-scrollbar {
@@ -291,7 +293,7 @@ $seriesJson = json_encode($series);
 </style>
 </helmet>
 
-<div style="background:oklch(93% .004 270);min-height:100vh;overflow-x:{{rootOverflowX}}">
+<div style="background:oklch(93% .004 270);min-height:100vh;overflow-x:{{rootOverflowX}};padding-bottom:{{rootPadBottom}}">
 
   <div style="background:oklch(18% .005 270);color:oklch(86% .004 270);text-align:center;padding:6px 16px;font-weight:500;font-size:11px;letter-spacing:0.04em;line-height:1.4">
     Importadores directos · Equipos 100% americanos
@@ -397,24 +399,26 @@ $seriesJson = json_encode($series);
           </sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(105deg, oklch(16% .006 270 / .68) 0%, oklch(16% .006 270 / .42) 50%, oklch(16% .006 270 / .16) 100%)"></div>
           <div style="position:absolute;inset:0;background:linear-gradient(to right, oklch(12% .005 270 / .4), oklch(12% .005 270 / .18) 55%, oklch(12% .005 270 / .04))"></div>
+          <div style="display:{{mobileOnlyBlock}};position:absolute;inset:0;background:linear-gradient(to top, oklch(10% .005 270 / .92) 0%, oklch(10% .005 270 / .35) 50%, transparent 75%)"></div>
         </div>
       </sc-for>
       <button onClick="{{toggleSound}}" aria-label="{{soundLabel}}" title="{{soundLabel}}" style="position:absolute;right:24px;bottom:30px;z-index:25;display:{{soundBtnDisplay}};align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;background:oklch(16% .006 270 / .55);border:1px solid oklch(100% 0 0 / .3);color:white;font-size:17px;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-3px)">{{soundIcon}}</button>
-      <div style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:10px">
+      <div style="{{heroDotsWrapStyle}}">
         <sc-for list="{{heroDots}}" as="dot" hint-placeholder-count="2">
-          <button onClick="{{dot.onClick}}" aria-label="{{dot.label}}" style="width:{{dot.width}};height:4px;border:none;padding:0;cursor:pointer;background:{{dot.bg}};transition:width .4s cubic-bezier(.2,.8,.2,1),background .3s ease"></button>
+          <button onClick="{{dot.onClick}}" aria-label="{{dot.label}}" style="width:{{dot.width}};flex:{{heroDotFlex}};border-radius:2px;height:{{heroDotH}};border:none;padding:0;cursor:pointer;background:{{dot.bg}};transition:width .4s cubic-bezier(.2,.8,.2,1),background .3s ease"></button>
         </sc-for>
       </div>
-      <div style="text-align:center;margin-top:48px">
+      <div style="display:{{desktopOnlyBlock}};text-align:center;margin-top:48px">
         <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:'FL Titulos',Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.01em;cursor:pointer;border-radius:10px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
           Ver catálogo completo de productos →
         </button>
       </div>
-      <div style="position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center">
+      <div style="position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:{{heroContentPad}};box-sizing:border-box;height:100%;display:flex;align-items:{{heroContentAlign}}">
         <div style="max-width:620px;animation:slideFade .7s ease-out">
+          <div style="display:{{mobileOnlyBlock}};font-size:13px;color:oklch(82% .008 270);margin-bottom:10px">Equipos de cardio y fuerza comercial</div>
           <h1 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(32px,5.5vw,64px);font-weight:700;line-height:0.96;margin:0 0 22px;color:oklch(98% 0 0)">INSPIRANDO<br/>AL MUNDO<br/>A ENTRENAR</h1>
-          <p style="font-size:{{heroPSize}};color:oklch(80% .01 270);max-width:420px;margin:0 0 {{heroPGap}};line-height:1.55">Equipos de cardio y fuerza comercial líderes en el mundo, diseñados para ofrecer un rendimiento superior.</p>
-          <a href="#categorias" onClick="{{scrollTo_categorias}}" style="display:inline-flex;align-items:center;gap:8px;background:oklch(58% .22 25);border-radius:10px;color:white;padding:16px 30px;font-weight:700;letter-spacing:0.01em;font-size:13px;min-height:52px;box-sizing:border-box">Ver Equipos →</a>
+          <p style="display:{{desktopOnlyBlock}};font-size:{{heroPSize}};color:oklch(80% .01 270);max-width:420px;margin:0 0 {{heroPGap}};line-height:1.55">Equipos de cardio y fuerza comercial líderes en el mundo, diseñados para ofrecer un rendimiento superior.</p>
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap"><a href="#categorias" onClick="{{scrollTo_categorias}}" style="display:inline-flex;align-items:center;gap:8px;background:oklch(58% .22 25);border-radius:10px;color:white;padding:16px 30px;font-weight:700;letter-spacing:0.01em;font-size:13px;min-height:52px;box-sizing:border-box">Ver Equipos →</a><a href="#" onClick="{{goToContacto}}" style="display:{{mobileOnlyBlock}};color:white;font-size:14px;font-weight:600;border-bottom:1px solid oklch(100% 0 0 / .55);padding-bottom:2px">Cotizar</a></div>
   
       </div>
       </div>
@@ -1374,6 +1378,61 @@ $seriesJson = json_encode($series);
   </footer>
 
 
+  <!-- Navegación inferior (solo celular): reemplaza WhatsApp flotante, volver arriba y la barra de cotización -->
+  <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+    <nav aria-label="Navegación principal" style="position:fixed;left:0;right:0;bottom:0;z-index:9000;display:flex;background:oklch(99% 0 0 / .97);border-top:1px solid oklch(90% .004 270);padding:6px 6px calc(8px + env(safe-area-inset-bottom, 0px))">
+      <button type="button" onClick="{{goHome}}" aria-label="Inicio" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;padding:4px 0;font-size:10.5px;font-weight:600;cursor:pointer;position:relative;color:{{tabHomeColor}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Inicio</button>
+      <button type="button" onClick="{{goToCatalogo}}" aria-label="Catálogo" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;padding:4px 0;font-size:10.5px;font-weight:600;cursor:pointer;position:relative;color:{{tabCatColor}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>Catálogo</button>
+      <button type="button" onClick="{{openCartSheet}}" aria-label="Tu cotización" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;padding:4px 0;font-size:10.5px;font-weight:600;cursor:pointer;position:relative;color:{{tabCartColor}}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Cotización
+        <sc-if value="{{hasCartItems}}"><span key="{{cartBumpKey}}" class="tab-count" style="position:absolute;top:0;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 5px;box-sizing:border-box;border-radius:999px;background:oklch(58% .22 25);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center">{{cartCount}}</span></sc-if>
+      </button>
+      <a href="https://wa.me/573128011838" target="_blank" rel="noopener" aria-label="WhatsApp" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;padding:4px 0;font-size:10.5px;font-weight:600;cursor:pointer;position:relative;color:oklch(40% .008 270)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a9e4b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.2 7.5L3 21l2-5.6A8.5 8.5 0 1 1 21 11.5z"></path></svg>WhatsApp</a>
+    </nav>
+  </sc-if>
+
+  <!-- Hoja de cotización (solo celular) -->
+  <sc-if value="{{cartSheetOpen}}">
+    <div onClick="{{closeCartSheet}}" style="position:fixed;inset:0;z-index:10040;background:rgba(0,0,0,0.45)"></div>
+    <div role="dialog" aria-modal="true" aria-label="Tu cotización" style="position:fixed;left:0;right:0;bottom:0;z-index:10041;background:white;border-radius:18px 18px 0 0;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column;box-shadow:0 -12px 32px -12px rgba(0,0,0,0.3);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid oklch(93% 0 0)">
+        <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:20px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">Tu cotización</h3>
+        <button onClick="{{closeCartSheet}}" aria-label="Cerrar" style="width:40px;height:40px;border-radius:999px;border:none;background:oklch(96% 0 0);display:flex;align-items:center;justify-content:center;cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
+      </div>
+      <div class="sheet-scroll" style="flex:1;padding:8px 16px">
+        <sc-if value="{{noCartItems}}">
+          <div style="padding:22px 0;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+            <p style="margin:0;font-size:14px;color:oklch(40% .008 270)">Aún no añades equipos. En el catálogo toca "Añadir" en los que quieras cotizar.</p>
+            <button onClick="{{goToCatalogoFromSheet}}" style="height:44px;padding:0 18px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:14px;font-weight:600;cursor:pointer">Ver catálogo</button>
+          </div>
+        </sc-if>
+        <sc-for list="{{cartItemsList}}" as="ci">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid oklch(95% 0 0)">
+            <img sc-camel-src="{{ci.image}}" alt="" style="width:52px;height:52px;flex-shrink:0;object-fit:contain;border-radius:8px;background:oklch(98% .002 270)"/>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:600;color:oklch(20% .005 270);line-height:1.25">{{ci.name}}</div>
+              <div style="font-size:12px;color:oklch(48% .008 270)">{{ci.series}}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button onClick="{{ci.onDec}}" aria-label="Quitar uno" style="width:32px;height:32px;border-radius:8px;border:1px solid oklch(85% 0 0);background:white;font-size:16px;cursor:pointer">−</button>
+              <span style="min-width:18px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums">{{ci.qty}}</span>
+              <button onClick="{{ci.onInc}}" aria-label="Agregar uno" style="width:32px;height:32px;border-radius:8px;border:1px solid oklch(85% 0 0);background:white;font-size:16px;cursor:pointer">+</button>
+              <button onClick="{{ci.onRemove}}" aria-label="Quitar de la cotización" style="width:32px;height:32px;border:none;background:none;color:oklch(55% 0 0);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"></path></svg></button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{hasCartItems}}">
+        <div style="display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));border-top:1px solid oklch(93% 0 0)">
+          <a href="{{cartWaLink}}" target="_blank" rel="noopener" style="flex:1;height:48px;border-radius:10px;background:#25D366;color:white;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">Enviar por WhatsApp</a>
+          <button onClick="{{goToCartFromSheet}}" style="flex:1;height:48px;border-radius:10px;border:none;background:oklch(20% .005 270);color:white;font-size:14px;font-weight:700;cursor:pointer">Completar mis datos</button>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
   <!-- Floating Cart -->
   <sc-if value="{{hasCartItems}}">
     <div onClick="{{goToCart}}" role="button" aria-label="Ver cotización" style="position:fixed;bottom:calc({{cartBottom}} + env(safe-area-inset-bottom, 0px));right:{{cartRight}};left:{{cartLeft}};background:oklch(58% .22 25);color:white;padding:{{cartPad}};border-radius:{{cartRadius}};box-shadow:0 12px 24px -8px oklch(58% .22 25 / .5);cursor:pointer;display:{{floatCartDisplay}};align-items:center;gap:12px;z-index:9999;transition:transform .3s cubic-bezier(.2,.8,.2,1)" style-hover="{{cartHover}}">
@@ -1456,6 +1515,7 @@ class Component extends DCLogic {
     filtersSheetOpen: false,
     menuTop: '0px',
     headerQuery: '',
+    cartSheetOpen: false,
     searchTop: '0px',
     catalogoBrands: [],
     brandSearch: '',
@@ -1524,7 +1584,7 @@ class Component extends DCLogic {
     }
     // Bloquea el scroll de la página mientras hay un menú, hoja o modal abierto (evita que el contenido se mueva detrás)
     // (solo en celular: en escritorio ocultar la barra de scroll movería el contenido)
-    const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.globalSearchOpen || this.state.filtersSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
+    const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.globalSearchOpen || this.state.filtersSheetOpen || this.state.cartSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
     if (overlayOpen !== this._scrollLocked) this._setScrollLock(overlayOpen);
     // En celular, deja visible el chip de la categoría activa
     const chipKey = this.state.page + '|' + this.state.catalogoFilter;
@@ -1548,6 +1608,7 @@ class Component extends DCLogic {
   handleKeyDown = (e) => {
     if (e.key !== 'Escape') return;
     if (this.state.modalProduct) this.setState({ modalProduct: null });
+    else if (this.state.cartSheetOpen) this.setState({ cartSheetOpen: false });
     else if (this.state.filtersSheetOpen) this.setState({ filtersSheetOpen: false });
     else if (this.state.menuOpen) this.setState({ menuOpen: false });
     else if (this.state.globalSearchOpen) this.setState({ globalSearchOpen: false });
@@ -1805,8 +1866,8 @@ class Component extends DCLogic {
 
   handlePopState = () => {
     const hash = window.location.hash;
-    if (this.state.menuOpen || this.state.filtersSheetOpen || this.state.modalProduct) {
-      this.setState({ menuOpen: false, filtersSheetOpen: false, modalProduct: null });
+    if (this.state.menuOpen || this.state.filtersSheetOpen || this.state.cartSheetOpen || this.state.modalProduct) {
+      this.setState({ menuOpen: false, filtersSheetOpen: false, cartSheetOpen: false, modalProduct: null });
     }
     if (hash === '#catalogo') {
       this.setState({ page: 'catalogo', catalogoFilter: 'todos' });
@@ -2186,7 +2247,7 @@ class Component extends DCLogic {
     if (e) e.preventDefault();
     window.history.pushState(null, '', window.location.pathname);
     if (e) e.preventDefault();
-    this.setState({ page: 'home', categorySlug: null, menuOpen: false, equiposOpen: false, filtersSheetOpen: false, modalProduct: null });
+    this.setState({ page: 'home', categorySlug: null, menuOpen: false, equiposOpen: false, filtersSheetOpen: false, cartSheetOpen: false, globalSearchOpen: false, modalProduct: null });
     this._setScrollLock(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -2248,7 +2309,7 @@ class Component extends DCLogic {
   goToCatalogo = (e) => {
     if (e) e.preventDefault();
     window.history.pushState(null, '', '#catalogo');
-    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [], menuOpen: false, equiposOpen: false, filtersSheetOpen: false }, () => {
+    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [], menuOpen: false, equiposOpen: false, filtersSheetOpen: false, cartSheetOpen: false, globalSearchOpen: false }, () => {
       setTimeout(() => window.scrollTo(0, 0), 10);
       setTimeout(() => window.scrollTo(0, 0), 100);
     });
@@ -2375,6 +2436,25 @@ class Component extends DCLogic {
   onLoadMoreMobile = (e) => {
     if (e) e.preventDefault();
     this.setState(s => ({ catalogoPage: s.catalogoPage + 1 }));
+  };
+  // Hoja de cotización (celular)
+  openCartSheet = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ cartSheetOpen: true, menuOpen: false, globalSearchOpen: false, filtersSheetOpen: false });
+  };
+  closeCartSheet = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ cartSheetOpen: false });
+  };
+  goToCartFromSheet = (e) => {
+    this.setState({ cartSheetOpen: false });
+    this._setScrollLock(false);
+    this.goToCart(e);
+  };
+  goToCatalogoFromSheet = (e) => {
+    this.setState({ cartSheetOpen: false });
+    this._setScrollLock(false);
+    this.goToCatalogo(e);
   };
   closeModalBackdrop = (e) => {
     if (e && e.target === e.currentTarget) this.closeModal(e);
@@ -2945,6 +3025,14 @@ class Component extends DCLogic {
       isMobile: this.state.isMobile,
       desktopOnlyBlock: this.state.isMobile ? 'none' : 'block',
       desktopOnlyFlex: this.state.isMobile ? 'none' : 'flex',
+      mobileOnlyBlock: this.state.isMobile ? 'block' : 'none',
+      heroContentAlign: this.state.isMobile ? 'flex-end' : 'center',
+      heroContentPad: this.state.isMobile ? '0 20px 44px' : '0 24px',
+      heroDotsWrapStyle: this.state.isMobile
+        ? 'position:absolute;top:14px;left:20px;right:20px;z-index:20;display:flex;gap:6px'
+        : 'position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:10px',
+      heroDotFlex: this.state.isMobile ? '1' : 'none',
+      heroDotH: this.state.isMobile ? '3px' : '4px',
       catHeroPad: this.state.isMobile ? '22px 16px 18px' : '80px 24px 60px',
       catHeroAlign: this.state.isMobile ? 'left' : 'center',
       catHeroEyebrowSize: this.state.isMobile ? '10px' : '12px',
@@ -3197,17 +3285,30 @@ class Component extends DCLogic {
       toggleMenu: this.toggleMenu,
       scrollTop: this.scrollTop,
       topBtnOpacity: this.state.showTop ? 1 : 0,
-      floatTopDisplay: ((this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) || (this.state.isMobile && this.state.cart.length > 0)) ? 'none' : 'flex',
-      floatWaDisplay: (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      floatTopDisplay: (this.state.isMobile || (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct)) ? 'none' : 'flex',
+      floatWaDisplay: (this.state.isMobile || (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct)) ? 'none' : 'flex',
       waRight: this.state.isMobile ? '16px' : '24px',
       waSize: this.state.isMobile ? '52px' : '58px',
       waBottom: this.state.isMobile ? (this.state.cart.length > 0 ? '84px' : '20px') : '100px',
-      floatCartDisplay: (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      floatCartDisplay: (this.state.isMobile || (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct)) ? 'none' : 'flex',
       cartBottom: this.state.isMobile ? '12px' : '32px',
       cartRight: this.state.isMobile ? '12px' : '20px',
       cartLeft: this.state.isMobile ? '12px' : 'auto',
       cartPad: this.state.isMobile ? '12px 18px' : '16px 24px',
       cartRadius: this.state.isMobile ? '14px' : '999px',
+      // Barra inferior y hoja de cotización (celular)
+      rootPadBottom: this.state.isMobile ? 'calc(62px + env(safe-area-inset-bottom, 0px))' : '0',
+      cartSheetOpen: this.state.isMobile && this.state.cartSheetOpen,
+      openCartSheet: this.openCartSheet,
+      closeCartSheet: this.closeCartSheet,
+      goToCartFromSheet: this.goToCartFromSheet,
+      goToCatalogoFromSheet: this.goToCatalogoFromSheet,
+      noCartItems: this.state.cart.length === 0,
+      cartBumpKey: 'n' + this.state.cart.reduce((a, c) => a + (c.qty || 1), 0),
+      tabHomeColor: this.state.page === 'home' && !this.state.cartSheetOpen ? 'oklch(20% .005 270)' : 'oklch(50% .008 270)',
+      tabCatColor: this.state.page === 'catalogo' && !this.state.cartSheetOpen ? 'oklch(20% .005 270)' : 'oklch(50% .008 270)',
+      tabCartColor: this.state.cartSheetOpen || this.state.page === 'contacto' ? 'oklch(20% .005 270)' : 'oklch(50% .008 270)',
+      cartWaLink: 'https://wa.me/573128011838?text=' + encodeURIComponent('Hola, quiero cotizar estos equipos:\n' + this.state.cart.map(c => '• ' + (c.qty || 1) + ' × ' + c.name + (c.item_no && c.item_no !== 'N/A' ? ' (SKU ' + c.item_no + ')' : '')).join('\n')),
       cartHover: this.state.isMobile ? 'opacity:.95' : 'transform:translateY(-5px) scale(1.05)',
       topBtnPointer: this.state.showTop ? 'auto' : 'none',
       heroPSize: this.state.isNarrow ? '15px' : '17px',
@@ -3281,8 +3382,8 @@ class Component extends DCLogic {
       heroSlides,
       heroDots: heroData.length < 2 ? [] : heroData.map((_, i) => ({
         label: 'Slide ' + (i + 1),
-        width: i === this.state.heroIndex ? '46px' : '22px',
-        bg: i === this.state.heroIndex ? 'oklch(58% .22 25)' : 'oklch(99% 0 0 / .45)',
+        width: this.state.isMobile ? 'auto' : (i === this.state.heroIndex ? '46px' : '22px'),
+        bg: i === this.state.heroIndex ? (this.state.isMobile ? 'oklch(99% 0 0)' : 'oklch(58% .22 25)') : 'oklch(99% 0 0 / .35)',
         onClick: this.goHeroSlide(i),
       })),
       videoRef: this.videoRef,
