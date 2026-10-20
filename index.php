@@ -795,10 +795,12 @@ $seriesJson = json_encode($series);
                 <div style="position:relative;flex-grow:1;width:100%;height:100%;min-height:300px;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center">
                   <video
                     ref="{{gluteVideoRef}}"
+                    sc-camel-src="assets/Gluteleader_Range_v3.mp4"
                     src="assets/Gluteleader_Range_v3.mp4"
-                    autoplay
-                    loop
-                    playsinline
+                    autoPlay="{{true}}"
+                    muted="{{true}}"
+                    loop="{{true}}"
+                    playsInline="{{true}}"
                     onEnded="{{onGluteEnded}}"
                     style="width:100%;height:100%;object-fit:cover;display:block">
                   </video>
@@ -914,10 +916,12 @@ $seriesJson = json_encode($series);
             <!-- Video Ampliado -->
             <video
               ref="{{gluteModalVideoRef}}"
+              sc-camel-src="assets/Gluteleader_Range_v3.mp4"
               src="assets/Gluteleader_Range_v3.mp4"
-              autoplay
-              loop
-              playsinline
+              autoPlay="{{true}}"
+              muted="{{true}}"
+              loop="{{true}}"
+              playsInline="{{true}}"
               onEnded="{{onGluteEnded}}"
               style="width:100%;height:100%;object-fit:cover;display:block">
             </video>
@@ -1539,72 +1543,78 @@ class Component extends DCLogic {
   gluteVideoRef = (el) => {
     this._gluteVideoEl = el;
     if (el) {
-      el.muted = !this.state.gluteSound;
-      const p = el.play();
-      if (p && p.catch) {
-        p.catch(() => {
-          // Chrome bloquea autoplay con sonido hasta la primera interacción
-          el.muted = true;
-          this.setState({ gluteSound: false });
-          el.play && el.play().catch(() => {});
-          
-          const doUnmute = () => {
-            if (this._gluteVideoEl) {
-              this._gluteVideoEl.muted = false;
-              this._gluteVideoEl.volume = 1.0;
-              const playPromise = this._gluteVideoEl.play();
-              if (playPromise && playPromise.catch) playPromise.catch(() => {});
-            }
-            if (this._gluteModalVideoEl) {
-              this._gluteModalVideoEl.muted = false;
-              this._gluteModalVideoEl.volume = 1.0;
-              const playPromise = this._gluteModalVideoEl.play();
-              if (playPromise && playPromise.catch) playPromise.catch(() => {});
-            }
-            this.setState({ gluteSound: true });
-            ['click', 'touchstart', 'scroll', 'pointerdown', 'mousemove', 'keydown'].forEach(evt => {
-              window.removeEventListener(evt, doUnmute, true);
-            });
-          };
-
-          ['click', 'touchstart', 'scroll', 'pointerdown', 'mousemove', 'keydown'].forEach(evt => {
-            window.addEventListener(evt, doUnmute, { once: true, capture: true, passive: true });
+      el.playsInline = true;
+      el.setAttribute('playsinline', '');
+      el.setAttribute('webkit-playsinline', '');
+      
+      if (this.state.gluteSound) {
+        el.muted = false;
+        el.volume = 1.0;
+        const p = el.play();
+        if (p && p.catch) {
+          p.catch(() => {
+            // Si el navegador deniega audio sin interacción previa del usuario,
+            // garantizamos reproducción automática fluida silenciada y sincronizamos el icono
+            el.muted = true;
+            this.setState({ gluteSound: false });
+            el.play && el.play().catch(() => {});
           });
-        });
+        }
+      } else {
+        el.muted = true;
+        const p = el.play();
+        if (p && p.catch) p.catch(() => {});
       }
     }
   };
   gluteModalVideoRef = (el) => {
     this._gluteModalVideoEl = el;
     if (el) {
+      el.playsInline = true;
+      el.setAttribute('playsinline', '');
+      el.setAttribute('webkit-playsinline', '');
       el.muted = !this.state.gluteSound;
       if (this._gluteVideoEl && this._gluteVideoEl.currentTime) {
         try { el.currentTime = this._gluteVideoEl.currentTime; } catch(e) {}
       }
       if (!this.state.glutePaused) {
         const p = el.play();
-        if (p && p.catch) p.catch(() => {});
+        if (p && p.catch) {
+          p.catch(() => {
+            el.muted = true;
+            this.setState({ gluteSound: false });
+            el.play && el.play().catch(() => {});
+          });
+        }
       }
     }
   };
   toggleGluteSound = (e) => {
     if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
-    const nextSound = !this.state.gluteSound;
+    const v = this.state.gluteModalOpen ? this._gluteModalVideoEl : this._gluteVideoEl;
+    if (!v) return;
+
+    // Evaluamos el estado real del elemento de video: si está silenciado, queremos sonido; si no, silenciarlo
+    const isCurrentlyMuted = !!v.muted || v.volume === 0;
+    const wantSound = isCurrentlyMuted;
+
     if (this._gluteVideoEl) {
-      this._gluteVideoEl.muted = !nextSound;
-      if (nextSound) {
+      this._gluteVideoEl.muted = !wantSound;
+      this._gluteVideoEl.volume = 1.0;
+      if (wantSound) {
         const p = this._gluteVideoEl.play();
         if (p && p.catch) p.catch(() => {});
       }
     }
     if (this._gluteModalVideoEl) {
-      this._gluteModalVideoEl.muted = !nextSound;
-      if (nextSound) {
+      this._gluteModalVideoEl.muted = !wantSound;
+      this._gluteModalVideoEl.volume = 1.0;
+      if (wantSound) {
         const p = this._gluteModalVideoEl.play();
         if (p && p.catch) p.catch(() => {});
       }
     }
-    this.setState({ gluteSound: nextSound });
+    this.setState({ gluteSound: wantSound });
   };
   toggleGlutePlay = (e) => {
     if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
@@ -1963,8 +1973,15 @@ class Component extends DCLogic {
     }, () => {
       if (isGlute && this._gluteVideoEl) {
         this._gluteVideoEl.muted = false;
+        this._gluteVideoEl.volume = 1.0;
         const p = this._gluteVideoEl.play();
-        if (p && p.catch) p.catch(() => {});
+        if (p && p.catch) {
+          p.catch(() => {
+            this._gluteVideoEl.muted = true;
+            this.setState({ gluteSound: false });
+            this._gluteVideoEl.play && this._gluteVideoEl.play().catch(() => {});
+          });
+        }
       }
     });
   };
@@ -1986,8 +2003,15 @@ class Component extends DCLogic {
       setTimeout(() => window.scrollTo(0, 0), 100);
       if (isGlute && this._gluteVideoEl) {
         this._gluteVideoEl.muted = false;
+        this._gluteVideoEl.volume = 1.0;
         const p = this._gluteVideoEl.play();
-        if (p && p.catch) p.catch(() => {});
+        if (p && p.catch) {
+          p.catch(() => {
+            this._gluteVideoEl.muted = true;
+            this.setState({ gluteSound: false });
+            this._gluteVideoEl.play && this._gluteVideoEl.play().catch(() => {});
+          });
+        }
       }
     });
   };
@@ -2556,6 +2580,7 @@ class Component extends DCLogic {
       glutePlayTitle: this.state.glutePaused ? 'Reproducir' : 'Pausar',
       gluteSoundIcon: this.state.gluteSound ? '🔊' : '🔇',
       gluteSoundTitle: this.state.gluteSound ? 'Silenciar' : 'Activar sonido',
+      gluteMuted: !this.state.gluteSound,
       noCatalogoProducts: catalogoProducts.length === 0,
       goToCatalogo: this.goToCatalogo,
       isContacto: this.state.page === 'contacto',
