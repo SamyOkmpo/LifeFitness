@@ -128,8 +128,32 @@ $seriesJson = json_encode($series);
               }
               @media (max-width: 480px) {
                 .grid-catalogo {
-                  grid-template-columns: repeat(1, minmax(0, 1fr));
+                  grid-template-columns: repeat(2, minmax(0, 1fr));
+                  gap: 10px;
                 }
+              }
+              /* Tarjeta de producto compacta en celular */
+              @media (max-width: 640px) {
+                .pc-img { height: auto !important; aspect-ratio: 1 / 1; padding: 10px !important; }
+                .pc-img img { position: absolute; top: 10px; left: 10px; width: calc(100% - 20px); height: calc(100% - 20px); max-width: none !important; max-height: none !important; }
+                .pc-body { padding: 10px 10px 12px !important; }
+                .pc-meta { margin-bottom: 4px !important; }
+                .pc-serie, .pc-specs { display: none !important; }
+                .pc-name { font-size: 14px !important; flex-grow: 0 !important; min-height: 2.4em; margin-bottom: 10px !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+                .pc-actions { margin-top: auto; gap: 6px !important; }
+                .pc-cart { padding: 9px 4px !important; font-size: 10px !important; }
+                .pc-cart svg { display: none; }
+                .pc-wa { padding: 9px !important; }
+                .pc-feature { grid-column: 1 / -1; }
+              }
+              /* Catálogo móvil: chips y hoja de filtros */
+              .cat-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; scroll-snap-type: x proximity; margin: 0 -12px; padding: 0 12px; }
+              .cat-chips::-webkit-scrollbar { display: none; }
+              .cat-chips > button { scroll-snap-align: start; }
+              .sheet-scroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+              @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+              @media (prefers-reduced-motion: reduce) {
+                .ticker-track { animation: none !important; }
               }
               .portfolio-carousel-track::-webkit-scrollbar {
                 display: none;
@@ -220,16 +244,16 @@ $seriesJson = json_encode($series);
 </style>
 </helmet>
 
-<div style="background:oklch(93% .004 270);min-height:100vh;overflow-x:hidden">
+<div style="background:oklch(93% .004 270);min-height:100vh;overflow-x:{{rootOverflowX}}">
 
   <div style="background:oklch(58% .22 25);color:white;overflow:hidden;white-space:nowrap;padding:5px 0">
-    <div style="display:inline-block;animation:ticker 24s linear infinite;font-weight:600;font-size:10px;letter-spacing:0.12em">
+    <div class="ticker-track" style="display:inline-block;animation:ticker 24s linear infinite;font-weight:600;font-size:10px;letter-spacing:0.12em">
       ⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     </div>
   </div>
 
-  <header style="position:sticky;top:0;z-index:40;background:oklch(98% 0 0 / .96);backdrop-filter:blur(10px);border-bottom:1px solid oklch(28% .008 270)">
-    <div style="max-width:1280px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+  <header ref="{{headerRef}}" style="position:sticky;top:0;z-index:40;background:{{hdrBg}};backdrop-filter:{{hdrBlur}};-webkit-backdrop-filter:{{hdrBlur}};border-bottom:1px solid oklch(28% .008 270)">
+    <div style="max-width:1280px;margin:0 auto;padding:{{hdrPad}};display:flex;align-items:center;justify-content:space-between;gap:{{hdrGap}}">
       <img src="assets/logo.webp" alt="Fitness Life S.A.S" onClick="{{goHome}}" style="height:{{logoH}};width:auto;cursor:pointer;flex-shrink:0"/>
       <div style="display:{{headerSearchDisplay}};flex:1;margin:0 8px;max-width:600px">
         <input type="text" id="headerSearchInput" placeholder="Ej. Cybex, Abdominal..." value="{{catalogoSearch}}" onInput="{{onHeaderSearch}}" style="width:100%;box-sizing:border-box;padding:10px 16px;border:1px solid oklch(85% 0 0);border-radius:999px;font-size:14px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05)" />
@@ -257,19 +281,21 @@ $seriesJson = json_encode($series);
         </button>
         <button onClick="{{goToContacto}}" style="display:{{ctaDisplay}};background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:11px 22px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0">Cotizar</button>
       </div>
-      <button onClick="{{toggleMenu}}" aria-label="Menú" style="display:{{burgerDisplay}};flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0">
+      <button onClick="{{toggleMenu}}" aria-label="{{menuBtnLabel}}" aria-expanded="{{menuOpen}}" aria-controls="menuMovil" style="display:{{burgerDisplay}};flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0">
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:transform .3s ease,opacity .3s ease;transform:{{bar1}}"></span>
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:opacity .3s ease;opacity:{{bar2Opacity}}"></span>
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:transform .3s ease;transform:{{bar3}}"></span>
       </button>
     </div>
-    <div style="display:{{mobileMenuDisplay}};border-top:1px solid oklch(90% .006 270);background:oklch(99% 0 0);padding:8px 24px 20px">
+    <div id="menuMovil" class="sheet-scroll" style="display:{{mobileMenuDisplay}};position:fixed;left:0;right:0;top:{{menuTop}};bottom:0;z-index:10050;border-top:1px solid oklch(90% .006 270);background:oklch(99% 0 0);padding:8px 24px calc(24px + env(safe-area-inset-bottom, 0px))">
       <nav style="display:flex;flex-direction:column">
         <a href="#inicio" onClick="{{goHome}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Inicio</a>
         <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo (Ver Todo)</a>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;padding-left:12px">
         <sc-for list="{{navCategories}}" as="nc">
-          <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:11px 0 11px 18px;border-bottom:1px solid oklch(93% .004 270);display:block">{{nc.name}}</a>
+          <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:12px 0;border-bottom:1px solid oklch(93% .004 270);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{nc.name}}</a>
         </sc-for>
+        </div>
         <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
         <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Marcas</a>
         <a href="#" onClick="{{goToContacto}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Contacto</a>
@@ -484,7 +510,7 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
           <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
-            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_final_v2.mp4" sc-camel-src="assets/realleader_rs800_final_v2.mp4" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_final_v2.mp4" sc-camel-src="assets/realleader_rs800_final_v2.mp4" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
               <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
@@ -638,19 +664,19 @@ $seriesJson = json_encode($series);
             <div>
               <div style="display:grid;grid-template-columns:{{grid2}};gap:16px;margin-bottom:16px">
                 <div>
-                  <input placeholder="Nombre *" value="{{qName}}" onChange="{{onQName}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qNameBorder}}"/>
+                  <input autoComplete="name" placeholder="Nombre *" value="{{qName}}" onChange="{{onQName}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qNameBorder}}"/>
                   <div style="font-size:11px;color:oklch(70% .2 27);margin-top:6px;min-height:14px">{{qNameError}}</div>
                 </div>
                 <div>
-                  <input placeholder="Empresa" value="{{qCompany}}" onChange="{{onQCompany}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid oklch(28% .006 270)"/>
+                  <input autoComplete="organization" placeholder="Empresa" value="{{qCompany}}" onChange="{{onQCompany}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid oklch(28% .006 270)"/>
                   <div style="min-height:20px"></div>
                 </div>
                 <div>
-                  <input placeholder="Email *" value="{{qEmail}}" onChange="{{onQEmail}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qEmailBorder}}"/>
+                  <input type="email" inputMode="email" autoComplete="email" autoCapitalize="off" placeholder="Email *" value="{{qEmail}}" onChange="{{onQEmail}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qEmailBorder}}"/>
                   <div style="font-size:11px;color:oklch(70% .2 27);margin-top:6px;min-height:14px">{{qEmailError}}</div>
                 </div>
                 <div>
-                  <input placeholder="Teléfono *" value="{{qPhone}}" onChange="{{onQPhone}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qPhoneBorder}}"/>
+                  <input type="tel" inputMode="tel" autoComplete="tel" placeholder="Teléfono *" value="{{qPhone}}" onChange="{{onQPhone}}" style="background:oklch(16% .005 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;outline:none;border:1px solid {{qPhoneBorder}}"/>
                   <div style="font-size:11px;color:oklch(70% .2 27);margin-top:6px;min-height:14px">{{qPhoneError}}</div>
                 </div>
               </div>
@@ -677,19 +703,19 @@ $seriesJson = json_encode($series);
 
   <sc-if value="{{isCatalogo}}" hint-placeholder-val="{{false}}">
     <main style="padding-bottom:100px;background:oklch(97% .004 270);min-height:100vh">
-      <section style="background:oklch(14% .005 270);padding:80px 24px 60px;text-align:center">
+      <section style="background:oklch(14% .005 270);padding:{{catHeroPad}};text-align:{{catHeroAlign}}">
         <div style="max-width:800px;margin:0 auto">
-          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Catálogo de Equipos</div>
-          <h1 style="font-family:Oswald,sans-serif;font-size:clamp(32px,5vw,56px);font-weight:700;margin:0 0 20px;color:white;text-transform:uppercase">{{currentCategoryName}}</h1>
-          <p style="color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0">{{currentCategorySub}}</p>
+          <div style="font-size:{{catHeroEyebrowSize}};letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:{{catHeroEyebrowGap}}">Catálogo de Equipos</div>
+          <h1 style="font-family:Oswald,sans-serif;font-size:{{catHeroH1Size}};line-height:{{catHeroH1LH}};font-weight:700;margin:0 0 {{catHeroH1Gap}};color:white;text-transform:uppercase">{{currentCategoryName}}</h1>
+          <p style="display:{{desktopOnlyBlock}};color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0">{{currentCategorySub}}</p>
         </div>
       </section>
       
       
-      <section style="max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto;padding:40px 24px;display:flex;gap:40px;flex-direction:{{catLayoutDir}};align-items:flex-start">
-        
-        <!-- BARRA LATERAL (Filtros) -->
-        <aside style="width:{{catAsideWidth}};box-sizing:border-box;flex-shrink:0;background:white;padding:24px;border-radius:12px;border:1px solid oklch(90% 0 0);position:{{catAsidePos}};top:{{catAsideTop}};">
+      <section style="max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto;padding:{{catSecPad}};display:flex;gap:{{catSecGap}};flex-direction:{{catLayoutDir}};align-items:{{catSecAlign}}">
+
+        <!-- BARRA LATERAL (Filtros) — en celular se reemplaza por la barra fija + hoja de filtros -->
+        <aside style="display:{{desktopOnlyBlock}};width:{{catAsideWidth}};box-sizing:border-box;flex-shrink:0;background:white;padding:24px;border-radius:12px;border:1px solid oklch(90% 0 0);position:{{catAsidePos}};top:{{catAsideTop}};">
           
           <div style="margin-bottom:24px">
             <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 12px;color:oklch(20% .005 270)">Buscar Equipo</h3>
@@ -732,13 +758,34 @@ $seriesJson = json_encode($series);
 
         <!-- CUADRÍCULA DE PRODUCTOS -->
         <div style="flex-grow:1;min-width:0;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+
+          <!-- BARRA FIJA DE CATÁLOGO (solo celular): buscador, botón de filtros y chips de categoría -->
+          <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+            <div style="position:sticky;top:{{catStickyTop}};z-index:30;background:oklch(97% .004 270);margin:0 -12px 12px;padding:10px 12px 8px;border-bottom:1px solid oklch(90% .004 270);display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;gap:8px">
+                <input type="search" id="catalogoSearchInputMovil" enterKeyHint="search" placeholder="{{catSearchPlaceholder}}" aria-label="Buscar equipo" onInput="{{onCatalogoSearch}}" value="{{catalogoSearch}}" style="flex:1;min-width:0;height:42px;box-sizing:border-box;padding:0 12px;border:1px solid oklch(85% 0 0);border-radius:10px;font-size:16px;background:white;color:oklch(20% .005 270);outline:none"/>
+                <button onClick="{{openFiltersSheet}}" aria-haspopup="dialog" style="flex-shrink:0;height:42px;padding:0 12px;border:1px solid {{filtersBtnBorder}};border-radius:10px;background:white;color:oklch(20% .005 270);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;cursor:pointer">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+                  Filtros
+                  <sc-if value="{{hasActiveFilters}}"><span style="background:oklch(58% .22 25);color:white;border-radius:999px;font-size:11px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center">{{activeFiltersCount}}</span></sc-if>
+                </button>
+              </div>
+              <div class="cat-chips" ref="{{catChipsRef}}">
+                <sc-for list="{{catalogoFilters}}" as="f">
+                  <button onClick="{{f.onClick}}" data-active="{{f.activeAttr}}" aria-pressed="{{f.isActive}}" style="flex:none;height:34px;padding:0 14px;border-radius:999px;border:1px solid {{f.border}};background:{{f.bg}};color:{{f.color}};font-size:13px;font-weight:{{f.weight}};white-space:nowrap;cursor:pointer">{{f.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="font-size:12px;color:oklch(45% .008 270);margin:-4px 0 10px">{{catalogoTotal}} productos · {{catalogoSortLabel}}</div>
+          </sc-if>
+
+          <div style="display:{{desktopOnlyFlex}};justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
             <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">{{currentCategoryName}}</h2>
             <span style="font-size:13px;font-weight:600;color:oklch(45% .008 270);background:oklch(94% 0 0);padding:4px 12px;border-radius:999px">{{catalogoTotal}} productos</span>
           </div>
 
           <!-- Barra de Control: Filtros y Ordenamiento -->
-          <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:12px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
+          <div style="display:{{desktopOnlyFlex}};flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:12px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
             
             <!-- Fila superior: Selectores principales (Marca y Ordenar) bien alineados -->
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-bottom:12px;border-bottom:1px solid oklch(93% 0 0)">
@@ -789,7 +836,7 @@ $seriesJson = json_encode($series);
 
             <!-- CARD DESTACADO DE VIDEO EXCLUSIVO GLUTE LEADER -->
             <sc-if value="{{isGluteLeader}}">
-              <div style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#000;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;min-height:360px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
+              <div class="pc-feature" style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#000;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;min-height:360px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
                 
                 <!-- Video Container a pantalla completa dentro del card -->
                 <div style="position:relative;flex-grow:1;width:100%;height:100%;min-height:300px;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center">
@@ -829,29 +876,29 @@ $seriesJson = json_encode($series);
             <sc-for list="{{catalogoProducts}}" as="prod">
               <div style="position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
                 
-                <div onClick="{{prod.onOpen}}" style="height:160px;background:oklch(98% .002 270);padding:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" title="Ver detalles">
+                <div class="pc-img" onClick="{{prod.onOpen}}" style="height:160px;background:oklch(98% .002 270);padding:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" title="Ver detalles">
                   <img loading="lazy" sc-camel-src="{{prod.image}}" alt="{{prod.name}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
                 </div>
 
-                <div style="padding:16px;flex-grow:1;display:flex;flex-direction:column">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
+                <div class="pc-body" style="padding:16px;flex-grow:1;display:flex;flex-direction:column">
+                  <div class="pc-meta" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
                     <div style="font-size:12px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase">{{prod.series}}</div>
-                    <sc-if value="{{prod.hasSerie}}"><span style="font-size:11px;background:oklch(96% 0 0);color:oklch(20% .005 270);border:1px solid oklch(88% 0 0);padding:2px 6px;border-radius:4px;font-weight:600">Serie: {{prod.serie}}</span></sc-if>
+                    <sc-if value="{{prod.hasSerie}}"><span class="pc-serie" style="font-size:11px;background:oklch(96% 0 0);color:oklch(20% .005 270);border:1px solid oklch(88% 0 0);padding:2px 6px;border-radius:4px;font-weight:600">Serie: {{prod.serie}}</span></sc-if>
                   </div>
-                  <h4 style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 8px;color:oklch(20% .005 270);line-height:1.2;flex-grow:1">{{prod.name}}</h4>
+                  <h4 class="pc-name" onClick="{{prod.onOpen}}" style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 8px;color:oklch(20% .005 270);line-height:1.2;flex-grow:1;cursor:pointer">{{prod.name}}</h4>
                   
                   <!-- ESPECIFICACIONES (ocultas por defecto, pero mostradas si hay) -->
-                  <div style="margin-bottom:20px;font-size:12px;color:oklch(40% .005 270);line-height:1.5">
+                  <div class="pc-specs" style="margin-bottom:20px;font-size:12px;color:oklch(40% .005 270);line-height:1.5">
                     <sc-if value="{{prod.hasDims}}"><div><b>Dim:</b> {{prod.set_up_dimension}}</div></sc-if>
                     <sc-if value="{{prod.hasWeight}}"><div><b>Peso:</b> {{prod.weight_stack}}</div></sc-if>
                   </div>
 
-                  <div style="display:flex;gap:8px">
-                    <button onClick="{{prod.onToggleCart}}" style="flex-grow:1;background:{{prod.cartBg}};color:{{prod.cartColor}};border:{{prod.cartBorder}};padding:10px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:{{prod.cartBgHover}};color:white">
+                  <div class="pc-actions" style="display:flex;gap:8px">
+                    <button class="pc-cart" onClick="{{prod.onToggleCart}}" style="flex-grow:1;background:{{prod.cartBg}};color:{{prod.cartColor}};border:{{prod.cartBorder}};padding:10px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:{{prod.cartBgHover}};color:white">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                       {{prod.cartText}}
                     </button>
-                    <a href="{{prod.waLink}}" target="_blank" style="flex-shrink:0;background:#25D366;color:white;border:none;padding:12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" style-hover="background:#1ebd5c" title="Cotizar rápido por WhatsApp">
+                    <a class="pc-wa" href="{{prod.waLink}}" target="_blank" rel="noopener" aria-label="Cotizar por WhatsApp" style="flex-shrink:0;background:#25D366;color:white;border:none;padding:12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" style-hover="background:#1ebd5c" title="Cotizar rápido por WhatsApp">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     </a>
                   </div>
@@ -900,6 +947,14 @@ $seriesJson = json_encode($series);
               </sc-if>
             </div>
           </sc-if>
+
+          <!-- "Ver más" (solo celular): agrega la siguiente tanda debajo, sin saltar arriba -->
+          <sc-if value="{{hasLoadMoreMobile}}">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin:24px 0 8px">
+              <button onClick="{{onLoadMoreMobile}}" style="width:100%;max-width:360px;height:48px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer">Ver {{loadMoreCount}} más</button>
+              <span style="font-size:12px;color:oklch(45% .008 270)">Mostrando {{shownCount}} de {{catalogoTotal}}</span>
+            </div>
+          </sc-if>
           </div>
       </section>
 
@@ -942,37 +997,85 @@ $seriesJson = json_encode($series);
         </div>
       </sc-if>
 
+      <!-- HOJA DE FILTROS (solo celular) -->
+      <sc-if value="{{filtersSheetOpen}}">
+        <div onClick="{{closeFiltersSheet}}" style="position:fixed;inset:0;z-index:10040;background:rgba(0,0,0,0.45)"></div>
+        <div role="dialog" aria-modal="true" aria-label="Filtros del catálogo" style="position:fixed;left:0;right:0;bottom:0;z-index:10041;background:white;border-radius:18px 18px 0 0;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column;box-shadow:0 -12px 32px -12px rgba(0,0,0,0.3);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid oklch(93% 0 0)">
+            <h3 style="font-family:Oswald,sans-serif;font-size:20px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">Filtros</h3>
+            <button onClick="{{closeFiltersSheet}}" aria-label="Cerrar filtros" style="width:40px;height:40px;border-radius:999px;border:none;background:oklch(96% 0 0);display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+            </button>
+          </div>
+          <div class="sheet-scroll" style="flex:1;padding:14px 16px 8px;display:flex;flex-direction:column;gap:22px">
+            <div>
+              <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Ordenar</div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{sortOptions}}" as="so">
+                  <button onClick="{{so.onClick}}" aria-pressed="{{so.isActive}}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{so.border}};background:{{so.bg}};color:{{so.color}};font-size:13px;font-weight:600;cursor:pointer">{{so.label}}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Marca</div>
+              <sc-if value="{{showBrandSearch}}">
+                <input type="search" onInput="{{onBrandSearch}}" value="{{brandSearch}}" placeholder="Buscar marca..." aria-label="Buscar marca" style="width:100%;box-sizing:border-box;height:40px;padding:0 12px;border:1px solid oklch(85% 0 0);border-radius:8px;font-size:16px;outline:none;margin-bottom:6px"/>
+              </sc-if>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{catalogoBrandsList}}" as="b">
+                  <label style="display:flex;align-items:center;gap:12px;min-height:44px;font-size:15px;color:oklch(25% .008 270);cursor:pointer;border-bottom:1px solid oklch(95% 0 0)">
+                    <input type="checkbox" checked="{{b.checked}}" onChange="{{b.onChange}}" style="accent-color:oklch(58% .22 25);width:20px;height:20px;cursor:pointer;margin:0"/>
+                    {{b.name}}
+                  </label>
+                </sc-for>
+              </div>
+            </div>
+            <sc-if value="{{hasSeriesFilter}}">
+              <div>
+                <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Serie</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px">
+                  <sc-for list="{{catalogoSeriesList}}" as="s">
+                    <button onClick="{{s.onClick}}" aria-pressed="{{s.checked}}" style="height:36px;padding:0 14px;border-radius:999px;border:{{s.border}};background:{{s.bg}};color:{{s.color}};font-size:13px;font-weight:600;cursor:pointer">{{s.name}}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));border-top:1px solid oklch(93% 0 0)">
+            <button onClick="{{clearCatalogoFilters}}" style="flex:1;height:48px;border-radius:10px;border:1px solid oklch(85% 0 0);background:white;color:oklch(20% .005 270);font-size:14px;font-weight:700;cursor:pointer">Limpiar</button>
+            <button onClick="{{closeFiltersSheet}}" style="flex:1.4;height:48px;border-radius:10px;border:none;background:oklch(20% .005 270);color:white;font-size:14px;font-weight:700;cursor:pointer">Ver {{catalogoTotal}} productos</button>
+          </div>
+        </div>
+      </sc-if>
+
       <sc-if value="{{modalOpen}}">
-        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
-          <div style="background:white;width:100%;max-width:1100px;border-radius:16px;display:flex;flex-direction:{{catLayoutDir}};overflow-y:auto;box-shadow:0 30px 60px -15px oklch(20% .01 270 / .4);position:relative;max-height:90vh;animation:slideFade .3s ease-out">
+        <div onClick="{{closeModalBackdrop}}" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);z-index:10060;display:flex;align-items:center;justify-content:center;padding:{{modalOverlayPad}};box-sizing:border-box">
+          <div role="dialog" aria-modal="true" aria-label="{{modalProd.name}}" class="sheet-scroll" style="background:white;width:100%;max-width:1100px;border-radius:{{modalRadius}};display:flex;flex-direction:{{catLayoutDir}};overflow-y:auto;box-shadow:0 30px 60px -15px oklch(20% .01 270 / .4);position:relative;height:{{modalH}};max-height:{{modalMaxH}};animation:slideFade .3s ease-out">
             
-            <button onClick="{{closeModal}}" aria-label="Cerrar" style="position:absolute;top:20px;right:20px;z-index:20;width:36px;height:36px;border-radius:999px;background:oklch(96% 0 0);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" style-hover="background:oklch(90% 0 0)">
+            <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+              <button onClick="{{closeModal}}" aria-label="Cerrar" style="position:fixed;top:calc(12px + env(safe-area-inset-top, 0px));right:12px;z-index:10062;width:42px;height:42px;border-radius:999px;background:white;border:1px solid oklch(88% 0 0);box-shadow:0 4px 12px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+              </button>
+            </sc-if>
+            <button onClick="{{closeModal}}" aria-label="Cerrar" style="position:absolute;top:20px;right:20px;z-index:20;width:36px;height:36px;border-radius:999px;background:oklch(96% 0 0);border:none;cursor:pointer;display:{{desktopOnlyFlex}};align-items:center;justify-content:center;transition:background .2s" style-hover="background:oklch(90% 0 0)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
 
             <!-- Foto -->
             <div style="flex:1.2;background:oklch(99% .002 270);padding:{{modalImgPadding}};display:flex;align-items:center;justify-content:center;border-right:{{modalBorderR}};border-bottom:{{modalBorderB}};min-height:{{modalImgMinH}}">
-               <img sc-camel-src="{{modalProd.image}}" style="max-width:100%;max-height:400px;object-fit:contain" />
+               <img sc-camel-src="{{modalProd.image}}" alt="{{modalProd.name}}" style="max-width:100%;max-height:{{modalImgMaxH}};object-fit:contain" />
             </div>
 
             <!-- Centro: Detalles -->
             <div style="flex:1.5;padding:{{modalPadding}};display:flex;flex-direction:column">
-               <h2 style="font-family:Oswald,sans-serif;font-size:32px;margin:0 0 16px;color:oklch(20% .005 270);line-height:1.2;text-transform:uppercase">{{modalProd.name}}</h2>
+               <h2 style="font-family:Oswald,sans-serif;font-size:{{modalTitleSize}};margin:0 0 16px;padding-right:{{modalTitlePadR}};color:oklch(20% .005 270);line-height:1.2;text-transform:uppercase">{{modalProd.name}}</h2>
                
-               <div style="display:flex;align-items:center;gap:4px;margin-bottom:24px;color:#FFB800">
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                 <span style="color:oklch(60% 0 0);font-size:13px;margin-left:8px">(6 Reviews)</span>
-               </div>
 
-               <p style="font-size:15px;color:oklch(40% .005 270);line-height:1.6;margin-bottom:32px;flex-grow:1">
+               <p style="font-size:15px;color:oklch(40% .005 270);line-height:1.6;margin-bottom:{{modalPGap}};flex-grow:1">
                  Equipamiento profesional ideal para trabajo pesado en gimnasios de alto tráfico. Diseñado biomecánicamente para resultados superiores y construido para resistir el paso del tiempo.
                </p>
 
-               <div style="display:flex;gap:16px;margin-bottom:32px">
+               <div style="display:{{desktopOnlyFlex}};gap:16px;margin-bottom:32px">
                  <button onClick="{{modalProd.onToggleCart}}" style="flex:1;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};padding:16px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;transition:all .3s ease">
                    {{modalProd.cartText}}
                  </button>
@@ -982,6 +1085,8 @@ $seriesJson = json_encode($series);
                  <div><b>Marca:</b> {{modalProd.series}}</div>
                  <sc-if value="{{modalProd.hasSerie}}"><div><b>Serie:</b> {{modalProd.serie}}</div></sc-if>
                  <div><b>SKU:</b> {{modalProd.item_no}}</div>
+                 <sc-if value="{{modalProd.hasDims}}"><div><b>Dimensiones:</b> {{modalProd.set_up_dimension}}</div></sc-if>
+                 <sc-if value="{{modalProd.hasWeight}}"><div><b>Peso:</b> {{modalProd.weight_stack}}</div></sc-if>
                </div>
             </div>
 
@@ -1012,6 +1117,16 @@ $seriesJson = json_encode($series);
                </div>
 
             </div>
+
+            <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
+              <div style="position:sticky;bottom:0;z-index:5;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));background:white;border-top:1px solid oklch(92% 0 0);box-shadow:0 -8px 20px -12px rgba(0,0,0,0.2)">
+                <button onClick="{{modalProd.onToggleCart}}" style="flex:1;height:50px;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer">{{modalProd.cartText}}</button>
+                <a href="{{modalProd.waLink}}" target="_blank" rel="noopener" style="flex:1;height:50px;box-sizing:border-box;background:#25D366;color:white;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a9.9 9.9 0 00-8.5 15L2 22l5.2-1.4A10 10 0 1012 2z"></path></svg>
+                  WhatsApp
+                </a>
+              </div>
+            </sc-if>
           </div>
         </div>
       </sc-if>
@@ -1103,9 +1218,9 @@ $seriesJson = json_encode($series);
     </main>
   </sc-if>
 
-  <button onClick="{{scrollTop}}" aria-label="Volver arriba" style="position:fixed;left:16px;bottom:16px;z-index:120;width:46px;height:46px;border-radius:999px;background:oklch(20% .006 270);color:white;border:1px solid oklch(38% .008 270);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:{{topBtnOpacity}};pointer-events:{{topBtnPointer}};box-shadow:0 10px 24px -10px oklch(20% .01 270 / .5);transition:opacity .35s ease,transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease" style-hover="transform:translateY(-4px);background:oklch(58% .22 25)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
+  <button onClick="{{scrollTop}}" aria-label="Volver arriba" style="position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:120;width:46px;height:46px;border-radius:999px;background:oklch(20% .006 270);color:white;border:1px solid oklch(38% .008 270);display:{{floatTopDisplay}};align-items:center;justify-content:center;cursor:pointer;opacity:{{topBtnOpacity}};pointer-events:{{topBtnPointer}};box-shadow:0 10px 24px -10px oklch(20% .01 270 / .5);transition:opacity .35s ease,transform .3s cubic-bezier(.2,.8,.2,1),background .3s ease" style-hover="transform:translateY(-4px);background:oklch(58% .22 25)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg></button>
 
-  <a href="https://wa.me/573128011838" target="_blank" rel="noopener" aria-label="WhatsApp" style="position:fixed;right:24px;bottom:100px;z-index:120;width:58px;height:58px;border-radius:999px;background:#25D366;color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 26px -8px oklch(20% .01 270 / .5);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:scale(1.09);box-shadow:0 18px 34px -10px oklch(20% .01 270 / .6)"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2a9.9 9.9 0 00-8.5 15L2 22l5.2-1.4A10 10 0 1012 2zm5.6 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.5c-.1.1-.3.3-.1.6.1.3.6 1.1 1.4 1.8 1 .9 1.8 1.1 2 1.2.3.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l2 1c.2.1.4.2.4.3.1.2.1.7-.1 1.3z"></path></svg></a>
+  <a href="https://wa.me/573128011838" target="_blank" rel="noopener" aria-label="WhatsApp" style="position:fixed;right:{{waRight}};bottom:calc({{waBottom}} + env(safe-area-inset-bottom, 0px));z-index:120;width:{{waSize}};height:{{waSize}};border-radius:999px;background:#25D366;color:white;display:{{floatWaDisplay}};align-items:center;justify-content:center;box-shadow:0 10px 26px -8px oklch(20% .01 270 / .5);transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:scale(1.09);box-shadow:0 18px 34px -10px oklch(20% .01 270 / .6)"><svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2a9.9 9.9 0 00-8.5 15L2 22l5.2-1.4A10 10 0 1012 2zm5.6 14.1c-.2.7-1.3 1.3-1.9 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.2-.3.5-.4.7-.4h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.3 0 .5l-.4.5c-.1.1-.3.3-.1.6.1.3.6 1.1 1.4 1.8 1 .9 1.8 1.1 2 1.2.3.1.4.1.6-.1l.7-.9c.2-.2.4-.2.6-.1l2 1c.2.1.4.2.4.3.1.2.1.7-.1 1.3z"></path></svg></a>
 
   <footer style="background:oklch(19% .004 265);color:oklch(92% .003 270);padding:72px 24px 34px">
     <div style="max-width:1280px;margin:0 auto">
@@ -1179,7 +1294,7 @@ $seriesJson = json_encode($series);
 
   <!-- Floating Cart -->
   <sc-if value="{{hasCartItems}}">
-    <div onClick="{{goToCart}}" style="position:fixed;bottom:32px;right:20px;background:oklch(58% .22 25);color:white;padding:16px 24px;border-radius:999px;box-shadow:0 12px 24px -8px oklch(58% .22 25 / .5);cursor:pointer;display:flex;align-items:center;gap:12px;z-index:9999;transition:transform .3s cubic-bezier(.2,.8,.2,1)" style-hover="transform:translateY(-5px) scale(1.05)">
+    <div onClick="{{goToCart}}" role="button" aria-label="Ver cotización" style="position:fixed;bottom:calc({{cartBottom}} + env(safe-area-inset-bottom, 0px));right:{{cartRight}};left:{{cartLeft}};background:oklch(58% .22 25);color:white;padding:{{cartPad}};border-radius:{{cartRadius}};box-shadow:0 12px 24px -8px oklch(58% .22 25 / .5);cursor:pointer;display:{{floatCartDisplay}};align-items:center;gap:12px;z-index:9999;transition:transform .3s cubic-bezier(.2,.8,.2,1)" style-hover="{{cartHover}}">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
       <div style="display:flex;flex-direction:column">
         <span style="font-size:14px;font-weight:700;line-height:1">Ver Cotización</span>
@@ -1235,6 +1350,8 @@ class Component extends DCLogic {
     catalogoViewMode: 'grid',
     catalogoSort: 'serie_order',
     modalProduct: null,
+    filtersSheetOpen: false,
+    menuTop: '0px',
     catalogoBrands: [],
     brandSearch: '',
     catalogoSeries: [],
@@ -1277,6 +1394,7 @@ class Component extends DCLogic {
     window.addEventListener('resize', this.handleResize);
     window.addEventListener('scroll', this.handleScroll, { passive: true });
     window.addEventListener('popstate', this.handlePopState);
+    window.addEventListener('keydown', this.handleKeyDown);
     
     // Also parse initial hash on load
     setTimeout(this.handlePopState, 100);
@@ -1294,6 +1412,40 @@ class Component extends DCLogic {
     }, delay);
   }
 
+  componentDidUpdate() {
+    // Bloquea el scroll de la página mientras hay un menú, hoja o modal abierto (evita que el contenido se mueva detrás)
+    // (solo en celular: en escritorio ocultar la barra de scroll movería el contenido)
+    const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.filtersSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
+    if (overlayOpen !== this._scrollLocked) this._setScrollLock(overlayOpen);
+    // En celular, deja visible el chip de la categoría activa
+    const chipKey = this.state.page + '|' + this.state.catalogoFilter;
+    if (this.state.isMobile && this.state.page === 'catalogo' && chipKey !== this._lastChipKey && this._catChipsEl) {
+      this._lastChipKey = chipKey;
+      const chip = this._catChipsEl.querySelector('[data-active="1"]');
+      if (chip) {
+        const box = this._catChipsEl;
+        box.scrollLeft = Math.max(0, chip.offsetLeft - box.offsetLeft - 12);
+      }
+    }
+  }
+
+  _setScrollLock(lock) {
+    this._scrollLocked = lock;
+    if (typeof document === 'undefined') return;
+    // Solo en <html>: si también se pone en <body>, el navegador reinicia el scroll a 0
+    document.documentElement.style.overflow = lock ? 'hidden' : '';
+  }
+
+  handleKeyDown = (e) => {
+    if (e.key !== 'Escape') return;
+    if (this.state.modalProduct) this.setState({ modalProduct: null });
+    else if (this.state.filtersSheetOpen) this.setState({ filtersSheetOpen: false });
+    else if (this.state.menuOpen) this.setState({ menuOpen: false });
+  };
+
+  setHeaderRef = (el) => { this._headerEl = el; };
+  setCatChipsRef = (el) => { this._catChipsEl = el; };
+
   componentWillUnmount() {
     clearTimeout(this._heroTimer);
     if (this._portfolioRaf) cancelAnimationFrame(this._portfolioRaf);
@@ -1301,6 +1453,9 @@ class Component extends DCLogic {
     window.removeEventListener('mouseup', this._onPortfolioMouseUp);
     window.removeEventListener('resize', this.handleResize);
     window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('keydown', this.handleKeyDown);
+    if (this._rs800Observer) this._rs800Observer.disconnect();
+    this._setScrollLock(false);
     Object.values(this._solObservers).forEach((o) => o.disconnect());
     if (this._categoriasObserver) this._categoriasObserver.disconnect();
     Object.values(this._sectionObservers).forEach((o) => o.disconnect());
@@ -1498,6 +1653,9 @@ class Component extends DCLogic {
 
   handlePopState = () => {
     const hash = window.location.hash;
+    if (this.state.menuOpen || this.state.filtersSheetOpen || this.state.modalProduct) {
+      this.setState({ menuOpen: false, filtersSheetOpen: false, modalProduct: null });
+    }
     if (hash === '#catalogo') {
       this.setState({ page: 'catalogo', catalogoFilter: 'todos' });
     } else if (hash.startsWith('#catalogo=')) {
@@ -1517,10 +1675,20 @@ class Component extends DCLogic {
     const mobile = w < 1100;
     const narrow = w < 700;
     if (mobile !== this.state.isMobile || narrow !== this.state.isNarrow) {
-      this.setState({ isMobile: mobile, isNarrow: narrow, menuOpen: mobile ? this.state.menuOpen : false });
+      this.setState({ isMobile: mobile, isNarrow: narrow, menuOpen: mobile ? this.state.menuOpen : false, filtersSheetOpen: mobile ? this.state.filtersSheetOpen : false });
     }
   };
-  toggleMenu = () => this.setState(s => ({ menuOpen: !s.menuOpen }));
+  toggleMenu = () => {
+    const opening = !this.state.menuOpen;
+    let menuTop = this.state.menuTop;
+    if (opening && this._headerEl) {
+      const rect = this._headerEl.getBoundingClientRect();
+      // Sin contar el panel (que vive dentro del header), el borde inferior del header es el de su primera fila
+      const row = this._headerEl.firstElementChild;
+      menuTop = Math.max(0, Math.round((row ? row.getBoundingClientRect().bottom : rect.bottom))) + 'px';
+    }
+    this.setState({ menuOpen: opening, menuTop, filtersSheetOpen: false });
+  };
   handleScroll = () => {
     const show = window.scrollY > 500;
     if (show !== this.state.showTop) this.setState({ showTop: show });
@@ -1736,7 +1904,15 @@ class Component extends DCLogic {
       el.setAttribute('webkit-playsinline', '');
       el.muted = !this.state.rs800Sound;
       el.defaultMuted = true;
-      el.play().catch(() => {});
+      // El video pesa varios MB: solo se descarga/reproduce cuando entra en pantalla, y se pausa al salir
+      if (this._rs800Observer) this._rs800Observer.disconnect();
+      if (typeof IntersectionObserver === 'undefined') { el.play().catch(() => {}); return; }
+      this._rs800Observer = new IntersectionObserver((entries) => {
+        const vis = entries[0] && entries[0].isIntersecting;
+        if (vis) el.play().catch(() => {});
+        else if (!el.paused) el.pause();
+      }, { threshold: 0.25 });
+      this._rs800Observer.observe(el);
     }
   };
 
@@ -1750,7 +1926,7 @@ class Component extends DCLogic {
   };
   navTo = (id) => {
     const fn = this.scrollToSection(id);
-    return (e) => { this.setState({ menuOpen: false }); fn(e); };
+    return (e) => { this.setState({ menuOpen: false }); this._setScrollLock(false); fn(e); };
   };
 
   _sectionObservers = {};
@@ -1812,7 +1988,8 @@ class Component extends DCLogic {
     if (e) e.preventDefault();
     window.history.pushState(null, '', window.location.pathname);
     if (e) e.preventDefault();
-    this.setState({ page: 'home', categorySlug: null });
+    this.setState({ page: 'home', categorySlug: null, menuOpen: false, equiposOpen: false, filtersSheetOpen: false, modalProduct: null });
+    this._setScrollLock(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1828,7 +2005,7 @@ class Component extends DCLogic {
 
   openGlobalSearch = (e) => {
     if (e) e.preventDefault();
-    this.setState({ globalSearchOpen: !this.state.globalSearchOpen });
+    this.setState({ globalSearchOpen: !this.state.globalSearchOpen, menuOpen: false });
     if (!this.state.globalSearchOpen) {
       setTimeout(() => {
         const el = document.getElementById('headerSearchInput');
@@ -1851,7 +2028,7 @@ class Component extends DCLogic {
   goToCatalogo = (e) => {
     if (e) e.preventDefault();
     window.history.pushState(null, '', '#catalogo');
-    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [] }, () => {
+    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [], menuOpen: false, equiposOpen: false, filtersSheetOpen: false }, () => {
       setTimeout(() => window.scrollTo(0, 0), 10);
       setTimeout(() => window.scrollTo(0, 0), 100);
     });
@@ -1957,6 +2134,30 @@ class Component extends DCLogic {
 
   onCatalogoSort = (e) => {
     this.setState({ catalogoSort: e.target.value });
+  };
+  setCatalogoSort = (value) => (e) => {
+    if (e) e.preventDefault();
+    this.setState({ catalogoSort: value, catalogoPage: 1 });
+  };
+  openFiltersSheet = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ filtersSheetOpen: true, menuOpen: false });
+  };
+  closeFiltersSheet = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ filtersSheetOpen: false });
+  };
+  clearCatalogoFilters = (e) => {
+    if (e) e.preventDefault();
+    this.setState({ catalogoBrands: [], catalogoSeries: [], brandSearch: '', catalogoSort: 'serie_order', catalogoPage: 1 });
+  };
+  // Celular: "Ver más" agrega la siguiente página debajo de la actual, sin mover el scroll
+  onLoadMoreMobile = (e) => {
+    if (e) e.preventDefault();
+    this.setState(s => ({ catalogoPage: s.catalogoPage + 1 }));
+  };
+  closeModalBackdrop = (e) => {
+    if (e && e.target === e.currentTarget) this.closeModal(e);
   };
   openModal = (prod) => (e) => {
     if (e) e.preventDefault();
@@ -2329,7 +2530,9 @@ class Component extends DCLogic {
         color: active ? 'white' : 'oklch(25% .008 270)',
         border: active ? 'oklch(58% .22 25)' : 'oklch(85% 0 0)',
         weight: active ? '700' : '500',
-        shadow: active ? '0 4px 12px oklch(58% .22 25 / .28)' : 'none'
+        shadow: active ? '0 4px 12px oklch(58% .22 25 / .28)' : 'none',
+        isActive: active,
+        activeAttr: active ? '1' : '0'
       };
     });
 
@@ -2385,7 +2588,10 @@ class Component extends DCLogic {
     const totalPages = Math.ceil(catalogoProductsFull.length / ITEMS_PER_PAGE);
     const currentPage = Math.min(this.state.catalogoPage, totalPages || 1);
     const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-    const catalogoProducts = catalogoProductsFull.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    // En celular se acumulan las páginas ("Ver más"); en escritorio se pagina
+    const catalogoProducts = this.state.isMobile
+      ? catalogoProductsFull.slice(0, currentPage * ITEMS_PER_PAGE)
+      : catalogoProductsFull.slice(startIdx, startIdx + ITEMS_PER_PAGE);
     const hasMoreCatalogo = false; // Disable load more button
     
     // Generate page array for pagination UI
@@ -2508,6 +2714,50 @@ class Component extends DCLogic {
 
       catalogoSort: this.state.catalogoSort,
       onCatalogoSort: this.onCatalogoSort,
+
+      // --- Catálogo en celular: barra fija, hoja de filtros y "Ver más" ---
+      isMobile: this.state.isMobile,
+      desktopOnlyBlock: this.state.isMobile ? 'none' : 'block',
+      desktopOnlyFlex: this.state.isMobile ? 'none' : 'flex',
+      catHeroPad: this.state.isMobile ? '22px 16px 18px' : '80px 24px 60px',
+      catHeroAlign: this.state.isMobile ? 'left' : 'center',
+      catHeroEyebrowSize: this.state.isMobile ? '10px' : '12px',
+      catHeroEyebrowGap: this.state.isMobile ? '6px' : '14px',
+      catHeroH1Size: this.state.isMobile ? '26px' : 'clamp(32px,5vw,56px)',
+      catHeroH1Gap: this.state.isMobile ? '0' : '20px',
+      catHeroH1LH: this.state.isMobile ? '1.1' : 'normal',
+      catSecPad: this.state.isMobile ? '0 12px 24px' : '40px 24px',
+      catSecGap: this.state.isMobile ? '0' : '40px',
+      catSecAlign: this.state.isMobile ? 'stretch' : 'flex-start',
+      catStickyTop: '64px',
+      catChipsRef: this.setCatChipsRef,
+      catSearchPlaceholder: (this.state.catalogoFilter && this.state.catalogoFilter !== 'todos') ? 'Buscar en ' + currentCategoryName : 'Buscar equipo, marca o SKU',
+      hasActiveFilters: (this.state.catalogoBrands.length + this.state.catalogoSeries.length) > 0,
+      activeFiltersCount: this.state.catalogoBrands.length + this.state.catalogoSeries.length,
+      filtersBtnBorder: (this.state.catalogoBrands.length + this.state.catalogoSeries.length) > 0 ? 'oklch(58% .22 25)' : 'oklch(85% 0 0)',
+      catalogoSortLabel: ({ serie_order: 'Por serie', name_asc: 'Nombre A-Z', name_desc: 'Nombre Z-A', series_asc: 'Marca A-Z' })[this.state.catalogoSort] || 'Por serie',
+      sortOptions: [['serie_order', 'Por serie'], ['name_asc', 'Nombre A-Z'], ['name_desc', 'Nombre Z-A'], ['series_asc', 'Marca A-Z']].map(([value, label]) => {
+        const on = this.state.catalogoSort === value;
+        return { label, isActive: on, onClick: this.setCatalogoSort(value), bg: on ? 'oklch(20% .005 270)' : 'white', color: on ? 'white' : 'oklch(20% .005 270)', border: on ? 'oklch(20% .005 270)' : 'oklch(85% 0 0)' };
+      }),
+      showBrandSearch: catalogoBrandsList.length > 8 || !!this.state.brandSearch,
+      filtersSheetOpen: this.state.isMobile && this.state.filtersSheetOpen,
+      openFiltersSheet: this.openFiltersSheet,
+      closeFiltersSheet: this.closeFiltersSheet,
+      clearCatalogoFilters: this.clearCatalogoFilters,
+      hasLoadMoreMobile: this.state.isMobile && catalogoProducts.length < catalogoProductsFull.length,
+      loadMoreCount: Math.min(ITEMS_PER_PAGE, catalogoProductsFull.length - catalogoProducts.length),
+      shownCount: catalogoProducts.length,
+      onLoadMoreMobile: this.onLoadMoreMobile,
+      closeModalBackdrop: this.closeModalBackdrop,
+      modalOverlayPad: this.state.isMobile ? '0' : '20px',
+      modalRadius: this.state.isMobile ? '0' : '16px',
+      modalH: this.state.isMobile ? '100%' : 'auto',
+      modalMaxH: this.state.isMobile ? '100%' : '90vh',
+      modalImgMaxH: this.state.isMobile ? '260px' : '400px',
+      modalTitleSize: this.state.isMobile ? '24px' : '32px',
+      modalTitlePadR: '0',
+      modalPGap: this.state.isMobile ? '20px' : '32px',
       
       
       modalOpen: !!this.state.modalProduct,
@@ -2567,7 +2817,7 @@ class Component extends DCLogic {
       catalogoProducts,
       hasMoreCatalogo,
       catalogoPages: typeof catalogoPages !== 'undefined' ? catalogoPages : [],
-      hasPagination: typeof totalPages !== 'undefined' && totalPages > 1,
+      hasPagination: !this.state.isMobile && typeof totalPages !== 'undefined' && totalPages > 1,
       currentPage: typeof currentPage !== 'undefined' ? currentPage : 1,
       totalPages: typeof totalPages !== 'undefined' ? totalPages : 1,
       prevPageDisabled: typeof currentPage !== 'undefined' && currentPage <= 1,
@@ -2666,7 +2916,7 @@ class Component extends DCLogic {
       catListWrap: this.state.isMobile ? 'wrap' : 'nowrap',
       modalPadding: this.state.isMobile ? '24px' : '40px',
       modalImgPadding: this.state.isMobile ? '20px' : '40px',
-      modalImgMinH: this.state.isMobile ? '280px' : '300px',
+      modalImgMinH: this.state.isMobile ? '240px' : '300px',
       modalBorderR: this.state.isMobile ? 'none' : '1px solid oklch(92% 0 0)',
       modalBorderB: this.state.isMobile ? '1px solid oklch(92% 0 0)' : 'none',
       contactGrid: this.state.isNarrow ? '1fr' : '1fr 1.3fr',
@@ -2675,7 +2925,18 @@ class Component extends DCLogic {
       modalBorderL: this.state.isMobile ? 'none' : '1px solid oklch(92% 0 0)',
       catAsideTop: this.state.isMobile ? '0' : '80px',
       goHome: this.goHome,
-      logoH: this.state.isMobile ? '62px' : '96px',
+      logoH: this.state.isMobile ? '44px' : '96px',
+      // 'clip' recorta igual que 'hidden' pero no rompe position:sticky (header y barra del catálogo)
+      rootOverflowX: this.state.isMobile ? 'clip' : 'hidden',
+      headerRef: this.setHeaderRef,
+      hdrPad: this.state.isMobile ? '10px 16px' : '14px 24px',
+      hdrGap: this.state.isMobile ? '12px' : '24px',
+      // En celular sin blur: backdrop-filter convierte al header en contenedor de los position:fixed y descuadra el menú
+      hdrBg: this.state.isMobile ? 'oklch(98% 0 0)' : 'oklch(98% 0 0 / .96)',
+      hdrBlur: this.state.isMobile ? 'none' : 'blur(10px)',
+      menuOpen: !!this.state.menuOpen,
+      menuBtnLabel: this.state.menuOpen ? 'Cerrar menú' : 'Abrir menú',
+      menuTop: this.state.menuTop,
       navDisplay: this.state.globalSearchOpen ? 'none' : (this.state.isMobile ? 'none' : 'flex'),
       ctaDisplay: this.state.isMobile ? 'none' : 'block',
       burgerDisplay: this.state.isMobile ? 'flex' : 'none',
@@ -2686,6 +2947,18 @@ class Component extends DCLogic {
       toggleMenu: this.toggleMenu,
       scrollTop: this.scrollTop,
       topBtnOpacity: this.state.showTop ? 1 : 0,
+      floatTopDisplay: ((this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) || (this.state.isMobile && this.state.cart.length > 0)) ? 'none' : 'flex',
+      floatWaDisplay: (this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      waRight: this.state.isMobile ? '16px' : '24px',
+      waSize: this.state.isMobile ? '52px' : '58px',
+      waBottom: this.state.isMobile ? (this.state.cart.length > 0 ? '84px' : '20px') : '100px',
+      floatCartDisplay: (this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      cartBottom: this.state.isMobile ? '12px' : '32px',
+      cartRight: this.state.isMobile ? '12px' : '20px',
+      cartLeft: this.state.isMobile ? '12px' : 'auto',
+      cartPad: this.state.isMobile ? '12px 18px' : '16px 24px',
+      cartRadius: this.state.isMobile ? '14px' : '999px',
+      cartHover: this.state.isMobile ? 'opacity:.95' : 'transform:translateY(-5px) scale(1.05)',
       topBtnPointer: this.state.showTop ? 'auto' : 'none',
       heroPSize: this.state.isNarrow ? '15px' : '17px',
       heroPGap: this.state.isNarrow ? '26px' : '32px',
