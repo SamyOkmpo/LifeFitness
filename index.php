@@ -548,6 +548,13 @@ $seriesJson = json_encode($series);
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
           <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
             <video ref="{{rs800Ref}}" src="assets/realleader_rs800_720.mp4" sc-camel-src="assets/realleader_rs800_720.mp4" poster="assets/realleader_rs800_poster.webp" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <sc-if value="{{rs800Blocked}}" hint-placeholder-val="{{false}}">
+              <button onClick="{{playRs800}}" aria-label="Reproducir video" style="position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer">
+                <span style="display:inline-flex;align-items:center;gap:10px;padding:12px 20px;border-radius:999px;background:oklch(10% .005 270 / .7);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:white;font-size:13px;font-weight:700;letter-spacing:.04em">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>Ver video
+                </span>
+              </button>
+            </sc-if>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
               <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
@@ -1440,7 +1447,7 @@ class Component extends DCLogic {
     const delay = this.state.heroIndex === 0 ? 9000 : 14000;
     this._heroTimer = setTimeout(() => {
       if (this.state.page === 'home' && this._heroVisible !== false) {
-        this.setState(s => ({ heroIndex: (s.heroIndex + 1) % 2 }), () => this.scheduleHero());
+        this.setState(s => ({ heroIndex: (s.heroIndex + 1) % (s.heroVideoBlocked ? 1 : 2) }), () => this.scheduleHero());
       } else {
         this.scheduleHero();
       }
@@ -1497,6 +1504,7 @@ class Component extends DCLogic {
     window.removeEventListener('keydown', this.handleKeyDown);
     if (this._rs800Observer) this._rs800Observer.disconnect();
     if (this._heroObserver) this._heroObserver.disconnect();
+    if (this._portfolioObserver) this._portfolioObserver.disconnect();
     this._setScrollLock(false);
     Object.values(this._solObservers).forEach((o) => o.disconnect());
     if (this._categoriasObserver) this._categoriasObserver.disconnect();
@@ -1522,6 +1530,16 @@ class Component extends DCLogic {
       this._portfolioInitialized = true;
       this._bindPortfolioEvents();
       this._startPortfolioLoop();
+    }
+    // Capa propia para el contenido: el desplazamiento por transform se dibuja suave
+    if (el.firstElementChild) el.firstElementChild.style.willChange = 'transform';
+    // Solo se anima mientras el carrusel está en pantalla (ahorra batería)
+    if (this._portfolioObserver) this._portfolioObserver.disconnect();
+    if (typeof IntersectionObserver !== 'undefined') {
+      this._portfolioObserver = new IntersectionObserver((entries) => {
+        this._portfolioVisible = !!(entries[0] && entries[0].isIntersecting);
+      });
+      this._portfolioObserver.observe(el);
     }
   };
 
@@ -1585,24 +1603,32 @@ class Component extends DCLogic {
   };
 
   _startPortfolioLoop = () => {
-    const loop = () => {
+    let last = 0;
+    const loop = (t) => {
       const track = this._portfolioTrack;
-      if (track && this.state.page === 'home') {
+      // Avance por tiempo, no por cuadro: igual de rápido a 60 fps que a 30 fps
+      // (iPhone en modo de bajo consumo limita las animaciones a 30 fps)
+      const k = last ? Math.min(t - last, 50) / 16.667 : 1;
+      last = t;
+      if (track && this.state.page === 'home' && this._portfolioVisible !== false) {
         if (!this._portfolioIsDown) {
           // Apply velocity momentum
           if (Math.abs(this._portfolioVelocity) > 0.05) {
-            this._advancePortfolio(track, this._portfolioVelocity);
-            this._portfolioVelocity *= 0.94; // friction decay
+            this._advancePortfolio(track, this._portfolioVelocity * k);
+            this._portfolioVelocity *= Math.pow(0.94, k); // friction decay
             this._wrapPortfolio(track);
           } else {
             this._portfolioVelocity = 0;
             // Gentle continuous auto-play when not dragging or hovering
             const isHovered = this.state.isMobile ? false : this._portfolioIsHovered;
             if (!isHovered) {
-              this._advancePortfolio(track, this._portfolioAutoSpeed);
+              const speed = this.state.isMobile ? 0.7 : this._portfolioAutoSpeed;
+              this._advancePortfolio(track, speed * k);
               this._wrapPortfolio(track);
             }
           }
+        } else {
+          this._resetPortfolioOffset(track);
         }
       }
       this._portfolioRaf = requestAnimationFrame(loop);
@@ -1613,11 +1639,21 @@ class Component extends DCLogic {
   // Safari (iPhone) redondea scrollLeft a píxeles enteros: sumarle 0.55 por cuadro no movía nada.
   // Se acumula la posición con decimales y se asigna completa; si alguien movió el carrusel
   // (dedo, flechas, salto infinito) se vuelve a tomar la posición real.
+  // La parte entera va en scrollLeft y la fracción en un transform del contenido, así el
+  // movimiento es continuo en vez de saltar 0 o 1 px por cuadro.
   _advancePortfolio = (track, delta) => {
     const cur = track.scrollLeft;
-    if (this._portfolioPos == null || Math.abs(cur - this._portfolioPos) > 1.5) this._portfolioPos = cur;
+    if (this._portfolioPos == null || Math.abs(cur - Math.floor(this._portfolioPos)) > 1.5) this._portfolioPos = cur;
     this._portfolioPos += delta;
-    track.scrollLeft = this._portfolioPos;
+    const whole = Math.floor(this._portfolioPos);
+    track.scrollLeft = whole;
+    const inner = track.firstElementChild;
+    if (inner) inner.style.transform = 'translate3d(' + (-(this._portfolioPos - whole)).toFixed(3) + 'px,0,0)';
+  };
+  _resetPortfolioOffset = (track) => {
+    this._portfolioPos = null;
+    const inner = track.firstElementChild;
+    if (inner && inner.style.transform) inner.style.transform = '';
   };
 
   _wrapPortfolio = (track) => {
@@ -1774,7 +1810,12 @@ class Component extends DCLogic {
       if (this.state.videoMuted) el.setAttribute('muted', '');
       el.muted = this.state.videoMuted;
       // Solo se reproduce si el hero está en pantalla
-      if (this._heroVisible !== false) { const p = el.play(); if (p && p.catch) p.catch(() => {}); }
+      if (this._heroVisible !== false) {
+        const p = el.play();
+        // Bloqueado (modo de bajo consumo, ahorro de datos) o el video externo no responde: se usa solo la imagen
+        if (p && p.catch) p.catch((err) => { if (err && err.name !== 'AbortError') this.setState({ heroVideoBlocked: true, heroIndex: 0 }); });
+      }
+      el.onerror = () => this.setState({ heroVideoBlocked: true, heroIndex: 0 });
     }
   };
   heroSectionRef = (el) => {
@@ -1983,14 +2024,30 @@ class Component extends DCLogic {
       el.defaultMuted = true;
       // El video pesa varios MB: solo se descarga/reproduce cuando entra en pantalla, y se pausa al salir
       if (this._rs800Observer) this._rs800Observer.disconnect();
-      if (typeof IntersectionObserver === 'undefined') { el.play().catch(() => {}); return; }
+      el.setAttribute('muted', '');
+      // Si el navegador bloquea la reproducción automática (p. ej. iPhone en modo de bajo consumo),
+      // se muestra un botón "Ver video" en vez de dejar el video quieto sin explicación.
+      const tryPlay = () => {
+        const p = el.play();
+        if (p && p.then) p.then(() => { if (this.state.rs800Blocked) this.setState({ rs800Blocked: false }); }, () => { if (!this.state.rs800Blocked) this.setState({ rs800Blocked: true }); });
+      };
+      if (typeof IntersectionObserver === 'undefined') { tryPlay(); return; }
       this._rs800Observer = new IntersectionObserver((entries) => {
         const vis = entries[0] && entries[0].isIntersecting;
-        if (vis) el.play().catch(() => {});
+        if (vis) tryPlay();
         else if (!el.paused) el.pause();
       }, { threshold: 0.25 });
       this._rs800Observer.observe(el);
     }
+  };
+
+  playRs800 = (e) => {
+    if (e) e.preventDefault();
+    const el = this._rs800El;
+    if (!el) return;
+    el.muted = true;
+    const p = el.play();
+    if (p && p.then) p.then(() => this.setState({ rs800Blocked: false }), () => {});
   };
 
   openEquipos = () => this.setState({ equiposOpen: true });
@@ -2354,10 +2411,11 @@ class Component extends DCLogic {
   };
 
   renderVals() {
-    const heroData = [
+    const heroAll = [
       { img: R('assets/hero_hoist.webp'), alt: 'Disciplina, enfoque, consistencia y resultados', fit: 'cover', label1: 'BIOMECÁNICA', label2: 'REVOLUCIONARIA' },
       { video: 'https://www.realleadermex.com/galeriavideo/inicio3.mp4', alt: 'Real Leader — equipos de fuerza comercial', label1: 'FUERZA', label2: 'REAL LEADER' },
     ];
+    const heroData = this.state.heroVideoBlocked ? heroAll.filter(h => !h.video) : heroAll;
     const heroSlides = heroData.map((h, i) => {
       const active = i === this.state.heroIndex;
       return {
@@ -2970,6 +3028,8 @@ class Component extends DCLogic {
       persVideoW: this.state.isMobile ? 'min(100%, 315px)' : '100%',
       rs800Video: R('assets/realleader_rs800_720.mp4'),
       rs800Ref: this.setRs800Ref,
+      rs800Blocked: !!this.state.rs800Blocked,
+      playRs800: this.playRs800,
       toggleRs800Sound: this.toggleRs800Sound,
       rs800Muted: !this.state.rs800Sound,
       rs800SoundLabel: this.state.rs800Sound ? 'Silenciar' : 'Activar sonido',
@@ -3112,7 +3172,7 @@ class Component extends DCLogic {
       goToCategory_trotadoras: (e) => { e.preventDefault(); this.goToCategory('trotadoras'); },
       goToCategory_pesas: (e) => { e.preventDefault(); this.goToCategory('pesas'); },
       heroSlides,
-      heroDots: heroData.map((_, i) => ({
+      heroDots: heroData.length < 2 ? [] : heroData.map((_, i) => ({
         label: 'Slide ' + (i + 1),
         width: i === this.state.heroIndex ? '46px' : '22px',
         bg: i === this.state.heroIndex ? 'oklch(58% .22 25)' : 'oklch(99% 0 0 / .45)',
