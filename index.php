@@ -789,46 +789,21 @@ $seriesJson = json_encode($series);
 
             <!-- CARD DESTACADO DE VIDEO EXCLUSIVO GLUTE LEADER -->
             <sc-if value="{{isGluteLeader}}">
-              <div style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#0d0d11;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
+              <div style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#000;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;min-height:360px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
                 
-                <!-- Video Header Container -->
-                <div style="height:190px;background:#000;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+                <!-- Video Container a pantalla completa dentro del card -->
+                <div style="position:relative;flex-grow:1;width:100%;height:100%;min-height:300px;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center">
                   <video
                     ref="{{gluteVideoRef}}"
                     src="assets/Gluteleader_Range_v3.mp4"
                     autoplay
                     loop
-                    muted
                     playsinline
                     style="width:100%;height:100%;object-fit:cover;display:block">
                   </video>
-                  
-                  <!-- Tag / Badge Serie -->
-                  <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);border:1px solid rgba(230,57,70,0.6);color:#ff4d5a;font-size:10px;font-weight:700;letter-spacing:0.08em;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:5px;text-transform:uppercase">
-                    <span style="width:6px;height:6px;border-radius:50%;background:#e63946;display:inline-block"></span>
-                    <span>Video Oficial</span>
-                  </div>
 
-                  <!-- Botón flotante de audio -->
-                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.35);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1)">
-                    {{gluteSoundIcon}}
-                  </button>
-                </div>
-
-                <!-- Card Body -->
-                <div style="padding:16px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg, #15151a 0%, #0d0d11 100%)">
-                  <div>
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px">
-                      <div style="font-size:11px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;letter-spacing:0.05em">Línea Especializada</div>
-                      <span style="font-size:10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:2px 6px;border-radius:4px;font-weight:600">Realleader</span>
-                    </div>
-                    <h4 style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 6px;color:#ffffff;line-height:1.2;text-transform:uppercase">GLUTE LEADER RANGE</h4>
-                    <p style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.45;margin:0 0 14px">
-                      Demostración de rango completo y biomecánica en acción para máxima activación de glúteos.
-                    </p>
-                  </div>
-
-                  <button onClick="{{toggleGluteSound}}" style="width:100%;background:oklch(58% .22 25);color:white;border:none;padding:10px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:#d62839">
+                  <!-- Botón flotante para silenciar / activar audio -->
+                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.35);padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;cursor:pointer;transition:transform .2s ease;z-index:2" style-hover="transform:scale(1.05)">
                     <span>{{gluteSoundIcon}}</span>
                     <span>{{gluteSoundLabel}}</span>
                   </button>
@@ -1216,7 +1191,7 @@ class Component extends DCLogic {
     hoveredSolution: null,
     activeSolution: null,
     videoMuted: true,
-    gluteSound: false,
+    gluteSound: true,
     isMobile: false,
     isNarrow: false,
     menuOpen: false,
@@ -1516,7 +1491,14 @@ class Component extends DCLogic {
     if (el) {
       el.muted = !this.state.gluteSound;
       const p = el.play();
-      if (p && p.catch) p.catch(() => {});
+      if (p && p.catch) {
+        p.catch(() => {
+          // Si el navegador bloquea autoplay con sonido, reproduce en mute y avisa
+          el.muted = true;
+          this.setState({ gluteSound: false });
+          el.play && el.play().catch(() => {});
+        });
+      }
     }
   };
   toggleGluteSound = (e) => {
