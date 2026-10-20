@@ -1543,23 +1543,33 @@ class Component extends DCLogic {
       const p = el.play();
       if (p && p.catch) {
         p.catch(() => {
-          // El navegador bloqueó reproducción con sonido por falta de interacción
+          // Chrome bloquea autoplay con sonido hasta la primera interacción
           el.muted = true;
           this.setState({ gluteSound: false });
           el.play && el.play().catch(() => {});
-          const unlockSound = () => {
+          
+          const doUnmute = () => {
             if (this._gluteVideoEl) {
               this._gluteVideoEl.muted = false;
-              this._gluteVideoEl.play && this._gluteVideoEl.play().catch(() => {});
+              this._gluteVideoEl.volume = 1.0;
+              const playPromise = this._gluteVideoEl.play();
+              if (playPromise && playPromise.catch) playPromise.catch(() => {});
             }
             if (this._gluteModalVideoEl) {
               this._gluteModalVideoEl.muted = false;
-              this._gluteModalVideoEl.play && this._gluteModalVideoEl.play().catch(() => {});
+              this._gluteModalVideoEl.volume = 1.0;
+              const playPromise = this._gluteModalVideoEl.play();
+              if (playPromise && playPromise.catch) playPromise.catch(() => {});
             }
             this.setState({ gluteSound: true });
-            ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => window.removeEventListener(evt, unlockSound, true));
+            ['click', 'touchstart', 'scroll', 'pointerdown', 'mousemove', 'keydown'].forEach(evt => {
+              window.removeEventListener(evt, doUnmute, true);
+            });
           };
-          ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => window.addEventListener(evt, unlockSound, { once: true, capture: true }));
+
+          ['click', 'touchstart', 'scroll', 'pointerdown', 'mousemove', 'keydown'].forEach(evt => {
+            window.addEventListener(evt, doUnmute, { once: true, capture: true, passive: true });
+          });
         });
       }
     }
