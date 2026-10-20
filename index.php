@@ -2114,21 +2114,21 @@ class Component extends DCLogic {
     }));
 
     const carouselItems = [
-      { img: R('uploads/elipticas.jpeg'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
-      { img: R('uploads/trotadoras.jpeg'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
-      { img: R('uploads/estaticas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
-      { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras' },
-      { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
-      { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
-      { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
-      { img: R('assets/portfolio_glute_leader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
-      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', zoom: 1.05 },
-      { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
-      { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
+      { img: R('assets/portfolio_norm/elipticas.png'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
+      { img: R('assets/portfolio_norm/trotadoras.png'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
+      { img: R('assets/portfolio_norm/bicicletas.png'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
+      { img: R('assets/portfolio_norm/escaleras.png'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras' },
+      { img: R('assets/portfolio_norm/spinning.png'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
+      { img: R('assets/portfolio_norm/pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
+      { img: R('assets/portfolio_norm/pesolibre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
+      { img: R('assets/portfolio_norm/gluteleader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
+      { img: R('assets/portfolio_norm/circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos' },
+      { img: R('assets/portfolio_norm/funcional.png'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
+      { img: R('assets/portfolio_norm/accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems, ...carouselItems].map((c, i) => ({
-      img: c.img, name: c.name, tag: c.tag, pad: c.pad || '22px 20px 18px', zoom: c.zoom || 1, onClick: this.goCat(c.slug), key: i,
+      img: c.img, name: c.name, tag: c.tag, pad: '16px 16px 12px', zoom: 1, onClick: this.goCat(c.slug), key: i,
     }));
 
     const currentCategory = CATEGORIES[this.state.categorySlug] || Object.values(CATEGORIES)[0];
