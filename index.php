@@ -109,6 +109,21 @@ $seriesJson = json_encode($series);
 <meta name="theme-color" content="#c62828"/>
 <link rel="icon" type="image/png" href="assets/logo.webp">
 <script>window.__resources = window.__resources || {};</script>
+<script>
+// En pantallas táctiles el :hover se queda "pegado" después de tocar (las tarjetas quedan
+// agrandadas encima de las vecinas). Las reglas :hover que genera js/support.js para los
+// atributos style-hover se aplican solo en dispositivos con mouse.
+(function () {
+  if (!window.CSSStyleSheet || !CSSStyleSheet.prototype.insertRule) return;
+  var insertRule = CSSStyleSheet.prototype.insertRule;
+  CSSStyleSheet.prototype.insertRule = function (rule, index) {
+    if (typeof rule === 'string' && /^\.scp[0-9a-z]+:hover\{/.test(rule)) {
+      rule = '@media (hover: hover) and (pointer: fine){' + rule + '}';
+    }
+    return insertRule.call(this, rule, index);
+  };
+})();
+</script>
 <script src="js/support.js"></script>
 <style>
               .grid-catalogo {
@@ -160,8 +175,22 @@ $seriesJson = json_encode($series);
               .cat-chips > button { scroll-snap-align: start; }
               .sheet-scroll { overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
               @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+              /* Transiciones suaves: cambio de página, tarjetas de producto y fotos */
+              @keyframes pageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+              @keyframes cardIn { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+              /* "backwards": al terminar no deja transform, que rompería los modales position:fixed de adentro */
+              .page-in { animation: pageIn .4s cubic-bezier(.2,.8,.2,1) backwards; }
+              .pc-card { animation: cardIn .45s cubic-bezier(.2,.8,.2,1) backwards; }
+              .pc-photo { opacity: 0; transition: opacity .35s ease; }
+              .pc-photo[data-loaded] { opacity: 1; }
+              /* Táctil: respuesta al presionar en vez de :hover */
+              @media (hover: none) {
+                .hc-grid > div, .pc-card, .tap-press { -webkit-tap-highlight-color: transparent; }
+                .hc-grid > div:active, .pc-card:active, .tap-press:active { transform: scale(.975) !important; transition: transform .12s ease !important; }
+              }
               @media (prefers-reduced-motion: reduce) {
-                .ticker-track { animation: none !important; }
+                .ticker-track, .page-in, .pc-card { animation: none !important; }
+                .pc-photo { transition: none; }
               }
               .portfolio-carousel-track::-webkit-scrollbar {
                 display: none;
@@ -313,16 +342,16 @@ $seriesJson = json_encode($series);
   </header>
 
   <sc-if value="{{isHome}}" hint-placeholder-val="{{true}}">
-  <main>
+  <main class="page-in">
 
-    <section id="inicio" style="position:relative;height:{{heroH}};min-height:{{heroMinH}};overflow:hidden;background:oklch(10% .005 270)">
+    <section id="inicio" ref="{{heroSectionRef}}" style="position:relative;height:{{heroH}};min-height:{{heroMinH}};overflow:hidden;background:oklch(10% .005 270)">
       <sc-for list="{{heroSlides}}" as="slide" hint-placeholder-count="2">
         <div style="position:absolute;inset:0;opacity:{{slide.opacity}};transition:opacity 1s ease;background:oklch(10% .005 270)">
           <sc-if value="{{slide.isImage}}" hint-placeholder-val="{{true}}">
             <img src="assets/hero_hoist.webp" data-sc-camel-src="{{slide.img}}" alt="{{slide.alt}}" ref="{{heroImgRef}}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:{{slide.fit}}"/>
           </sc-if>
           <sc-if value="{{slide.showVideo}}" hint-placeholder-val="{{false}}">
-            <video ref="{{videoRef}}" sc-camel-src="{{slide.videoSrc}}" autoPlay="{{true}}" muted="{{true}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
+            <video ref="{{videoRef}}" sc-camel-src="{{slide.videoSrc}}" autoPlay="{{true}}" muted="{{true}}" loop="{{true}}" playsInline="{{true}}" disablePictureInPicture="{{true}}" disableRemotePlayback="{{true}}" preload="none" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>
           </sc-if>
           <div style="position:absolute;inset:0;background:linear-gradient(105deg, oklch(16% .006 270 / .68) 0%, oklch(16% .006 270 / .42) 50%, oklch(16% .006 270 / .16) 100%)"></div>
           <div style="position:absolute;inset:0;background:linear-gradient(to right, oklch(12% .005 270 / .4), oklch(12% .005 270 / .18) 55%, oklch(12% .005 270 / .04))"></div>
@@ -434,8 +463,8 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{grid4}};gap:1px;background:oklch(42% .006 270)">
           <sc-for list="{{solutions}}" as="sol" hint-placeholder-count="4">
-            <div ref="{{sol.cardRef}}" onMouseEnter="{{sol.onEnter}}" onMouseLeave="{{sol.onLeave}}" onClick="{{sol.onClick}}" style="position:relative;overflow:hidden;cursor:pointer;background:oklch(25% .008 270);padding:44px 30px 40px;min-height:330px;display:flex;flex-direction:column;opacity:{{sol.revealOpacity}};transform:{{sol.revealTransform}};transition:opacity .7s ease {{sol.revealDelay}},transform .7s cubic-bezier(.2,.8,.2,1) {{sol.revealDelay}}">
-              <img loading="lazy" sc-camel-src="{{sol.bgImg}}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{sol.imgOpacity}};transform:{{sol.imgTransform}};transition:opacity .6s ease,transform .8s cubic-bezier(.2,.8,.2,1);pointer-events:none"/>
+            <div ref="{{sol.cardRef}}" class="tap-press" onMouseEnter="{{sol.onEnter}}" onMouseLeave="{{sol.onLeave}}" onClick="{{sol.onClick}}" style="position:relative;overflow:hidden;cursor:pointer;background:oklch(25% .008 270);padding:44px 30px 40px;min-height:330px;display:flex;flex-direction:column;opacity:{{sol.revealOpacity}};transform:{{sol.revealTransform}};transition:opacity .7s ease {{sol.revealDelay}},transform .7s cubic-bezier(.2,.8,.2,1) {{sol.revealDelay}}">
+              <img loading="lazy" sc-camel-src="{{sol.bgImg}}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{sol.imgOpacity}};transform:{{sol.imgTransform}};transition:{{sol.imgTransition}};pointer-events:none"/>
               <div style="position:absolute;inset:0;background:radial-gradient(130% 90% at 50% 120%, oklch(58% .22 25 / .26), transparent 62%);opacity:0;transition:opacity .6s ease" style-hover="opacity:1"></div>
               <div style="position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(to top,oklch(46% .2 25 / .3),oklch(58% .22 25 / .16));transform:scaleY({{sol.fillScale}});transform-origin:bottom;transition:transform .55s cubic-bezier(.2,.8,.2,1)"></div>
               <div style="position:absolute;top:0;left:0;right:0;height:4px;background:oklch(99% 0 0);transform:scaleX({{sol.fillScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1) .1s"></div>
@@ -710,7 +739,7 @@ $seriesJson = json_encode($series);
   </sc-if>
 
   <sc-if value="{{isCatalogo}}" hint-placeholder-val="{{false}}">
-    <main style="padding-bottom:100px;background:oklch(97% .004 270);min-height:100vh">
+    <main class="page-in" style="padding-bottom:100px;background:oklch(97% .004 270);min-height:100vh">
       <section style="background:oklch(14% .005 270);padding:{{catHeroPad}};text-align:{{catHeroAlign}}">
         <div style="max-width:800px;margin:0 auto">
           <div style="font-size:{{catHeroEyebrowSize}};letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:{{catHeroEyebrowGap}}">Catálogo de Equipos</div>
@@ -881,10 +910,10 @@ $seriesJson = json_encode($series);
             </sc-if>
 
             <sc-for list="{{catalogoProducts}}" as="prod">
-              <div style="position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
+              <div key="{{prod.cardKey}}" class="pc-card" style="animation-delay:{{prod.animDelay}};position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
                 
                 <div class="pc-img" onClick="{{prod.onOpen}}" style="height:160px;background:oklch(98% .002 270);padding:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" title="Ver detalles">
-                  <img loading="lazy" sc-camel-src="{{prod.image}}" alt="{{prod.name}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
+                  <img class="pc-photo" loading="lazy" decoding="async" sc-camel-src="{{prod.image}}" alt="{{prod.name}}" onLoad="{{onPhotoLoad}}" onError="{{onPhotoLoad}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
                 </div>
 
                 <div class="pc-body" style="padding:16px;flex-grow:1;display:flex;flex-direction:column">
@@ -1139,7 +1168,7 @@ $seriesJson = json_encode($series);
   </sc-if>
 
   <sc-if value="{{isContacto}}" hint-placeholder-val="{{false}}">
-    <main style="max-width:1280px;margin:0 auto;padding:80px 24px 120px">
+    <main class="page-in" style="max-width:1280px;margin:0 auto;padding:80px 24px 120px">
       
       <div style="text-align:center;max-width:600px;margin:0 auto 56px">
         <button onClick="{{goBackHistory}}" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:oklch(42% .01 270);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;margin-bottom:24px;transition:color .2s" style-hover="color:oklch(58% .22 25)">
@@ -1318,6 +1347,8 @@ window.DB_ERROR = <?php echo json_encode($dbError ?? null); ?>;
 </script>
 <script type="text/x-dc" data-dc-script>
 const ITEMS_PER_PAGE = 12;
+// true solo con mouse/trackpad: en táctil los efectos de hover se quedan pegados después de tocar
+const CAN_HOVER = typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 const R = (p) => (window.__resources && window.__resources[p]) || p;
 const DB_CATS = window.DB_CATEGORIAS || [];
 const CATEGORIES = {};
@@ -1408,7 +1439,7 @@ class Component extends DCLogic {
     clearTimeout(this._heroTimer);
     const delay = this.state.heroIndex === 0 ? 9000 : 14000;
     this._heroTimer = setTimeout(() => {
-      if (this.state.page === 'home') {
+      if (this.state.page === 'home' && this._heroVisible !== false) {
         this.setState(s => ({ heroIndex: (s.heroIndex + 1) % 2 }), () => this.scheduleHero());
       } else {
         this.scheduleHero();
@@ -1417,6 +1448,10 @@ class Component extends DCLogic {
   }
 
   componentDidUpdate() {
+    // Respaldo del fundido: fotos que ya estaban en caché antes de que llegara onLoad
+    if (this.state.page === 'catalogo' && typeof document !== 'undefined') {
+      document.querySelectorAll('img.pc-photo:not([data-loaded])').forEach((img) => { if (img.complete) img.setAttribute('data-loaded', ''); });
+    }
     // Bloquea el scroll de la página mientras hay un menú, hoja o modal abierto (evita que el contenido se mueva detrás)
     // (solo en celular: en escritorio ocultar la barra de scroll movería el contenido)
     const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.filtersSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
@@ -1448,6 +1483,8 @@ class Component extends DCLogic {
   };
 
   setHeaderRef = (el) => { this._headerEl = el; };
+  // Las fotos del catálogo aparecen con un fundido cuando terminan de cargar
+  onPhotoLoad = (e) => { if (e && e.currentTarget) e.currentTarget.setAttribute('data-loaded', ''); };
   setCatChipsRef = (el) => { this._catChipsEl = el; };
 
   componentWillUnmount() {
@@ -1459,6 +1496,7 @@ class Component extends DCLogic {
     window.removeEventListener('scroll', this.handleScroll);
     window.removeEventListener('keydown', this.handleKeyDown);
     if (this._rs800Observer) this._rs800Observer.disconnect();
+    if (this._heroObserver) this._heroObserver.disconnect();
     this._setScrollLock(false);
     Object.values(this._solObservers).forEach((o) => o.disconnect());
     if (this._categoriasObserver) this._categoriasObserver.disconnect();
@@ -1553,7 +1591,7 @@ class Component extends DCLogic {
         if (!this._portfolioIsDown) {
           // Apply velocity momentum
           if (Math.abs(this._portfolioVelocity) > 0.05) {
-            track.scrollLeft += this._portfolioVelocity;
+            this._advancePortfolio(track, this._portfolioVelocity);
             this._portfolioVelocity *= 0.94; // friction decay
             this._wrapPortfolio(track);
           } else {
@@ -1561,7 +1599,7 @@ class Component extends DCLogic {
             // Gentle continuous auto-play when not dragging or hovering
             const isHovered = this.state.isMobile ? false : this._portfolioIsHovered;
             if (!isHovered) {
-              track.scrollLeft += this._portfolioAutoSpeed;
+              this._advancePortfolio(track, this._portfolioAutoSpeed);
               this._wrapPortfolio(track);
             }
           }
@@ -1570,6 +1608,16 @@ class Component extends DCLogic {
       this._portfolioRaf = requestAnimationFrame(loop);
     };
     this._portfolioRaf = requestAnimationFrame(loop);
+  };
+
+  // Safari (iPhone) redondea scrollLeft a píxeles enteros: sumarle 0.55 por cuadro no movía nada.
+  // Se acumula la posición con decimales y se asigna completa; si alguien movió el carrusel
+  // (dedo, flechas, salto infinito) se vuelve a tomar la posición real.
+  _advancePortfolio = (track, delta) => {
+    const cur = track.scrollLeft;
+    if (this._portfolioPos == null || Math.abs(cur - this._portfolioPos) > 1.5) this._portfolioPos = cur;
+    this._portfolioPos += delta;
+    track.scrollLeft = this._portfolioPos;
   };
 
   _wrapPortfolio = (track) => {
@@ -1706,7 +1754,8 @@ class Component extends DCLogic {
       entries.forEach((en) => {
         if (en.isIntersecting && this.state.isMobile) this.setState({ activeSolution: i });
       });
-    }, { threshold: 0.6, rootMargin: '-15% 0px -15% 0px' });
+    // Franja angosta en el centro de la pantalla: se activa la tarjeta que pasa por el medio
+    }, { threshold: 0, rootMargin: '-42% 0px -42% 0px' });
     obs.observe(el);
     this._solObservers[i] = obs;
   };
@@ -1716,7 +1765,31 @@ class Component extends DCLogic {
   };
   videoRef = (el) => {
     this._videoEl = el;
-    if (el) { el.muted = this.state.videoMuted; const p = el.play(); if (p && p.catch) p.catch(() => {}); }
+    if (el) {
+      // iOS Safari exige estos atributos (no solo las propiedades) para reproducir en línea sin tomar la pantalla
+      el.setAttribute('playsinline', '');
+      el.setAttribute('webkit-playsinline', '');
+      el.setAttribute('disablepictureinpicture', '');
+      el.defaultMuted = true;
+      if (this.state.videoMuted) el.setAttribute('muted', '');
+      el.muted = this.state.videoMuted;
+      // Solo se reproduce si el hero está en pantalla
+      if (this._heroVisible !== false) { const p = el.play(); if (p && p.catch) p.catch(() => {}); }
+    }
+  };
+  heroSectionRef = (el) => {
+    if (this._heroObserver) { this._heroObserver.disconnect(); this._heroObserver = null; }
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    this._heroObserver = new IntersectionObserver((entries) => {
+      const vis = !!(entries[0] && entries[0].isIntersecting);
+      this._heroVisible = vis;
+      const v = this._videoEl;
+      if (v) {
+        if (vis) { const p = v.play(); if (p && p.catch) p.catch(() => {}); }
+        else if (!v.paused) v.pause();
+      }
+    }, { threshold: 0.15 });
+    this._heroObserver.observe(el);
   };
   toggleSound = (e) => {
     e.preventDefault(); e.stopPropagation();
@@ -2326,7 +2399,7 @@ class Component extends DCLogic {
       onMove: this.handleCardGlow(c.slug),
       onLeave: this.handleCardGlowLeave(c.slug),
       topBorderScale: this.state.hoveredCategory === c.slug ? 1 : 0,
-      onEnterCard: () => this.setState({ hoveredCategory: c.slug }),
+      onEnterCard: () => { if (CAN_HOVER) this.setState({ hoveredCategory: c.slug }); },
       onLeaveCard: () => this.setState({ hoveredCategory: null }),
     }));
 
@@ -2596,6 +2669,10 @@ class Component extends DCLogic {
     const catalogoProducts = this.state.isMobile
       ? catalogoProductsFull.slice(0, currentPage * ITEMS_PER_PAGE)
       : catalogoProductsFull.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    catalogoProducts.forEach((p, i) => {
+      p.cardKey = 'prod-' + p.prodId;
+      p.animDelay = Math.min(i % ITEMS_PER_PAGE, 8) * 40 + 'ms';
+    });
     const hasMoreCatalogo = false; // Disable load more button
     
     // Generate page array for pagination UI
@@ -2634,11 +2711,12 @@ class Component extends DCLogic {
         bgImg: bgImgs[i],
         kicker: s.title.startsWith('Línea') ? 'Línea' : (s.title.startsWith('Equipos') ? 'Equipos para' : ''),
         main: s.title.startsWith('Línea') ? s.title.slice(6) : (s.title.startsWith('Equipos') ? 'Hogar' : s.title),
-        imgOpacity: imageVisible ? 0.88 : 0,
-        imgTransform: hov ? 'scale(1.08)' : 'scale(1)',
+        imgOpacity: this.state.isMobile ? (hov ? 0.92 : 0.38) : (imageVisible ? 0.88 : 0),
+        imgTransform: this.state.isMobile ? (hov ? 'scale(1.14)' : 'scale(1.02)') : (hov ? 'scale(1.08)' : 'scale(1)'),
+        imgTransition: this.state.isMobile ? 'opacity .9s ease, transform 7s cubic-bezier(.2,.6,.2,1)' : 'opacity .6s ease, transform .8s cubic-bezier(.2,.8,.2,1)',
         num: '0' + (i + 1),
         cardRef: this.setSolRef(i),
-        onEnter: () => this.setState({ hoveredSolution: i }),
+        onEnter: () => { if (CAN_HOVER) this.setState({ hoveredSolution: i }); },
         onLeave: () => this.setState({ hoveredSolution: null }),
         fillScale: hov ? 1 : 0,
         numColor: hov ? 'oklch(97% 0 0)' : 'oklch(45% .012 270)',
@@ -2809,6 +2887,7 @@ class Component extends DCLogic {
       hasCartItems: this.state.cart.length > 0,
       cartCount: this.state.cart.length,
       goToCart: this.goToCart,
+      onPhotoLoad: this.onPhotoLoad,
       cartItemsList: this.state.cart.map(c => ({...c, onRemove: this.removeFromCart(c.id || c.item_no), onInc: this.updateCartQty(c.id || c.item_no, 1), onDec: this.updateCartQty(c.id || c.item_no, -1)})),
       catalogoSearch: this.state.catalogoSearch,
       onCatalogoSearch: this.onCatalogoSearch,
@@ -3040,6 +3119,7 @@ class Component extends DCLogic {
         onClick: this.goHeroSlide(i),
       })),
       videoRef: this.videoRef,
+      heroSectionRef: this.heroSectionRef,
       toggleSound: this.toggleSound,
       soundBtnDisplay: heroSlides.some(s => s.showVideo) ? 'flex' : 'none',
       soundIcon: this.state.videoMuted ? '🔇' : '🔊',
