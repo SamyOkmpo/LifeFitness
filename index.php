@@ -737,53 +737,6 @@ $seriesJson = json_encode($series);
             <span style="font-size:13px;font-weight:600;color:oklch(45% .008 270);background:oklch(94% 0 0);padding:4px 12px;border-radius:999px">{{catalogoTotal}} productos</span>
           </div>
 
-          <!-- BANNER VIDEO EXCLUSIVO GLUTE LEADER -->
-          <sc-if value="{{isGluteLeader}}">
-            <div style="background:linear-gradient(135deg, #111113 0%, #1c1c22 100%);border-radius:18px;margin-bottom:26px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 36px rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative">
-              <div style="position:absolute;top:-50px;right:-50px;width:240px;height:240px;background:radial-gradient(circle, rgba(230,57,70,0.2) 0%, transparent 70%);pointer-events:none"></div>
-              
-              <!-- Columna izquierda: Información y presentación -->
-              <div style="flex:1 1 340px;padding:32px 30px;z-index:2;box-sizing:border-box">
-                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(230,57,70,0.15);border:1px solid rgba(230,57,70,0.4);color:#ff4d5a;padding:5px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px">
-                  <span>★</span> SERIE ESPECIALIZADA
-                </div>
-                <h3 style="font-family:Oswald,sans-serif;font-size:32px;font-weight:700;line-height:1.15;color:#ffffff;margin:0 0 10px;letter-spacing:0.02em;text-transform:uppercase">
-                  GLUTE LEADER <span style="color:oklch(58% .22 25)">RANGE</span>
-                </h3>
-                <p style="font-size:14px;line-height:1.6;color:rgba(255,255,255,0.8);margin:0 0 20px;max-width:480px">
-                  Diseñado para el desarrollo máximo de la cadena posterior y glúteos desde todos los ángulos de biomecánica. Precisión, estabilidad y aislamiento neuromuscular absoluto.
-                </p>
-                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-                  <button onClick="{{toggleGluteSound}}" style="display:inline-flex;align-items:center;gap:8px;background:oklch(58% .22 25);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(230,57,70,0.35);transition:transform .2s ease, background .2s ease">
-                    <span style="font-size:16px">{{gluteSoundIcon}}</span>
-                    <span>{{gluteSoundLabel}}</span>
-                  </button>
-                  <span style="font-size:12px;color:rgba(255,255,255,0.5);font-style:italic">Video demostrativo oficial</span>
-                </div>
-              </div>
-
-              <!-- Columna derecha: Video en formato vertical 9:16 -->
-              <div style="flex:0 0 auto;width:240px;max-width:100%;margin:16px auto;padding:0 24px;box-sizing:border-box;display:flex;justify-content:center;z-index:2">
-                <div style="position:relative;width:100%;max-width:210px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;box-shadow:0 12px 28px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.14);background:#000">
-                  <video
-                    ref="{{gluteVideoRef}}"
-                    src="assets/Gluteleader_Range_v3.mp4"
-                    autoplay
-                    loop
-                    muted
-                    playsinline
-                    style="width:100%;height:100%;object-fit:cover;display:block">
-                  </video>
-                  <!-- Botón flotante para alternar sonido directo en el video -->
-                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.25);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:transform .2s ease">
-                    {{gluteSoundIcon}}
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </sc-if>
-
           <!-- Barra de Control: Filtros y Ordenamiento -->
           <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:12px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
             
@@ -833,6 +786,57 @@ $seriesJson = json_encode($series);
             
             
             <div class="grid-catalogo">
+
+            <!-- CARD DESTACADO DE VIDEO EXCLUSIVO GLUTE LEADER -->
+            <sc-if value="{{isGluteLeader}}">
+              <div style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#0d0d11;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
+                
+                <!-- Video Header Container -->
+                <div style="height:190px;background:#000;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center">
+                  <video
+                    ref="{{gluteVideoRef}}"
+                    src="assets/Gluteleader_Range_v3.mp4"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    style="width:100%;height:100%;object-fit:cover;display:block">
+                  </video>
+                  
+                  <!-- Tag / Badge Serie -->
+                  <div style="position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);border:1px solid rgba(230,57,70,0.6);color:#ff4d5a;font-size:10px;font-weight:700;letter-spacing:0.08em;padding:3px 8px;border-radius:4px;display:flex;align-items:center;gap:5px;text-transform:uppercase">
+                    <span style="width:6px;height:6px;border-radius:50%;background:#e63946;display:inline-block"></span>
+                    <span>Video Oficial</span>
+                  </div>
+
+                  <!-- Botón flotante de audio -->
+                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.35);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1)">
+                    {{gluteSoundIcon}}
+                  </button>
+                </div>
+
+                <!-- Card Body -->
+                <div style="padding:16px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg, #15151a 0%, #0d0d11 100%)">
+                  <div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:6px">
+                      <div style="font-size:11px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;letter-spacing:0.05em">Línea Especializada</div>
+                      <span style="font-size:10px;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.15);padding:2px 6px;border-radius:4px;font-weight:600">Realleader</span>
+                    </div>
+                    <h4 style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 6px;color:#ffffff;line-height:1.2;text-transform:uppercase">GLUTE LEADER RANGE</h4>
+                    <p style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.45;margin:0 0 14px">
+                      Demostración de rango completo y biomecánica en acción para máxima activación de glúteos.
+                    </p>
+                  </div>
+
+                  <button onClick="{{toggleGluteSound}}" style="width:100%;background:oklch(58% .22 25);color:white;border:none;padding:10px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:#d62839">
+                    <span>{{gluteSoundIcon}}</span>
+                    <span>{{gluteSoundLabel}}</span>
+                  </button>
+                </div>
+
+              </div>
+            </sc-if>
+
             <sc-for list="{{catalogoProducts}}" as="prod">
               <div style="position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
                 
