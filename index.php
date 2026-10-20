@@ -799,14 +799,26 @@ $seriesJson = json_encode($series);
                     autoplay
                     loop
                     playsinline
+                    onEnded="{{onGluteEnded}}"
                     style="width:100%;height:100%;object-fit:cover;display:block">
                   </video>
 
-                  <!-- Botón flotante para silenciar / activar audio -->
-                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:12px;right:12px;background:rgba(0,0,0,0.8);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.35);padding:6px 12px;border-radius:20px;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;cursor:pointer;transition:transform .2s ease;z-index:2" style-hover="transform:scale(1.05)">
-                    <span>{{gluteSoundIcon}}</span>
-                    <span>{{gluteSoundLabel}}</span>
+                  <!-- Botón superior: Ampliar video superpuesto -->
+                  <button onClick="{{openGluteModal}}" title="Ampliar video" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.3);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:transform .2s ease;z-index:2" style-hover="transform:scale(1.1);background:rgba(0,0,0,0.85)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
                   </button>
+
+                  <!-- Barra inferior de controles rápidos: Play/Pausa y Silenciar (pequeños solo iconos) -->
+                  <div style="position:absolute;bottom:10px;right:10px;display:flex;align-items:center;gap:6px;z-index:2">
+                    <!-- Botón Reproducir / Pausa -->
+                    <button onClick="{{toggleGlutePlay}}" title="{{glutePlayTitle}}" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.3);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1);background:rgba(0,0,0,0.85)">
+                      {{glutePlayIcon}}
+                    </button>
+                    <!-- Botón Silenciar / Activar sonido (pequeño solo icono) -->
+                    <button onClick="{{toggleGluteSound}}" title="{{gluteSoundTitle}}" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.3);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1);background:rgba(0,0,0,0.85)">
+                      {{gluteSoundIcon}}
+                    </button>
+                  </div>
                 </div>
 
               </div>
@@ -889,6 +901,42 @@ $seriesJson = json_encode($series);
           </div>
       </section>
 
+      <!-- MODAL SUPERPUESTO PARA AMPLIAR VIDEO GLUTE LEADER -->
+      <sc-if value="{{gluteModalOpen}}">
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(8px);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
+          <div style="position:relative;width:100%;max-width:440px;aspect-ratio:9/16;max-height:85vh;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 24px 60px rgba(0,0,0,0.8);border:1px solid rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;animation:slideFade .25s ease-out">
+            
+            <!-- Botón Cerrar Modal -->
+            <button onClick="{{closeGluteModal}}" aria-label="Cerrar video" style="position:absolute;top:16px;right:16px;z-index:30;width:38px;height:38px;border-radius:50%;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.3);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s" style-hover="background:oklch(58% .22 25);transform:scale(1.08)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+
+            <!-- Video Ampliado -->
+            <video
+              ref="{{gluteModalVideoRef}}"
+              src="assets/Gluteleader_Range_v3.mp4"
+              autoplay
+              loop
+              playsinline
+              onEnded="{{onGluteEnded}}"
+              style="width:100%;height:100%;object-fit:cover;display:block">
+            </video>
+
+            <!-- Controles superpuestos en modal -->
+            <div style="position:absolute;bottom:20px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:12px;z-index:30">
+              <!-- Botón Play/Pausa -->
+              <button onClick="{{toggleGlutePlay}}" title="{{glutePlayTitle}}" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.35);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1);background:rgba(0,0,0,0.9)">
+                {{glutePlayIcon}}
+              </button>
+              <!-- Botón Silenciar / Sonido -->
+              <button onClick="{{toggleGluteSound}}" title="{{gluteSoundTitle}}" style="background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);color:#fff;border:1px solid rgba(255,255,255,0.35);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;transition:transform .2s ease" style-hover="transform:scale(1.1);background:rgba(0,0,0,0.9)">
+                {{gluteSoundIcon}}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </sc-if>
 
       <sc-if value="{{modalOpen}}">
         <div style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box">
@@ -1192,6 +1240,8 @@ class Component extends DCLogic {
     activeSolution: null,
     videoMuted: true,
     gluteSound: true,
+    glutePaused: false,
+    gluteModalOpen: false,
     isMobile: false,
     isNarrow: false,
     menuOpen: false,
@@ -1493,7 +1543,6 @@ class Component extends DCLogic {
       const p = el.play();
       if (p && p.catch) {
         p.catch(() => {
-          // Si el navegador bloquea autoplay con sonido, reproduce en mute y avisa
           el.muted = true;
           this.setState({ gluteSound: false });
           el.play && el.play().catch(() => {});
@@ -1501,17 +1550,68 @@ class Component extends DCLogic {
       }
     }
   };
-  toggleGluteSound = (e) => {
-    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
-    const nextSound = !this.state.gluteSound;
-    if (this._gluteVideoEl) {
-      this._gluteVideoEl.muted = !nextSound;
-      if (nextSound) {
-        const p = this._gluteVideoEl.play();
+  gluteModalVideoRef = (el) => {
+    this._gluteModalVideoEl = el;
+    if (el) {
+      el.muted = !this.state.gluteSound;
+      if (this._gluteVideoEl && this._gluteVideoEl.currentTime) {
+        try { el.currentTime = this._gluteVideoEl.currentTime; } catch(e) {}
+      }
+      if (!this.state.glutePaused) {
+        const p = el.play();
         if (p && p.catch) p.catch(() => {});
       }
     }
+  };
+  toggleGluteSound = (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    const nextSound = !this.state.gluteSound;
+    if (this._gluteVideoEl) this._gluteVideoEl.muted = !nextSound;
+    if (this._gluteModalVideoEl) this._gluteModalVideoEl.muted = !nextSound;
     this.setState({ gluteSound: nextSound });
+  };
+  toggleGlutePlay = (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    const nextPaused = !this.state.glutePaused;
+    const v = this.state.gluteModalOpen ? this._gluteModalVideoEl : this._gluteVideoEl;
+    if (v) {
+      if (nextPaused) {
+        v.pause();
+      } else {
+        const p = v.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
+    this.setState({ glutePaused: nextPaused });
+  };
+  onGluteEnded = () => {
+    const v = this.state.gluteModalOpen ? this._gluteModalVideoEl : this._gluteVideoEl;
+    if (v) {
+      v.currentTime = 0;
+      const p = v.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+    this.setState({ glutePaused: false });
+  };
+  openGluteModal = (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    if (this._gluteVideoEl) this._gluteVideoEl.pause();
+    this.setState({ gluteModalOpen: true });
+  };
+  closeGluteModal = (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    if (this._gluteModalVideoEl) {
+      const time = this._gluteModalVideoEl.currentTime;
+      this._gluteModalVideoEl.pause();
+      if (this._gluteVideoEl) {
+        try { this._gluteVideoEl.currentTime = time; } catch(err) {}
+        if (!this.state.glutePaused) {
+          const p = this._gluteVideoEl.play();
+          if (p && p.catch) p.catch(() => {});
+        }
+      }
+    }
+    this.setState({ gluteModalOpen: false });
   };
   goHeroSlide = (i) => () => this.setState({ heroIndex: i }, () => this.scheduleHero());
 
@@ -2379,9 +2479,18 @@ class Component extends DCLogic {
       currentCategorySub,
       isGluteLeader: this.state.catalogoFilter === 'gluteleader',
       gluteVideoRef: this.gluteVideoRef,
+      gluteModalVideoRef: this.gluteModalVideoRef,
       toggleGluteSound: this.toggleGluteSound,
+      toggleGlutePlay: this.toggleGlutePlay,
+      onGluteEnded: this.onGluteEnded,
+      openGluteModal: this.openGluteModal,
+      closeGluteModal: this.closeGluteModal,
+      gluteModalOpen: this.state.gluteModalOpen,
+      glutePaused: this.state.glutePaused,
+      glutePlayIcon: this.state.glutePaused ? '▶' : '⏸',
+      glutePlayTitle: this.state.glutePaused ? 'Reproducir' : 'Pausar',
       gluteSoundIcon: this.state.gluteSound ? '🔊' : '🔇',
-      gluteSoundLabel: this.state.gluteSound ? 'Silenciar audio' : 'Activar audio',
+      gluteSoundTitle: this.state.gluteSound ? 'Silenciar' : 'Activar sonido',
       noCatalogoProducts: catalogoProducts.length === 0,
       goToCatalogo: this.goToCatalogo,
       isContacto: this.state.page === 'contacto',
