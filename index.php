@@ -737,6 +737,53 @@ $seriesJson = json_encode($series);
             <span style="font-size:13px;font-weight:600;color:oklch(45% .008 270);background:oklch(94% 0 0);padding:4px 12px;border-radius:999px">{{catalogoTotal}} productos</span>
           </div>
 
+          <!-- BANNER VIDEO EXCLUSIVO GLUTE LEADER -->
+          <sc-if value="{{isGluteLeader}}">
+            <div style="background:linear-gradient(135deg, #111113 0%, #1c1c22 100%);border-radius:18px;margin-bottom:26px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 36px rgba(0,0,0,0.22);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;position:relative">
+              <div style="position:absolute;top:-50px;right:-50px;width:240px;height:240px;background:radial-gradient(circle, rgba(230,57,70,0.2) 0%, transparent 70%);pointer-events:none"></div>
+              
+              <!-- Columna izquierda: Información y presentación -->
+              <div style="flex:1 1 340px;padding:32px 30px;z-index:2;box-sizing:border-box">
+                <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(230,57,70,0.15);border:1px solid rgba(230,57,70,0.4);color:#ff4d5a;padding:5px 14px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px">
+                  <span>★</span> SERIE ESPECIALIZADA
+                </div>
+                <h3 style="font-family:Oswald,sans-serif;font-size:32px;font-weight:700;line-height:1.15;color:#ffffff;margin:0 0 10px;letter-spacing:0.02em;text-transform:uppercase">
+                  GLUTE LEADER <span style="color:oklch(58% .22 25)">RANGE</span>
+                </h3>
+                <p style="font-size:14px;line-height:1.6;color:rgba(255,255,255,0.8);margin:0 0 20px;max-width:480px">
+                  Diseñado para el desarrollo máximo de la cadena posterior y glúteos desde todos los ángulos de biomecánica. Precisión, estabilidad y aislamiento neuromuscular absoluto.
+                </p>
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                  <button onClick="{{toggleGluteSound}}" style="display:inline-flex;align-items:center;gap:8px;background:oklch(58% .22 25);color:#fff;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(230,57,70,0.35);transition:transform .2s ease, background .2s ease">
+                    <span style="font-size:16px">{{gluteSoundIcon}}</span>
+                    <span>{{gluteSoundLabel}}</span>
+                  </button>
+                  <span style="font-size:12px;color:rgba(255,255,255,0.5);font-style:italic">Video demostrativo oficial</span>
+                </div>
+              </div>
+
+              <!-- Columna derecha: Video en formato vertical 9:16 -->
+              <div style="flex:0 0 auto;width:240px;max-width:100%;margin:16px auto;padding:0 24px;box-sizing:border-box;display:flex;justify-content:center;z-index:2">
+                <div style="position:relative;width:100%;max-width:210px;aspect-ratio:9/16;border-radius:14px;overflow:hidden;box-shadow:0 12px 28px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.14);background:#000">
+                  <video
+                    ref="{{gluteVideoRef}}"
+                    src="assets/Gluteleader_Range_v3.mp4"
+                    autoplay
+                    loop
+                    muted
+                    playsinline
+                    style="width:100%;height:100%;object-fit:cover;display:block">
+                  </video>
+                  <!-- Botón flotante para alternar sonido directo en el video -->
+                  <button onClick="{{toggleGluteSound}}" title="Alternar audio" style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);color:#fff;border:1px solid rgba(255,255,255,0.25);width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:transform .2s ease">
+                    {{gluteSoundIcon}}
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </sc-if>
+
           <!-- Barra de Control: Filtros y Ordenamiento -->
           <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:12px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
             
@@ -1165,6 +1212,7 @@ class Component extends DCLogic {
     hoveredSolution: null,
     activeSolution: null,
     videoMuted: true,
+    gluteSound: false,
     isMobile: false,
     isNarrow: false,
     menuOpen: false,
@@ -1458,6 +1506,26 @@ class Component extends DCLogic {
     const next = !this.state.videoMuted;
     if (this._videoEl) { this._videoEl.muted = next; if (!next) { const p = this._videoEl.play(); if (p && p.catch) p.catch(() => {}); } }
     this.setState({ videoMuted: next });
+  };
+  gluteVideoRef = (el) => {
+    this._gluteVideoEl = el;
+    if (el) {
+      el.muted = !this.state.gluteSound;
+      const p = el.play();
+      if (p && p.catch) p.catch(() => {});
+    }
+  };
+  toggleGluteSound = (e) => {
+    if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
+    const nextSound = !this.state.gluteSound;
+    if (this._gluteVideoEl) {
+      this._gluteVideoEl.muted = !nextSound;
+      if (nextSound) {
+        const p = this._gluteVideoEl.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
+    this.setState({ gluteSound: nextSound });
   };
   goHeroSlide = (i) => () => this.setState({ heroIndex: i }, () => this.scheduleHero());
 
@@ -2323,6 +2391,11 @@ class Component extends DCLogic {
 
       currentCategoryName,
       currentCategorySub,
+      isGluteLeader: this.state.catalogoFilter === 'gluteleader',
+      gluteVideoRef: this.gluteVideoRef,
+      toggleGluteSound: this.toggleGluteSound,
+      gluteSoundIcon: this.state.gluteSound ? '🔊' : '🔇',
+      gluteSoundLabel: this.state.gluteSound ? 'Silenciar audio' : 'Activar audio',
       noCatalogoProducts: catalogoProducts.length === 0,
       goToCatalogo: this.goToCatalogo,
       isContacto: this.state.page === 'contacto',
