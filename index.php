@@ -1543,21 +1543,23 @@ class Component extends DCLogic {
       const p = el.play();
       if (p && p.catch) {
         p.catch(() => {
-          // Si el navegador requiere interacción previa para sonido, reproduce en mute temporalmente
+          // El navegador bloqueó reproducción con sonido por falta de interacción
           el.muted = true;
+          this.setState({ gluteSound: false });
           el.play && el.play().catch(() => {});
           const unlockSound = () => {
-            if (this.state.gluteSound && this._gluteVideoEl) {
+            if (this._gluteVideoEl) {
               this._gluteVideoEl.muted = false;
               this._gluteVideoEl.play && this._gluteVideoEl.play().catch(() => {});
             }
-            window.removeEventListener('click', unlockSound);
-            window.removeEventListener('touchstart', unlockSound);
-            window.removeEventListener('keydown', unlockSound);
+            if (this._gluteModalVideoEl) {
+              this._gluteModalVideoEl.muted = false;
+              this._gluteModalVideoEl.play && this._gluteModalVideoEl.play().catch(() => {});
+            }
+            this.setState({ gluteSound: true });
+            ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => window.removeEventListener(evt, unlockSound, true));
           };
-          window.addEventListener('click', unlockSound, { once: true });
-          window.addEventListener('touchstart', unlockSound, { once: true });
-          window.addEventListener('keydown', unlockSound, { once: true });
+          ['click', 'touchstart', 'scroll', 'keydown'].forEach(evt => window.addEventListener(evt, unlockSound, { once: true, capture: true }));
         });
       }
     }
@@ -1578,8 +1580,20 @@ class Component extends DCLogic {
   toggleGluteSound = (e) => {
     if (e && e.preventDefault) { e.preventDefault(); e.stopPropagation(); }
     const nextSound = !this.state.gluteSound;
-    if (this._gluteVideoEl) this._gluteVideoEl.muted = !nextSound;
-    if (this._gluteModalVideoEl) this._gluteModalVideoEl.muted = !nextSound;
+    if (this._gluteVideoEl) {
+      this._gluteVideoEl.muted = !nextSound;
+      if (nextSound) {
+        const p = this._gluteVideoEl.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
+    if (this._gluteModalVideoEl) {
+      this._gluteModalVideoEl.muted = !nextSound;
+      if (nextSound) {
+        const p = this._gluteModalVideoEl.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    }
     this.setState({ gluteSound: nextSound });
   };
   toggleGlutePlay = (e) => {
