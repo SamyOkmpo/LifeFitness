@@ -300,8 +300,23 @@ $seriesJson = json_encode($series);
   <header ref="{{headerRef}}" style="position:sticky;top:0;z-index:40;background:{{hdrBg}};backdrop-filter:{{hdrBlur}};-webkit-backdrop-filter:{{hdrBlur}};border-bottom:1px solid oklch(28% .008 270)">
     <div style="max-width:1280px;margin:0 auto;padding:{{hdrPad}};display:flex;align-items:center;justify-content:space-between;gap:{{hdrGap}}">
       <img src="assets/logo.webp" alt="Fitness Life S.A.S" onClick="{{goHome}}" style="height:{{logoH}};width:auto;cursor:pointer;flex-shrink:0"/>
-      <div style="display:{{headerSearchDisplay}};flex:1;margin:0 8px;max-width:600px">
-        <input type="text" id="headerSearchInput" placeholder="Ej. Cybex, Abdominal..." value="{{catalogoSearch}}" onInput="{{onHeaderSearch}}" style="width:100%;box-sizing:border-box;padding:10px 16px;border:1px solid oklch(85% 0 0);border-radius:999px;font-size:14px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05)" />
+      <div style="display:{{desktopSearchDisplay}};position:relative;flex:1;margin:0 8px;max-width:600px">
+        <sc-if value="{{hasHeaderQuery}}">
+            <div style="{{searchListStyle}}">
+              <sc-for list="{{headerResults}}" as="hr">
+                <button type="button" onClick="{{hr.onClick}}" class="tap-press" style="width:100%;display:flex;align-items:center;gap:12px;padding:8px 10px;border:none;background:transparent;border-radius:10px;cursor:pointer;text-align:left" style-hover="background:oklch(96% .003 270)">
+                  <span style="width:48px;height:48px;flex-shrink:0;border-radius:8px;background:oklch(98% .002 270);display:flex;align-items:center;justify-content:center;overflow:hidden"><img sc-camel-src="{{hr.img}}" alt="" loading="lazy" style="max-width:100%;max-height:100%;object-fit:contain"/></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:14px;font-weight:600;color:oklch(20% .005 270);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{hr.name}}</span>
+                    <span style="font-size:12px;color:oklch(48% .008 270);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{hr.meta}}</span>
+                  </span>
+                </button>
+              </sc-for>
+              <sc-if value="{{noHeaderResults}}"><p style="margin:0;padding:14px 10px;font-size:13px;color:oklch(45% .008 270)">Sin resultados para "{{headerQuery}}". Prueba con la marca o el modelo.</p></sc-if>
+              <sc-if value="{{hasHeaderResults}}"><button type="button" onClick="{{goSearchAll}}" style="width:100%;margin-top:4px;height:42px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:13px;font-weight:600;cursor:pointer">Ver {{headerTotalLabel}}</button></sc-if>
+            </div>
+          </sc-if>
+        <input type="search" id="headerSearchInput" enterKeyHint="search" autoComplete="off" aria-label="Buscar equipo" placeholder="Ej. Cybex, Abdominal..." value="{{headerQuery}}" onInput="{{onHeaderSearch}}" onKeyDown="{{onHeaderKeyDown}}" style="width:100%;box-sizing:border-box;padding:10px 16px;border:1px solid oklch(85% 0 0);border-radius:999px;font-size:14px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05)" />
       </div>
       <nav style="display:{{navDisplay}};align-items:center;gap:28px">
         <a href="#inicio" onClick="{{goHome}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270)">Inicio</a>
@@ -331,6 +346,25 @@ $seriesJson = json_encode($series);
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:opacity .3s ease;opacity:{{bar2Opacity}}"></span>
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:transform .3s ease;transform:{{bar3}}"></span>
       </button>
+    </div>
+    <div id="buscadorMovil" class="sheet-scroll" style="display:{{mobileSearchDisplay}};position:fixed;left:0;right:0;top:{{searchTop}};bottom:0;z-index:10050;background:oklch(99% 0 0);border-top:1px solid oklch(90% .006 270);padding:12px 16px calc(24px + env(safe-area-inset-bottom, 0px))">
+      <input type="search" id="mobileSearchInput" enterKeyHint="search" autoComplete="off" aria-label="Buscar equipo" placeholder="Buscar equipo, marca o SKU" value="{{headerQuery}}" onInput="{{onHeaderSearch}}" onKeyDown="{{onHeaderKeyDown}}" style="width:100%;box-sizing:border-box;height:46px;padding:0 14px;border:1px solid oklch(80% 0 0);border-radius:10px;font-size:16px;outline:none;background:white;color:oklch(20% .005 270);margin-bottom:10px"/>
+      <sc-if value="{{showSearchHint}}"><p style="margin:4px 2px;font-size:13px;color:oklch(45% .008 270)">Escribe al menos 2 letras: nombre, marca, serie o SKU.</p></sc-if>
+      <sc-if value="{{hasHeaderQuery}}">
+            <div style="{{searchListStyle}}">
+              <sc-for list="{{headerResults}}" as="hr">
+                <button type="button" onClick="{{hr.onClick}}" class="tap-press" style="width:100%;display:flex;align-items:center;gap:12px;padding:8px 10px;border:none;background:transparent;border-radius:10px;cursor:pointer;text-align:left" style-hover="background:oklch(96% .003 270)">
+                  <span style="width:48px;height:48px;flex-shrink:0;border-radius:8px;background:oklch(98% .002 270);display:flex;align-items:center;justify-content:center;overflow:hidden"><img sc-camel-src="{{hr.img}}" alt="" loading="lazy" style="max-width:100%;max-height:100%;object-fit:contain"/></span>
+                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:14px;font-weight:600;color:oklch(20% .005 270);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{hr.name}}</span>
+                    <span style="font-size:12px;color:oklch(48% .008 270);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{hr.meta}}</span>
+                  </span>
+                </button>
+              </sc-for>
+              <sc-if value="{{noHeaderResults}}"><p style="margin:0;padding:14px 10px;font-size:13px;color:oklch(45% .008 270)">Sin resultados para "{{headerQuery}}". Prueba con la marca o el modelo.</p></sc-if>
+              <sc-if value="{{hasHeaderResults}}"><button type="button" onClick="{{goSearchAll}}" style="width:100%;margin-top:4px;height:42px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:13px;font-weight:600;cursor:pointer">Ver {{headerTotalLabel}}</button></sc-if>
+            </div>
+          </sc-if>
     </div>
     <div id="menuMovil" class="sheet-scroll" style="display:{{mobileMenuDisplay}};position:fixed;left:0;right:0;top:{{menuTop}};bottom:0;z-index:10050;border-top:1px solid oklch(90% .006 270);background:oklch(99% 0 0);padding:8px 24px calc(24px + env(safe-area-inset-bottom, 0px))">
       <nav style="display:flex;flex-direction:column">
@@ -1369,6 +1403,13 @@ const ICON_PATHS = {
   sound: ['M11 5L6 9H3v6h3l5 4V5z', 'M15.5 8.5a5 5 0 0 1 0 7', 'M18.5 5.5a9 9 0 0 1 0 13'],
   muted: ['M11 5L6 9H3v6h3l5 4V5z', 'M16 9l5 6', 'M21 9l-5 6'],
 };
+// Misma ruta de imagen que usa la tarjeta del catálogo
+const productImage = (p) => {
+  let image = p.img || '';
+  if (!image && p.media_json && p.media_json.length > 0 && p.media_json[0].url) image = p.media_json[0].url;
+  if (image && !image.startsWith('http') && !image.startsWith('cotizaciones/') && !image.startsWith('v1/cotizaciones/')) image = 'cotizaciones/' + image;
+  return image;
+};
 const svgIcon = (kind, size) => {
   const sz = size || 16;
   if (kind === 'play') return React.createElement('svg', { width: sz, height: sz, viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': true }, React.createElement('path', { d: 'M8 5v14l11-7z' }));
@@ -1414,6 +1455,8 @@ class Component extends DCLogic {
     modalProduct: null,
     filtersSheetOpen: false,
     menuTop: '0px',
+    headerQuery: '',
+    searchTop: '0px',
     catalogoBrands: [],
     brandSearch: '',
     catalogoSeries: [],
@@ -1481,7 +1524,7 @@ class Component extends DCLogic {
     }
     // Bloquea el scroll de la página mientras hay un menú, hoja o modal abierto (evita que el contenido se mueva detrás)
     // (solo en celular: en escritorio ocultar la barra de scroll movería el contenido)
-    const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.filtersSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
+    const overlayOpen = !!(this.state.isMobile && (this.state.menuOpen || this.state.globalSearchOpen || this.state.filtersSheetOpen || this.state.modalProduct || this.state.gluteModalOpen));
     if (overlayOpen !== this._scrollLocked) this._setScrollLock(overlayOpen);
     // En celular, deja visible el chip de la categoría activa
     const chipKey = this.state.page + '|' + this.state.catalogoFilter;
@@ -1507,6 +1550,7 @@ class Component extends DCLogic {
     if (this.state.modalProduct) this.setState({ modalProduct: null });
     else if (this.state.filtersSheetOpen) this.setState({ filtersSheetOpen: false });
     else if (this.state.menuOpen) this.setState({ menuOpen: false });
+    else if (this.state.globalSearchOpen) this.setState({ globalSearchOpen: false });
   };
 
   setHeaderRef = (el) => { this._headerEl = el; };
@@ -1795,7 +1839,7 @@ class Component extends DCLogic {
       const row = this._headerEl.firstElementChild;
       menuTop = Math.max(0, Math.round((row ? row.getBoundingClientRect().bottom : rect.bottom))) + 'px';
     }
-    this.setState({ menuOpen: opening, menuTop, filtersSheetOpen: false });
+    this.setState({ menuOpen: opening, menuTop, filtersSheetOpen: false, globalSearchOpen: false });
   };
   handleScroll = () => {
     const show = window.scrollY > 500;
@@ -2159,23 +2203,45 @@ class Component extends DCLogic {
 
   openGlobalSearch = (e) => {
     if (e) e.preventDefault();
-    this.setState({ globalSearchOpen: !this.state.globalSearchOpen, menuOpen: false });
-    if (!this.state.globalSearchOpen) {
+    const opening = !this.state.globalSearchOpen;
+    let searchTop = this.state.searchTop;
+    if (opening && this._headerEl) {
+      const row = this._headerEl.firstElementChild;
+      searchTop = Math.max(0, Math.round((row || this._headerEl).getBoundingClientRect().bottom)) + 'px';
+    }
+    this.setState({ globalSearchOpen: opening, menuOpen: false, filtersSheetOpen: false, searchTop });
+    if (opening) {
       setTimeout(() => {
-        const el = document.getElementById('headerSearchInput');
+        const el = document.getElementById(this.state.isMobile ? 'mobileSearchInput' : 'headerSearchInput');
         if (el) el.focus();
       }, 50);
     }
   };
   
   onHeaderSearch = (e) => {
-    const val = e.target.value;
-    this.setState({ catalogoSearch: val });
-    if (this.state.page !== 'catalogo') {
-      window.history.pushState(null, '', '#catalogo');
-      this.setState({ page: 'catalogo', categorySlug: null, catalogoPage: 1, menuOpen: false });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    this.setState({ headerQuery: e.target.value });
+  };
+  onHeaderKeyDown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); this.goSearchAll(); }
+    else if (e.key === 'Escape') this.setState({ globalSearchOpen: false });
+  };
+  _closeSearchAndScroll = () => {
+    this._setScrollLock(false);
+    setTimeout(() => window.scrollTo(0, 0), 10);
+  };
+  // Lleva al catálogo completo filtrado por lo escrito (lo que hacía antes al escribir)
+  goSearchAll = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const q = (this.state.headerQuery || '').trim();
+    window.history.pushState(null, '', '#catalogo');
+    this.setState({ page: 'catalogo', catalogoFilter: 'todos', catalogoSearch: q, catalogoPage: 1, catalogoBrands: [], catalogoSeries: [], globalSearchOpen: false, menuOpen: false, modalProduct: null }, this._closeSearchAndScroll);
+  };
+  // Un resultado abre su categoría mostrando ese producto
+  openSearchResult = (p, cat) => (e) => {
+    if (e) e.preventDefault();
+    const slug = cat ? cat.slug : 'todos';
+    window.history.pushState(null, '', slug === 'todos' ? '#catalogo' : '#catalogo=' + slug);
+    this.setState({ page: 'catalogo', catalogoFilter: slug, catalogoSearch: p.name || '', catalogoPage: 1, catalogoBrands: [], catalogoSeries: [], globalSearchOpen: false, menuOpen: false, modalProduct: null }, this._closeSearchAndScroll);
   };
 
 
@@ -3015,6 +3081,27 @@ class Component extends DCLogic {
       openGlobalSearch: this.openGlobalSearch,
       onHeaderSearch: this.onHeaderSearch,
       headerSearchDisplay: this.state.globalSearchOpen ? "block" : "none",
+      desktopSearchDisplay: this.state.globalSearchOpen && !this.state.isMobile ? "block" : "none",
+      mobileSearchDisplay: this.state.globalSearchOpen && this.state.isMobile ? "block" : "none",
+      searchTop: this.state.searchTop,
+      headerQuery: this.state.headerQuery,
+      onHeaderKeyDown: this.onHeaderKeyDown,
+      goSearchAll: this.goSearchAll,
+      searchListStyle: this.state.isMobile
+        ? 'display:flex;flex-direction:column;gap:2px'
+        : 'position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:70;background:white;border:1px solid oklch(90% .004 270);border-radius:14px;box-shadow:0 18px 40px -16px oklch(20% .01 270 / .35);padding:8px;display:flex;flex-direction:column;gap:2px;max-height:70vh;overflow-y:auto',
+      ...(() => {
+        const q = (this.state.headerQuery || '').trim().toLowerCase();
+        if (q.length < 2) return { hasHeaderQuery: false, hasHeaderResults: false, noHeaderResults: false, headerResults: [], headerTotalLabel: '', showSearchHint: true };
+        const cats = window.DB_CATEGORIAS || [];
+        const all = (this.state.allProducts || []).filter(p => ((p.name || '') + ' ' + (p.series || '') + ' ' + (p.serie || '') + ' ' + (p.item_no || '')).toLowerCase().includes(q));
+        const headerResults = all.slice(0, 6).map(p => {
+          const cat = cats.find(c => c.id == p.categoria_id);
+          const meta = [p.series, p.serie ? 'Serie ' + p.serie.trim() : '', cat ? cat.name : ''].filter(Boolean).join(' · ');
+          return { name: p.name, meta, img: productImage(p), onClick: this.openSearchResult(p, cat) };
+        });
+        return { hasHeaderQuery: true, hasHeaderResults: all.length > 0, noHeaderResults: all.length === 0, headerResults, headerTotalLabel: all.length === 1 ? 'el resultado' : 'los ' + all.length + ' resultados', showSearchHint: false };
+      })(),
       navVisibility: this.state.globalSearchOpen ? "hidden" : "visible",
       formSubmitted: this.state.formSubmitted,
       formNotSubmitted: !this.state.formSubmitted,
@@ -3110,12 +3197,12 @@ class Component extends DCLogic {
       toggleMenu: this.toggleMenu,
       scrollTop: this.scrollTop,
       topBtnOpacity: this.state.showTop ? 1 : 0,
-      floatTopDisplay: ((this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) || (this.state.isMobile && this.state.cart.length > 0)) ? 'none' : 'flex',
-      floatWaDisplay: (this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      floatTopDisplay: ((this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) || (this.state.isMobile && this.state.cart.length > 0)) ? 'none' : 'flex',
+      floatWaDisplay: (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
       waRight: this.state.isMobile ? '16px' : '24px',
       waSize: this.state.isMobile ? '52px' : '58px',
       waBottom: this.state.isMobile ? (this.state.cart.length > 0 ? '84px' : '20px') : '100px',
-      floatCartDisplay: (this.state.menuOpen || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
+      floatCartDisplay: (this.state.menuOpen || (this.state.isMobile && this.state.globalSearchOpen) || this.state.filtersSheetOpen || !!this.state.modalProduct) ? 'none' : 'flex',
       cartBottom: this.state.isMobile ? '12px' : '32px',
       cartRight: this.state.isMobile ? '12px' : '20px',
       cartLeft: this.state.isMobile ? '12px' : 'auto',
