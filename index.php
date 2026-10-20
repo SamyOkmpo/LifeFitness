@@ -145,6 +145,14 @@ $seriesJson = json_encode($series);
                 .pc-cart svg { display: none; }
                 .pc-wa { padding: 9px !important; }
                 .pc-feature { grid-column: 1 / -1; }
+                /* Home: categorías en 2 columnas compactas (toda la tarjeta es tocable) */
+                .hc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+                .hc-grid > div { border-radius: 14px !important; }
+                .hc-img { height: 150px !important; }
+                .hc-body { padding: 10px 12px 12px !important; }
+                .hc-tag { display: none !important; }
+                .hc-title { font-size: 15px !important; line-height: 1.15; margin: 0 !important; }
+                .hc-cta { display: none !important; }
               }
               /* Catálogo móvil: chips y hoja de filtros */
               .cat-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; scroll-snap-type: x proximity; margin: 0 -12px; padding: 0 12px; }
@@ -347,19 +355,19 @@ $seriesJson = json_encode($series);
         <h2 style="font-family:Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase;color:oklch(16% .006 270)">Equipos <span style="color:oklch(58% .22 25)">Exclusivos</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Encuentra equipos profesionales de las marcas más prestigiosas: Life Fitness, Precor, Hoist, Cybex, Matrix y Free Motion.</p>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
+      <div class="hc-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
         <sc-for list="{{categories}}" as="cat" hint-placeholder-count="4">
           <div onClick="{{cat.onClick}}" onMouseEnter="{{cat.onEnterCard}}" onMouseLeave="{{cat.onLeaveCard}}" style="position:relative;cursor:pointer;background:oklch(98% 0 0);border:1px solid oklch(88% .006 270);border-radius:22px;overflow:hidden;opacity:{{cat.revealOpacity}};transform:{{cat.revealTransform}} scale(1);transition:box-shadow .45s ease,border-color .45s ease,transform .45s cubic-bezier(.2,.8,.2,1),opacity .6s ease {{cat.revealDelay}}" style-hover="box-shadow:0 30px 60px -18px oklch(58% .22 25 / .38),0 0 0 1px oklch(58% .22 25 / .35);border-color:oklch(58% .22 25 / .5);transform:translateY(-10px) scale(1.02)">
             <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,oklch(58% .22 25),oklch(68% .24 30));transform:scaleX({{cat.topBorderScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:3"></div>
-            <div style="position:relative;height:340px;overflow:hidden;background:oklch(16% .006 270)">
+            <div class="hc-img" style="position:relative;height:340px;overflow:hidden;background:oklch(16% .006 270)">
               <img loading="lazy" sc-camel-src="{{cat.img}}" alt="{{cat.name}}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1),filter .5s ease" style-hover="transform:scale(1.09);filter:brightness(1.06) contrast(1.04) saturate(1.05)"/>
               <div style="position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 110%, oklch(58% .22 25 / .38), transparent 62%);opacity:0;transition:opacity .5s ease" style-hover="opacity:1"></div>
               <div style="position:absolute;left:18px;top:18px;padding:7px 14px;border-radius:999px;background:oklch(20% .005 270 / .6);backdrop-filter:blur(6px);border:1px solid oklch(98% 0 0 / .22);color:oklch(98% 0 0);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(-8px);transition:opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)" style-hover="opacity:1;transform:translateY(0)">{{cat.tag}}</div>
             </div>
-            <div style="padding:24px 26px 26px;overflow:hidden">
-              <div style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px;height:30px;display:flex;align-items:flex-start;transition:transform .35s ease" style-hover="transform:translateX(5px)">{{cat.tag}}</div>
-              <h3 style="font-family:Oswald,sans-serif;font-size:23px;font-weight:600;margin:0 0 16px;text-transform:uppercase;color:oklch(20% .005 270);transition:transform .35s ease .04s" style-hover="transform:translateX(5px)">{{cat.name}}</h3>
-              <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:oklch(20% .005 270);display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid oklch(85% .006 270);transition:background .35s ease,color .35s ease,border-color .35s ease" style-hover="background:oklch(58% .22 25);color:oklch(99% 0 0);border-color:oklch(58% .22 25)">Ver más <span style="display:inline-block;transition:transform .35s ease" style-hover="transform:translateX(5px)">→</span></span>
+            <div class="hc-body" style="padding:24px 26px 26px;overflow:hidden">
+              <div class="hc-tag" style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px;height:30px;display:flex;align-items:flex-start;transition:transform .35s ease" style-hover="transform:translateX(5px)">{{cat.tag}}</div>
+              <h3 class="hc-title" style="font-family:Oswald,sans-serif;font-size:23px;font-weight:600;margin:0 0 16px;text-transform:uppercase;color:oklch(20% .005 270);transition:transform .35s ease .04s" style-hover="transform:translateX(5px)">{{cat.name}}</h3>
+              <span class="hc-cta" style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:oklch(20% .005 270);display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid oklch(85% .006 270);transition:background .35s ease,color .35s ease,border-color .35s ease" style-hover="background:oklch(58% .22 25);color:oklch(99% 0 0);border-color:oklch(58% .22 25)">Ver más <span style="display:inline-block;transition:transform .35s ease" style-hover="transform:translateX(5px)">→</span></span>
             </div>
           </div>
         </sc-for>
@@ -455,7 +463,7 @@ $seriesJson = json_encode($series);
 
       <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center;margin-bottom:110px">
         <div style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
-          <img loading="lazy" sc-camel-src="{{circRow1Img}}" src="uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+          <img loading="lazy" sc-camel-src="{{circRow1Img}}" src="assets/circuitos_matrix.webp" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;left:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;left:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
           <div style="position:absolute;bottom:22px;left:22px;background:oklch(58% .22 25);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow1ImgOpacity}};transition:opacity .6s ease .5s">HASTA −60%</div>
@@ -492,7 +500,7 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <div style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
-          <img loading="lazy" sc-camel-src="{{circRow2Img}}" src="uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
+          <img loading="lazy" sc-camel-src="{{circRow2Img}}" src="assets/circuitos_optima.webp" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;right:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;right:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
           <div style="position:absolute;bottom:22px;right:22px;background:oklch(20% .005 270);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow2ImgOpacity}};transition:opacity .6s ease .5s">30 MIN / CUERPO COMPLETO</div>
@@ -510,7 +518,7 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
           <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
-            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_final_v2.mp4" sc-camel-src="assets/realleader_rs800_final_v2.mp4" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
+            <video ref="{{rs800Ref}}" src="assets/realleader_rs800_720.mp4" sc-camel-src="assets/realleader_rs800_720.mp4" poster="assets/realleader_rs800_poster.webp" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
               <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
@@ -518,7 +526,7 @@ $seriesJson = json_encode($series);
           </div>
           <div style="display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0;opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease .15s,transform .8s cubic-bezier(.2,.8,.2,1) .15s">
             <div style="border-radius:20px;overflow:hidden;background:white;border:1px solid oklch(88% .006 270);box-shadow:0 24px 50px -24px oklch(20% .01 270 / .25)">
-              <img src="assets/personalizacion_colores_v2.png" sc-camel-src="assets/personalizacion_colores_v2.png" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
+              <img loading="lazy" decoding="async" width="1672" height="941" src="assets/personalizacion_colores_v2.webp" sc-camel-src="assets/personalizacion_colores_v2.webp" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:12px">
               <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 colores de cojinería</span>
@@ -570,7 +578,7 @@ $seriesJson = json_encode($series);
         <div style="display:flex;width:max-content;gap:56px;align-items:center;animation:ticker 30s linear infinite">
           <sc-for list="{{brandsTicker}}" as="brand" hint-placeholder-count="14">
             <div style="flex-shrink:0;width:170px;height:78px;display:flex;align-items:center;justify-content:center;transition:transform .3s ease" style-hover="transform:translateY(-4px)">
-              <img loading="lazy" src="{{brand.img}}" alt="{{brand.name}}" style="width:{{brand.w}};height:{{brand.h}};object-fit:contain"/>
+              <img loading="lazy" sc-camel-src="{{brand.img}}" alt="{{brand.name}}" style="width:{{brand.w}};height:{{brand.h}};object-fit:contain"/>
             </div>
           </sc-for>
         </div>
@@ -843,7 +851,6 @@ $seriesJson = json_encode($series);
                   <video
                     ref="{{gluteVideoRef}}"
                     sc-camel-src="assets/Gluteleader_Range_v3.mp4"
-                    src="assets/Gluteleader_Range_v3.mp4"
                     autoPlay="{{true}}"
                     muted="{{true}}"
                     loop="{{true}}"
@@ -972,7 +979,6 @@ $seriesJson = json_encode($series);
             <video
               ref="{{gluteModalVideoRef}}"
               sc-camel-src="assets/Gluteleader_Range_v3.mp4"
-              src="assets/Gluteleader_Range_v3.mp4"
               autoPlay="{{true}}"
               muted="{{true}}"
               loop="{{true}}"
@@ -1085,8 +1091,6 @@ $seriesJson = json_encode($series);
                  <div><b>Marca:</b> {{modalProd.series}}</div>
                  <sc-if value="{{modalProd.hasSerie}}"><div><b>Serie:</b> {{modalProd.serie}}</div></sc-if>
                  <div><b>SKU:</b> {{modalProd.item_no}}</div>
-                 <sc-if value="{{modalProd.hasDims}}"><div><b>Dimensiones:</b> {{modalProd.set_up_dimension}}</div></sc-if>
-                 <sc-if value="{{modalProd.hasWeight}}"><div><b>Peso:</b> {{modalProd.weight_stack}}</div></sc-if>
                </div>
             </div>
 
@@ -2327,17 +2331,17 @@ class Component extends DCLogic {
     }));
 
     const carouselItems = [
-      { img: R('assets/portfolio_norm/elipticas.png'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
-      { img: R('assets/portfolio_norm/trotadoras.png'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
-      { img: R('assets/portfolio_norm/bicicletas.png'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
-      { img: R('assets/portfolio_norm/escaleras.png'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras' },
-      { img: R('assets/portfolio_norm/spinning.png'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
-      { img: R('assets/portfolio_norm/pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
-      { img: R('assets/portfolio_norm/pesolibre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
-      { img: R('assets/portfolio_norm/gluteleader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
-      { img: R('assets/portfolio_norm/circuitos_v2.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos' },
-      { img: R('assets/portfolio_norm/funcional.png'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
-      { img: R('assets/portfolio_norm/accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
+      { img: R('assets/portfolio_norm/elipticas.webp'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
+      { img: R('assets/portfolio_norm/trotadoras.webp'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
+      { img: R('assets/portfolio_norm/bicicletas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
+      { img: R('assets/portfolio_norm/escaleras.webp'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras' },
+      { img: R('assets/portfolio_norm/spinning.webp'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
+      { img: R('assets/portfolio_norm/pesas.webp'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
+      { img: R('assets/portfolio_norm/pesolibre.webp'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
+      { img: R('assets/portfolio_norm/gluteleader.webp'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
+      { img: R('assets/portfolio_norm/circuitos_v2.webp'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos' },
+      { img: R('assets/portfolio_norm/funcional.webp'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
+      { img: R('assets/portfolio_norm/accesorios.webp'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems, ...carouselItems].map((c, i) => ({
@@ -2870,22 +2874,22 @@ class Component extends DCLogic {
       circuitosHeaderOpacity: this.state.circuitosVisible ? 1 : 0,
       circuitosHeaderTransform: this.state.circuitosVisible ? 'translateY(0)' : 'translateY(28px)',
       circBarScale: this.state.circuitosVisible ? 1 : 0,
-      circRow1Img: R('uploads/8FEB4914-1274-4F8E-A291-D73031341E44_1_102_o.jpeg'),
+      circRow1Img: R('assets/circuitos_matrix.webp'),
       circRow1ImgOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow1ImgTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(-40px)',
       circRow1TextOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow1TextTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(40px)',
-      circRow2Img: R('uploads/BEC1A73E-E07A-4973-8E7B-51ED81B82924_1_102_o.jpeg'),
+      circRow2Img: R('assets/circuitos_optima.webp'),
       circRow2ImgOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow2ImgTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(40px)',
       circRow2TextOpacity: this.state.circuitosVisible ? 1 : 0,
       circRow2TextTransform: this.state.circuitosVisible ? 'translateX(0)' : 'translateX(-40px)',
       colorsRef: this.setSectionRef('colorsVisible'),
-      colorsImg: R('assets/personalizacion_colores_v2.png'),
+      colorsImg: R('assets/personalizacion_colores_v2.webp'),
       persCols: this.state.isMobile ? '1fr' : 'minmax(0,340px) minmax(0,1fr)',
       persVideoMaxH: this.state.isMobile ? '560px' : '640px',
       persVideoW: this.state.isMobile ? 'min(100%, 315px)' : '100%',
-      rs800Video: R('assets/realleader_rs800_final_v2.mp4'),
+      rs800Video: R('assets/realleader_rs800_720.mp4'),
       rs800Ref: this.setRs800Ref,
       toggleRs800Sound: this.toggleRs800Sound,
       rs800Muted: !this.state.rs800Sound,
