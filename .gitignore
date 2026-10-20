@@ -25,3 +25,6 @@ patch_api_2.php
 query_db.php
 fitnesslife_produccion 2/
 
+
+# Vista previa generada (preview/build.mjs)
+preview/dist/
