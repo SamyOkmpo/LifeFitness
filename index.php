@@ -346,7 +346,7 @@ $seriesJson = json_encode($series);
       </div>
     </section>
 
-    <section style="padding:{{bandPad}};overflow:hidden;position:relative;background:oklch(97% .002 270)">
+    <section id="portafolio" style="padding:{{bandPad}};overflow:hidden;position:relative;background:oklch(97% .002 270)">
       <div style="text-align:center;max-width:640px;margin:0 auto 40px;padding:0 24px">
         <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Portafolio</div>
         <h2 style="font-family:Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Equipos que <span style="color:oklch(58% .22 25)">Transforman Espacios</span></h2>
@@ -370,14 +370,15 @@ $seriesJson = json_encode($series);
       <div ref="{{portfolioTrackRef}}" onMouseDown="{{onPortfolioMouseDown}}" class="portfolio-carousel-track" style="display:flex;overflow-x:auto;overflow-y:hidden;cursor:grab;padding:28px 24px 36px;user-select:none;-webkit-user-select:none">
         <div style="display:flex;width:max-content;gap:24px;padding:0 20px">
           <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
-            <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
-              <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" draggable="false" style="width:100%;height:100%;object-fit:contain;transform:scale({{p.zoom}});background:oklch(100% 0 0);padding:{{p.pad}};box-sizing:border-box;pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
-              <div style="position:absolute;left:0;right:0;bottom:0;height:76px;background:oklch(16% .006 270);pointer-events:none"></div>
-              <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease" style-hover="opacity:1"></div>
-              <div style="position:absolute;left:0;right:0;bottom:0;padding:12px 18px;display:flex;flex-direction:column;gap:3px;pointer-events:none">
+            <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);background:oklch(100% 0 0);display:flex;flex-direction:column;outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
+              <div style="flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding:{{p.pad}};box-sizing:border-box;position:relative;overflow:hidden">
+                <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" draggable="false" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transform:scale({{p.zoom}});pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.06)"/>
+              </div>
+              <div style="height:76px;flex-shrink:0;background:oklch(16% .006 270);padding:12px 18px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:3px;pointer-events:none;position:relative;z-index:2">
                 <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:oklch(75% .2 27);transition:transform .4s ease" style-hover="transform:translateX(5px)">{{p.tag}}</span>
                 <h3 style="font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
               </div>
+              <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:3" style-hover="opacity:1"></div>
             </div>
           </sc-for>
         </div>
@@ -2113,21 +2114,21 @@ class Component extends DCLogic {
     }));
 
     const carouselItems = [
-      { img: R('uploads/elipticas.jpeg'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas', pad: '46px' },
+      { img: R('uploads/elipticas.jpeg'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
       { img: R('uploads/trotadoras.jpeg'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
       { img: R('uploads/estaticas.webp'), name: 'Bicicletas Estáticas', tag: 'Equipos para rehabilitación', slug: 'bicicletas' },
-      { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras', pad: '4px' },
+      { img: R('uploads/escaleras.jpeg'), name: 'Escaleras', tag: 'Cardio de alta intensidad', slug: 'escaleras' },
       { img: R('uploads/spinning.jpeg'), name: 'Spinning', tag: 'Clases grupales', slug: 'spinning' },
       { img: R('assets/portfolio_pesas.png'), name: 'Máquinas de Pesas', tag: 'Fuerza selectorizada', slug: 'pesas' },
       { img: R('assets/portfolio_peso_libre.png'), name: 'Peso Libre', tag: 'Placa cargada y banco ajustable', slug: 'pesolibre' },
-      { img: R('assets/portfolio_glute_leader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader', pad: '10px', zoom: 1.05 },
-      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', pad: '0px', zoom: 1.12 },
+      { img: R('assets/portfolio_glute_leader.png'), name: 'GLUTE LEADER', tag: 'Glúteos desde todos los ángulos', slug: 'gluteleader' },
+      { img: R('assets/portfolio_circuitos.png'), name: 'Circuitos', tag: 'Fuerza en circuito', slug: 'circuitos', zoom: 1.05 },
       { img: R('uploads/funcional.jpeg'), name: 'Entrenamiento Funcional', tag: 'Synrgy360 — Life Fitness', slug: 'entrenamientofuncional' },
       { img: R('assets/portfolio_accesorios.png'), name: 'Accesorios', tag: 'Mancuernas, barras y discos', slug: 'accesorios' },
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems, ...carouselItems].map((c, i) => ({
-      img: c.img, name: c.name, tag: c.tag, pad: c.pad || '18px', zoom: c.zoom || 1, onClick: this.goCat(c.slug), key: i,
+      img: c.img, name: c.name, tag: c.tag, pad: c.pad || '22px 20px 18px', zoom: c.zoom || 1, onClick: this.goCat(c.slug), key: i,
     }));
 
     const currentCategory = CATEGORIES[this.state.categorySlug] || Object.values(CATEGORIES)[0];
