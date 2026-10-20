@@ -1543,9 +1543,21 @@ class Component extends DCLogic {
       const p = el.play();
       if (p && p.catch) {
         p.catch(() => {
+          // Si el navegador requiere interacción previa para sonido, reproduce en mute temporalmente
           el.muted = true;
-          this.setState({ gluteSound: false });
           el.play && el.play().catch(() => {});
+          const unlockSound = () => {
+            if (this.state.gluteSound && this._gluteVideoEl) {
+              this._gluteVideoEl.muted = false;
+              this._gluteVideoEl.play && this._gluteVideoEl.play().catch(() => {});
+            }
+            window.removeEventListener('click', unlockSound);
+            window.removeEventListener('touchstart', unlockSound);
+            window.removeEventListener('keydown', unlockSound);
+          };
+          window.addEventListener('click', unlockSound, { once: true });
+          window.addEventListener('touchstart', unlockSound, { once: true });
+          window.addEventListener('keydown', unlockSound, { once: true });
         });
       }
     }
@@ -1916,14 +1928,43 @@ class Component extends DCLogic {
   };
   setCatalogoFilter = (filter) => (e) => {
     if (e) e.preventDefault();
-    this.setState({ catalogoFilter: filter, catalogoPage: 1, catalogoSeries: [], catalogoBrands: [] });
+    const isGlute = filter === 'gluteleader';
+    this.setState({
+      catalogoFilter: filter,
+      catalogoPage: 1,
+      catalogoSeries: [],
+      catalogoBrands: [],
+      gluteSound: isGlute ? true : this.state.gluteSound,
+      glutePaused: false
+    }, () => {
+      if (isGlute && this._gluteVideoEl) {
+        this._gluteVideoEl.muted = false;
+        const p = this._gluteVideoEl.play();
+        if (p && p.catch) p.catch(() => {});
+      }
+    });
   };
 
   goToCategory = (slug) => {
     window.history.pushState(null, '', '#catalogo=' + slug);
-    this.setState({ page: 'catalogo', catalogoFilter: slug, catalogoPage: 1, catalogoSearch: '', catalogoBrands: [], catalogoSeries: [] }, () => {
+    const isGlute = slug === 'gluteleader';
+    this.setState({
+      page: 'catalogo',
+      catalogoFilter: slug,
+      catalogoPage: 1,
+      catalogoSearch: '',
+      catalogoBrands: [],
+      catalogoSeries: [],
+      gluteSound: isGlute ? true : this.state.gluteSound,
+      glutePaused: false
+    }, () => {
       setTimeout(() => window.scrollTo(0, 0), 10);
       setTimeout(() => window.scrollTo(0, 0), 100);
+      if (isGlute && this._gluteVideoEl) {
+        this._gluteVideoEl.muted = false;
+        const p = this._gluteVideoEl.play();
+        if (p && p.catch) p.catch(() => {});
+      }
     });
   };
 
