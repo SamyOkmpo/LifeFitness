@@ -2128,7 +2128,7 @@ class Component extends DCLogic {
     ];
 
     const carouselCards = [...carouselItems, ...carouselItems, ...carouselItems].map((c, i) => ({
-      img: c.img, name: c.name, tag: c.tag, pad: '16px 16px 12px', zoom: 1, onClick: this.goCat(c.slug), key: i,
+      img: c.img, name: c.name, tag: c.tag, pad: '10px 12px 8px', zoom: 1, onClick: this.goCat(c.slug), key: i,
     }));
 
     const currentCategory = CATEGORIES[this.state.categorySlug] || Object.values(CATEGORIES)[0];
