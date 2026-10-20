@@ -20,7 +20,7 @@ const SAMPLE_DIR = 'v1/imagenes_para_subir';
 // Ruta pública de las fotos de ejemplo. Empieza por "v1/cotizaciones/" para que el
 // código del catálogo no le anteponga "cotizaciones/".
 const SAMPLE_PUBLIC = 'v1/cotizaciones/muestra';
-const ALLOWED_EXT = new Set(['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.mp4', '.webm', '.html', '.txt', '.js']);
+const ALLOWED_EXT = new Set(['.webp', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.mp4', '.webm', '.woff2', '.html', '.txt', '.js']);
 
 function fail(msg) {
   console.error('\n[preview] ERROR: ' + msg + '\n');
@@ -197,7 +197,7 @@ html = html.replace('<body>', '<body>\n' + banner);
 // ---------------------------------------------------------------------------
 
 const refs = new Set(['js/support.js', 'assets/logo.webp']);
-for (const m of html.matchAll(/(?:assets|uploads)\/[A-Za-z0-9_\-./]+\.(?:webp|png|jpe?g|gif|svg|mp4|webm)/g)) refs.add(m[0]);
+for (const m of html.matchAll(/(?:assets|uploads)\/[A-Za-z0-9_\-./]+\.(?:webp|png|jpe?g|gif|svg|mp4|webm|woff2)/g)) refs.add(m[0]);
 for (const c of data.categorias) if (c.img) refs.add(c.img);
 
 fs.rmSync(OUT, { recursive: true, force: true });

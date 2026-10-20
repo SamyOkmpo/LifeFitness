@@ -108,6 +108,8 @@ $seriesJson = json_encode($series);
 <meta name="twitter:image" content="https://www.fitnesslife.com.co/assets/logo.webp"/>
 <meta name="theme-color" content="#c62828"/>
 <link rel="icon" type="image/png" href="assets/logo.webp">
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/barlow-condensed-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
 <script>window.__resources = window.__resources || {};</script>
 <script>
 // En pantallas táctiles el :hover se queda "pegado" después de tocar (las tarjetas quedan
@@ -126,6 +128,11 @@ $seriesJson = json_encode($series);
 </script>
 <script src="js/support.js"></script>
 <style>
+              /* Títulos: Barlow Condensed (licencia OFL, alojada en assets/fonts). size-adjust 116%
+                 la deja con la misma altura de mayúsculas que Oswald, así los títulos no cambian de tamaño
+                 ni de saltos de línea. Si no carga, queda Oswald. */
+              @font-face { font-family: 'FL Titulos'; src: url('assets/fonts/barlow-condensed-latin-600-normal.woff2') format('woff2'); font-weight: 500 600; font-style: normal; font-display: swap; size-adjust: 116%; }
+              @font-face { font-family: 'FL Titulos'; src: url('assets/fonts/barlow-condensed-latin-700-normal.woff2') format('woff2'); font-weight: 700 900; font-style: normal; font-display: swap; size-adjust: 116%; }
               .grid-catalogo {
                 display: grid;
                 gap: 24px;
@@ -182,6 +189,9 @@ $seriesJson = json_encode($series);
               .page-in { animation: pageIn .4s cubic-bezier(.2,.8,.2,1) backwards; }
               .pc-card { animation: cardIn .45s cubic-bezier(.2,.8,.2,1) backwards; }
               .pc-photo { opacity: 0; transition: opacity .35s ease; }
+              /* Silueta animada mientras la foto del producto no ha cargado */
+              @keyframes skel { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+              .pc-img:has(> img.pc-photo:not([data-loaded])) { background: linear-gradient(90deg, oklch(94% .003 270) 25%, oklch(97.5% .002 270) 37%, oklch(94% .003 270) 63%) !important; background-size: 400% 100% !important; animation: skel 1.3s ease infinite; }
               .pc-photo[data-loaded] { opacity: 1; }
               /* Táctil: respuesta al presionar en vez de :hover */
               @media (hover: none) {
@@ -189,7 +199,7 @@ $seriesJson = json_encode($series);
                 .hc-grid > div:active, .pc-card:active, .tap-press:active { transform: scale(.975) !important; transition: transform .12s ease !important; }
               }
               @media (prefers-reduced-motion: reduce) {
-                .ticker-track, .page-in, .pc-card { animation: none !important; }
+                .ticker-track, .page-in, .pc-card, .pc-img { animation: none !important; }
                 .pc-photo { transition: none; }
               }
               .portfolio-carousel-track::-webkit-scrollbar {
@@ -283,10 +293,8 @@ $seriesJson = json_encode($series);
 
 <div style="background:oklch(93% .004 270);min-height:100vh;overflow-x:{{rootOverflowX}}">
 
-  <div style="background:oklch(58% .22 25);color:white;overflow:hidden;white-space:nowrap;padding:5px 0">
-    <div class="ticker-track" style="display:inline-block;animation:ticker 24s linear infinite;font-weight:600;font-size:10px;letter-spacing:0.12em">
-      ⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;⚡ IMPORTADORES DIRECTOS — EQUIPAMIENTO 100% AMERICANO ORIGINAL DE ALTO TRÁFICO ⚡&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    </div>
+  <div style="background:oklch(18% .005 270);color:oklch(86% .004 270);text-align:center;padding:6px 16px;font-weight:500;font-size:11px;letter-spacing:0.04em;line-height:1.4">
+    Importadores directos · Equipos 100% americanos
   </div>
 
   <header ref="{{headerRef}}" style="position:sticky;top:0;z-index:40;background:{{hdrBg}};backdrop-filter:{{hdrBlur}};-webkit-backdrop-filter:{{hdrBlur}};border-bottom:1px solid oklch(28% .008 270)">
@@ -296,9 +304,9 @@ $seriesJson = json_encode($series);
         <input type="text" id="headerSearchInput" placeholder="Ej. Cybex, Abdominal..." value="{{catalogoSearch}}" onInput="{{onHeaderSearch}}" style="width:100%;box-sizing:border-box;padding:10px 16px;border:1px solid oklch(85% 0 0);border-radius:999px;font-size:14px;outline:none;box-shadow:0 4px 12px rgba(0,0,0,0.05)" />
       </div>
       <nav style="display:{{navDisplay}};align-items:center;gap:28px">
-        <a href="#inicio" onClick="{{goHome}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Inicio</a>
+        <a href="#inicio" onClick="{{goHome}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270)">Inicio</a>
         <div style="position:relative;display:flex;align-items:center" onMouseEnter="{{openEquipos}}" onMouseLeave="{{closeEquipos}}">
-          <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);display:flex;align-items:center;gap:6px">Catálogo<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{equiposArrow}};transition:transform .25s ease"><path d="M6 9l6 6 6-6"></path></svg></a>
+          <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);display:flex;align-items:center;gap:6px">Catálogo<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="transform:{{equiposArrow}};transition:transform .25s ease"><path d="M6 9l6 6 6-6"></path></svg></a>
           <div style="display:{{equiposMenuDisplay}};position:absolute;top:100%;left:-12px;padding-top:14px;z-index:60">
             <div style="background:oklch(99% 0 0);border:1px solid oklch(88% .006 270);box-shadow:0 18px 38px -14px oklch(20% .01 270 / .35);min-width:230px;max-height:420px;overflow-y:auto;overflow-x:hidden">
               <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:13px;font-weight:700;color:oklch(58% .22 25);padding:11px 18px;display:block;white-space:nowrap;transition:background .2s ease,color .2s ease;border-bottom:1px solid oklch(92% 0 0);background:oklch(98% .005 270)" style-hover="background:oklch(58% .22 25);color:white">Ver todo el catálogo →</a>
@@ -308,15 +316,15 @@ $seriesJson = json_encode($series);
             </div>
           </div>
         </div>
-        <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Soluciones</a>
-        <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Marcas</a>
-        <a href="#" onClick="{{goToContacto}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270)">Contacto</a>
+        <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270)">Soluciones</a>
+        <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270)">Marcas</a>
+        <a href="#" onClick="{{goToContacto}}" style="font-size:13px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270)">Contacto</a>
       </nav>
       <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
         <button onClick="{{openGlobalSearch}}" aria-label="Buscar" style="width:40px;height:40px;border-radius:999px;background:oklch(96% .01 270);border:1px solid oklch(90% .006 270);color:oklch(20% .005 270);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s ease" style-hover="background:oklch(58% .22 25);color:white;border-color:oklch(58% .22 25)">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
-        <button onClick="{{goToContacto}}" style="display:{{ctaDisplay}};background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:11px 22px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;flex-shrink:0">Cotizar</button>
+        <button onClick="{{goToContacto}}" style="display:{{ctaDisplay}};background:oklch(58% .22 25);border-radius:10px;color:white;border:none;padding:11px 22px;font-weight:700;font-size:12px;letter-spacing:0.01em;cursor:pointer;flex-shrink:0">Cotizar</button>
       </div>
       <button onClick="{{toggleMenu}}" aria-label="{{menuBtnLabel}}" aria-expanded="{{menuOpen}}" aria-controls="menuMovil" style="display:{{burgerDisplay}};flex-direction:column;justify-content:center;gap:5px;width:44px;height:44px;background:none;border:none;cursor:pointer;padding:0;flex-shrink:0">
         <span style="display:block;height:2px;width:24px;background:oklch(14% .005 270);transition:transform .3s ease,opacity .3s ease;transform:{{bar1}}"></span>
@@ -326,18 +334,18 @@ $seriesJson = json_encode($series);
     </div>
     <div id="menuMovil" class="sheet-scroll" style="display:{{mobileMenuDisplay}};position:fixed;left:0;right:0;top:{{menuTop}};bottom:0;z-index:10050;border-top:1px solid oklch(90% .006 270);background:oklch(99% 0 0);padding:8px 24px calc(24px + env(safe-area-inset-bottom, 0px))">
       <nav style="display:flex;flex-direction:column">
-        <a href="#inicio" onClick="{{goHome}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Inicio</a>
-        <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo (Ver Todo)</a>
+        <a href="#inicio" onClick="{{goHome}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Inicio</a>
+        <a href="#catalogo" onClick="{{goToCatalogo}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Catálogo (Ver Todo)</a>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px;padding-left:12px">
         <sc-for list="{{navCategories}}" as="nc">
           <a href="#" onClick="{{nc.onClick}}" style="font-size:13px;font-weight:500;color:oklch(38% .008 270);padding:12px 0;border-bottom:1px solid oklch(93% .004 270);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{nc.name}}</a>
         </sc-for>
         </div>
-        <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
-        <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Marcas</a>
-        <a href="#" onClick="{{goToContacto}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Contacto</a>
+        <a href="#soluciones" onClick="{{scrollTo_soluciones}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Soluciones</a>
+        <a href="#marcas" onClick="{{scrollTo_marcas}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Marcas</a>
+        <a href="#" onClick="{{goToContacto}}" style="font-size:15px;font-weight:600;letter-spacing:0.04em;color:oklch(14% .005 270);padding:14px 0;border-bottom:1px solid oklch(90% .006 270);display:block">Contacto</a>
       </nav>
-      <button onClick="{{goToContacto}}" style="width:100%;margin-top:18px;background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:15px;font-weight:700;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer">Cotizar</button>
+      <button onClick="{{goToContacto}}" style="width:100%;margin-top:18px;background:oklch(58% .22 25);border-radius:10px;color:white;border:none;padding:15px;font-weight:700;font-size:13px;letter-spacing:0.01em;cursor:pointer">Cotizar</button>
     </div>
   </header>
 
@@ -364,15 +372,15 @@ $seriesJson = json_encode($series);
         </sc-for>
       </div>
       <div style="text-align:center;margin-top:48px">
-        <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
+        <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:'FL Titulos',Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.01em;cursor:pointer;border-radius:10px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
           Ver catálogo completo de productos →
         </button>
       </div>
       <div style="position:relative;z-index:10;max-width:1280px;margin:0 auto;padding:0 24px;height:100%;display:flex;align-items:center">
         <div style="max-width:620px;animation:slideFade .7s ease-out">
-          <h1 style="font-family:Oswald,sans-serif;font-size:clamp(32px,5.5vw,64px);font-weight:700;line-height:0.96;margin:0 0 22px;color:oklch(98% 0 0)">INSPIRANDO<br/>AL MUNDO<br/>A ENTRENAR</h1>
+          <h1 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(32px,5.5vw,64px);font-weight:700;line-height:0.96;margin:0 0 22px;color:oklch(98% 0 0)">INSPIRANDO<br/>AL MUNDO<br/>A ENTRENAR</h1>
           <p style="font-size:{{heroPSize}};color:oklch(80% .01 270);max-width:420px;margin:0 0 {{heroPGap}};line-height:1.55">Equipos de cardio y fuerza comercial líderes en el mundo, diseñados para ofrecer un rendimiento superior.</p>
-          <a href="#categorias" onClick="{{scrollTo_categorias}}" style="display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;padding:16px 30px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;font-size:13px;min-height:52px;box-sizing:border-box">Ver Equipos →</a>
+          <a href="#categorias" onClick="{{scrollTo_categorias}}" style="display:inline-flex;align-items:center;gap:8px;background:oklch(58% .22 25);border-radius:10px;color:white;padding:16px 30px;font-weight:700;letter-spacing:0.01em;font-size:13px;min-height:52px;box-sizing:border-box">Ver Equipos →</a>
   
       </div>
       </div>
@@ -380,29 +388,29 @@ $seriesJson = json_encode($series);
 
     <section id="categorias" ref="{{categoriasRef}}" style="padding:{{secPad}};background:oklch(88% .004 265);position:relative;overflow:hidden"><div style="max-width:1280px;margin:0 auto;position:relative">
       <div style="text-align:left;max-width:640px;margin:0 0 56px;opacity:{{categoriesHeaderOpacity}};transform:{{categoriesHeaderTransform}};transition:opacity .6s ease,transform .6s ease">
-        <div style="display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px"><span style="width:44px;height:2px;background:oklch(58% .22 25)"></span>Catálogo</div>
-        <h2 style="font-family:Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase;color:oklch(16% .006 270)">Equipos <span style="color:oklch(58% .22 25)">Exclusivos</span></h2>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px"><span style="width:44px;height:2px;background:oklch(58% .22 25)"></span>Catálogo</div>
+        <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase;color:oklch(16% .006 270)">Equipos <span style="color:oklch(58% .22 25)">Exclusivos</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Encuentra equipos profesionales de las marcas más prestigiosas: Life Fitness, Precor, Hoist, Cybex, Matrix y Free Motion.</p>
       </div>
       <div class="hc-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
         <sc-for list="{{categories}}" as="cat" hint-placeholder-count="4">
-          <div onClick="{{cat.onClick}}" onMouseEnter="{{cat.onEnterCard}}" onMouseLeave="{{cat.onLeaveCard}}" style="position:relative;cursor:pointer;background:oklch(98% 0 0);border:1px solid oklch(88% .006 270);border-radius:22px;overflow:hidden;opacity:{{cat.revealOpacity}};transform:{{cat.revealTransform}} scale(1);transition:box-shadow .45s ease,border-color .45s ease,transform .45s cubic-bezier(.2,.8,.2,1),opacity .6s ease {{cat.revealDelay}}" style-hover="box-shadow:0 30px 60px -18px oklch(58% .22 25 / .38),0 0 0 1px oklch(58% .22 25 / .35);border-color:oklch(58% .22 25 / .5);transform:translateY(-10px) scale(1.02)">
+          <div onClick="{{cat.onClick}}" onMouseEnter="{{cat.onEnterCard}}" onMouseLeave="{{cat.onLeaveCard}}" style="position:relative;cursor:pointer;background:oklch(98% 0 0);border:1px solid oklch(88% .006 270);border-radius:14px;overflow:hidden;opacity:{{cat.revealOpacity}};transform:{{cat.revealTransform}} scale(1);transition:box-shadow .45s ease,border-color .45s ease,transform .45s cubic-bezier(.2,.8,.2,1),opacity .6s ease {{cat.revealDelay}}" style-hover="box-shadow:0 30px 60px -18px oklch(58% .22 25 / .38),0 0 0 1px oklch(58% .22 25 / .35);border-color:oklch(58% .22 25 / .5);transform:translateY(-10px) scale(1.02)">
             <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,oklch(58% .22 25),oklch(68% .24 30));transform:scaleX({{cat.topBorderScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:3"></div>
             <div class="hc-img" style="position:relative;height:340px;overflow:hidden;background:oklch(16% .006 270)">
               <img loading="lazy" sc-camel-src="{{cat.img}}" alt="{{cat.name}}" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.8,.2,1),filter .5s ease" style-hover="transform:scale(1.09);filter:brightness(1.06) contrast(1.04) saturate(1.05)"/>
               <div style="position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 110%, oklch(58% .22 25 / .38), transparent 62%);opacity:0;transition:opacity .5s ease" style-hover="opacity:1"></div>
-              <div style="position:absolute;left:18px;top:18px;padding:7px 14px;border-radius:999px;background:oklch(20% .005 270 / .6);backdrop-filter:blur(6px);border:1px solid oklch(98% 0 0 / .22);color:oklch(98% 0 0);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:0;transform:translateY(-8px);transition:opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)" style-hover="opacity:1;transform:translateY(0)">{{cat.tag}}</div>
+              <div style="position:absolute;left:18px;top:18px;padding:7px 14px;border-radius:999px;background:oklch(20% .005 270 / .6);backdrop-filter:blur(6px);border:1px solid oklch(98% 0 0 / .22);color:oklch(98% 0 0);font-size:10px;font-weight:700;letter-spacing:0.01em;opacity:0;transform:translateY(-8px);transition:opacity .4s ease,transform .4s cubic-bezier(.2,.8,.2,1)" style-hover="opacity:1;transform:translateY(0)">{{cat.tag}}</div>
             </div>
             <div class="hc-body" style="padding:24px 26px 26px;overflow:hidden">
-              <div class="hc-tag" style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px;height:30px;display:flex;align-items:flex-start;transition:transform .35s ease" style-hover="transform:translateX(5px)">{{cat.tag}}</div>
-              <h3 class="hc-title" style="font-family:Oswald,sans-serif;font-size:23px;font-weight:600;margin:0 0 16px;text-transform:uppercase;color:oklch(20% .005 270);transition:transform .35s ease .04s" style-hover="transform:translateX(5px)">{{cat.name}}</h3>
-              <span class="hc-cta" style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:oklch(20% .005 270);display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid oklch(85% .006 270);transition:background .35s ease,color .35s ease,border-color .35s ease" style-hover="background:oklch(58% .22 25);color:oklch(99% 0 0);border-color:oklch(58% .22 25)">Ver más <span style="display:inline-block;transition:transform .35s ease" style-hover="transform:translateX(5px)">→</span></span>
+              <div class="hc-tag" style="font-size:11px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:8px;height:30px;display:flex;align-items:flex-start;transition:transform .35s ease" style-hover="transform:translateX(5px)">{{cat.tag}}</div>
+              <h3 class="hc-title" style="font-family:'FL Titulos',Oswald,sans-serif;font-size:23px;font-weight:600;margin:0 0 16px;text-transform:uppercase;color:oklch(20% .005 270);transition:transform .35s ease .04s" style-hover="transform:translateX(5px)">{{cat.name}}</h3>
+              <span class="hc-cta" style="font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(20% .005 270);display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:1px solid oklch(85% .006 270);transition:background .35s ease,color .35s ease,border-color .35s ease" style-hover="background:oklch(58% .22 25);color:oklch(99% 0 0);border-color:oklch(58% .22 25)">Ver más <span style="display:inline-block;transition:transform .35s ease" style-hover="transform:translateX(5px)">→</span></span>
             </div>
           </div>
         </sc-for>
       </div>
       <div style="text-align:center;margin-top:48px">
-        <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.05em;text-transform:uppercase;cursor:pointer;border-radius:4px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
+        <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:'FL Titulos',Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.01em;cursor:pointer;border-radius:10px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
           Ver catálogo completo de productos →
         </button>
       </div>
@@ -411,8 +419,8 @@ $seriesJson = json_encode($series);
 
     <section id="portafolio" style="padding:{{bandPad}};overflow:hidden;position:relative;background:oklch(97% .002 270)">
       <div style="text-align:center;max-width:640px;margin:0 auto 40px;padding:0 24px">
-        <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Portafolio</div>
-        <h2 style="font-family:Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Equipos que <span style="color:oklch(58% .22 25)">Transforman Espacios</span></h2>
+        <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Portafolio</div>
+        <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(30px,4vw,48px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Equipos que <span style="color:oklch(58% .22 25)">Transforman Espacios</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Una muestra de nuestras líneas de cardio, fuerza y circuitos, instaladas en gimnasios y centros deportivos de todo el país.</p>
       </div>
 
@@ -433,13 +441,13 @@ $seriesJson = json_encode($series);
       <div ref="{{portfolioTrackRef}}" onMouseDown="{{onPortfolioMouseDown}}" class="portfolio-carousel-track" style="display:flex;overflow-x:auto;overflow-y:hidden;cursor:grab;padding:28px 24px 36px;user-select:none;-webkit-user-select:none">
         <div style="display:flex;width:max-content;gap:24px;padding:0 20px">
           <sc-for list="{{carouselCards}}" as="p" hint-placeholder-count="10">
-            <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:24px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);background:oklch(100% 0 0);display:flex;flex-direction:column;outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
+            <div onClick="{{p.onClick}}" role="button" style="flex-shrink:0;cursor:pointer;position:relative;overflow:hidden;width:{{cardW}};height:{{cardH}};border-radius:14px;box-shadow:0 14px 34px -10px oklch(20% .01 270 / .28);background:oklch(100% 0 0);display:flex;flex-direction:column;outline:0px solid oklch(58% .22 25);outline-offset:-2px;transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,outline-width .35s ease" style-hover="transform:translateY(-14px) scale(1.04);box-shadow:0 34px 60px -18px oklch(58% .22 25 / .48);outline-width:3px">
               <div style="flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;padding:{{p.pad}};box-sizing:border-box;position:relative;overflow:hidden">
                 <img loading="lazy" sc-camel-src="{{p.img}}" alt="{{p.name}}" draggable="false" style="max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;transform:scale({{p.zoom}});pointer-events:none;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.06)"/>
               </div>
               <div style="height:76px;flex-shrink:0;background:oklch(16% .006 270);padding:12px 18px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:3px;pointer-events:none;position:relative;z-index:2">
                 <span style="font-size:11px;font-weight:600;letter-spacing:0.06em;color:oklch(75% .2 27);transition:transform .4s ease" style-hover="transform:translateX(5px)">{{p.tag}}</span>
-                <h3 style="font-family:Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
+                <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:19px;font-weight:600;color:white;margin:0;text-transform:uppercase;letter-spacing:.03em;transition:transform .4s ease .04s" style-hover="transform:translateX(5px)">{{p.name}}</h3>
               </div>
               <div style="position:absolute;inset:0;background:radial-gradient(120% 75% at 50% 112%, oklch(58% .22 25 / .42), transparent 62%);opacity:0;pointer-events:none;transition:opacity .5s ease;z-index:3" style-hover="opacity:1"></div>
             </div>
@@ -457,9 +465,9 @@ $seriesJson = json_encode($series);
         <div style="max-width:720px;margin:0 0 64px;opacity:{{solucionesHeaderOpacity}};transform:{{solucionesHeaderTransform}};transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
             <div style="width:72px;height:2px;background:oklch(58% .22 25)"></div>
-            <div style="font-size:12px;letter-spacing:0.3em;color:oklch(65% .24 27);font-weight:700;text-transform:uppercase">Soluciones</div>
+            <div style="font-size:12px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;">Soluciones</div>
           </div>
-          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,3.4vw,42px);font-weight:700;margin:0;color:oklch(97% 0 0);line-height:1.12;text-wrap:pretty">Conoce nuestras <span style="color:oklch(65% .24 27)">soluciones</span> en equipos para entrenamiento físico</h2>
+          <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(28px,3.4vw,42px);font-weight:700;margin:0;color:oklch(97% 0 0);line-height:1.12;text-wrap:pretty">Conoce nuestras <span style="color:oklch(65% .24 27)">soluciones</span> en equipos para entrenamiento físico</h2>
         </div>
         <div style="display:grid;grid-template-columns:{{grid4}};gap:1px;background:oklch(42% .006 270)">
           <sc-for list="{{solutions}}" as="sol" hint-placeholder-count="4">
@@ -470,9 +478,9 @@ $seriesJson = json_encode($series);
               <div style="position:absolute;top:0;left:0;right:0;height:4px;background:oklch(99% 0 0);transform:scaleX({{sol.fillScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1) .1s"></div>
               <div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .5s cubic-bezier(.2,.8,.2,1);transform:{{sol.contentTransform}}">
                 <div style="width:40px;height:3px;background:transparent;margin-bottom:20px"></div>
-                <h3 style="font-family:Oswald,sans-serif;margin:0 0 14px;color:oklch(98% 0 0);letter-spacing:.01em;line-height:1;text-transform:uppercase;display:flex;flex-direction:column;justify-content:flex-end;min-height:78px"><span style="font-size:17px;font-weight:500;letter-spacing:.16em;opacity:.75;margin-bottom:6px;min-height:22px">{{sol.kicker}}</span><span style="font-size:clamp(28px,2.4vw,38px);font-weight:700">{{sol.main}}</span></h3>
+                <h3 style="font-family:'FL Titulos',Oswald,sans-serif;margin:0 0 14px;color:oklch(98% 0 0);letter-spacing:.01em;line-height:1;text-transform:uppercase;display:flex;flex-direction:column;justify-content:flex-end;min-height:78px"><span style="font-size:17px;font-weight:500;letter-spacing:.16em;opacity:.75;margin-bottom:6px;min-height:22px">{{sol.kicker}}</span><span style="font-size:clamp(28px,2.4vw,38px);font-weight:700">{{sol.main}}</span></h3>
                 <p style="color:{{sol.descColor}};font-size:14px;line-height:1.6;margin:0 0 22px;height:92px;overflow:hidden;transition:color .4s ease">{{sol.desc}}</p>
-                <div style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:{{sol.linkColor}};transition:color .4s ease">
+                <div style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.01em;color:{{sol.linkColor}};transition:color .4s ease">
                   <span>Ver más</span>
                   <span style="display:inline-block;transition:transform .4s cubic-bezier(.2,.8,.2,1);transform:{{sol.arrowTransform}}">→</span>
                 </div>
@@ -485,54 +493,54 @@ $seriesJson = json_encode($series);
 
     <section id="circuitos" ref="{{circuitosRef}}" style="padding:{{secPad}};background:oklch(86% .004 265)"><div style="max-width:1280px;margin:0 auto">
       <div style="text-align:center;max-width:560px;margin:0 auto 64px;opacity:{{circuitosHeaderOpacity}};transform:{{circuitosHeaderTransform}};transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)">
-        <div style="display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px"><span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .15s"></span>Equipos Remanufacturados<span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .15s"></span></div>
-        <h2 style="font-family:Oswald,sans-serif;font-size:clamp(32px,4.4vw,52px);font-weight:700;margin:0 0 16px;line-height:1.08;text-wrap:pretty">Circuitos de Fuerza <span style="color:oklch(58% .22 25)">Remanufacturados</span></h2>
+        <div style="display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px"><span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .15s"></span>Equipos Remanufacturados<span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .15s"></span></div>
+        <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(32px,4.4vw,52px);font-weight:700;margin:0 0 16px;line-height:1.08;text-wrap:pretty">Circuitos de Fuerza <span style="color:oklch(58% .22 25)">Remanufacturados</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Equipa tu centro fitness con sistemas de entrenamiento de grado comercial reconstruidos a la perfección con un ahorro de hasta el 60%.</p>
       </div>
 
       <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center;margin-bottom:110px">
-        <div style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
+        <div style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
           <img loading="lazy" sc-camel-src="{{circRow1Img}}" src="assets/circuitos_matrix.webp" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;left:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;left:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
-          <div style="position:absolute;bottom:22px;left:22px;background:oklch(58% .22 25);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow1ImgOpacity}};transition:opacity .6s ease .5s">HASTA −60%</div>
+          <div style="position:absolute;bottom:22px;left:22px;background:oklch(58% .22 25);color:white;padding:10px 18px;border-radius:999px;font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow1ImgOpacity}};transition:opacity .6s ease .5s">Hasta −60%</div>
         </div>
         <div style="opacity:{{circRow1TextOpacity}};transform:{{circRow1TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
-          <div style="font-size:11px;letter-spacing:0.15em;color:oklch(65% .24 27);font-weight:700;text-transform:uppercase;margin-bottom:10px">Respaldo Fitness Life — Matrix Fitness</div>
-          <h3 style="font-family:Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Equipos Matrix de Fuerza con Respaldo de Fitness Life</h3>
+          <div style="font-size:11px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;margin-bottom:10px">Respaldo Fitness Life — Matrix Fitness</div>
+          <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Equipos Matrix de Fuerza con Respaldo de Fitness Life</h3>
           <p style="color:oklch(42% .01 270);font-size:15px;line-height:1.65;margin:0 0 26px">Equipos Matrix seleccionados, revisados y avalados por Fitness Life. Renueva tus zonas de entrenamiento con garantía integral.</p>
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow1TextOpacity}};transition:opacity .6s ease .25s">
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Garantía Real</span>
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Precio de Oportunidad</span>
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Ergonomía Premium</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Garantía Real</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Precio de Oportunidad</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Ergonomía Premium</span>
           </div>
           <div style="display:flex;gap:16px;flex-wrap:wrap">
-            <a href="#" onClick="{{goToContacto}}" style="background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
-            <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
+            <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);border-radius:10px;color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
+            <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
           </div>
         </div>
       </div>
 
       <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center">
         <div style="order:2;opacity:{{circRow2TextOpacity}};transform:{{circRow2TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
-          <div style="font-size:11px;letter-spacing:0.15em;color:oklch(65% .24 27);font-weight:700;text-transform:uppercase;margin-bottom:10px">Garantía de Fábrica — Life Fitness</div>
-          <h3 style="font-family:Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Circuito Life Fitness Optima™ Series 30 Express</h3>
+          <div style="font-size:11px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;margin-bottom:10px">Garantía de Fábrica — Life Fitness</div>
+          <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Circuito Life Fitness Optima™ Series 30 Express</h3>
           <p style="color:oklch(42% .01 270);font-size:15px;line-height:1.65;margin:0 0 26px">Circuito compacto de 30 minutos remanufacturado a especificaciones de fábrica. Ideal para hoteles, condominios y centros premium.</p>
           <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow2TextOpacity}};transition:opacity .6s ease .25s">
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Dual-Function</span>
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Circuito Rápido</span>
-            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">Acabado Como Nuevo</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Dual-Function</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Circuito Rápido</span>
+            <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Acabado Como Nuevo</span>
           </div>
           <div style="display:flex;gap:16px;flex-wrap:wrap">
-            <a href="#" onClick="{{goToContacto}}" style="background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
-            <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
+            <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);border-radius:10px;color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
+            <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
           </div>
         </div>
-        <div style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:22px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
+        <div style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
           <img loading="lazy" sc-camel-src="{{circRow2Img}}" src="assets/circuitos_optima.webp" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;right:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;right:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
-          <div style="position:absolute;bottom:22px;right:22px;background:oklch(20% .005 270);color:white;padding:10px 18px;border-radius:999px;font-family:Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow2ImgOpacity}};transition:opacity .6s ease .5s">30 MIN / CUERPO COMPLETO</div>
+          <div style="position:absolute;bottom:22px;right:22px;background:oklch(20% .005 270);color:white;padding:10px 18px;border-radius:999px;font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow2ImgOpacity}};transition:opacity .6s ease .5s">30 min · cuerpo completo</div>
         </div>
       </div>
       </div>
@@ -541,12 +549,12 @@ $seriesJson = json_encode($series);
     <section id="personalizacion" ref="{{colorsRef}}" style="padding:{{secPad}};background:oklch(98% 0 0)">
       <div style="max-width:1280px;margin:0 auto">
         <div style="text-align:center;max-width:640px;margin:0 auto 44px;opacity:{{colorsOpacity}};transform:{{colorsTransform}};transition:opacity .6s ease,transform .6s ease">
-          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Personalización</div>
-          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Diseña tu equipo <span style="color:oklch(58% .22 25)">a tu medida</span></h2>
+          <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Personalización</div>
+          <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px;text-transform:uppercase">Diseña tu equipo <span style="color:oklch(58% .22 25)">a tu medida</span></h2>
           <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Elige el color de la estructura, la cojinería y los pines para que tus equipos combinen con la identidad de tu gimnasio.</p>
         </div>
         <div style="display:grid;grid-template-columns:{{persCols}};gap:28px;align-items:stretch">
-          <div style="position:relative;border-radius:20px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
+          <div style="position:relative;border-radius:14px;overflow:hidden;background:oklch(14% .005 270);aspect-ratio:9/16;max-height:{{persVideoMaxH}};width:{{persVideoW}};justify-self:center;box-shadow:0 24px 50px -24px oklch(20% .01 270 / .35);opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1)">
             <video ref="{{rs800Ref}}" src="assets/realleader_rs800_720.mp4" sc-camel-src="assets/realleader_rs800_720.mp4" poster="assets/realleader_rs800_poster.webp" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="none" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <sc-if value="{{rs800Blocked}}" hint-placeholder-val="{{false}}">
               <button onClick="{{playRs800}}" aria-label="Reproducir video" style="position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;background:transparent;border:none;cursor:pointer">
@@ -555,19 +563,19 @@ $seriesJson = json_encode($series);
                 </span>
               </button>
             </sc-if>
-            <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
+            <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:0.01em;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
-              <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
+              <div style="font-family:'FL Titulos',Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;justify-content:center;gap:24px;min-width:0;opacity:{{colorsOpacity}};transform:{{colorsImgTransform}};transition:opacity .8s ease .15s,transform .8s cubic-bezier(.2,.8,.2,1) .15s">
-            <div style="border-radius:20px;overflow:hidden;background:white;border:1px solid oklch(88% .006 270);box-shadow:0 24px 50px -24px oklch(20% .01 270 / .25)">
+            <div style="border-radius:14px;overflow:hidden;background:white;border:1px solid oklch(88% .006 270);box-shadow:0 24px 50px -24px oklch(20% .01 270 / .25)">
               <img loading="lazy" decoding="async" width="1672" height="941" src="assets/personalizacion_colores_v2.webp" sc-camel-src="assets/personalizacion_colores_v2.webp" alt="Opciones de color de cojinería, estructura y pines" style="width:100%;height:auto;display:block"/>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:12px">
-              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 colores de cojinería</span>
-              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:oklch(30% .008 270)">8 acabados de estructura</span>
-              <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);color:white;border-radius:999px;padding:10px 22px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:transform .3s ease" style-hover="transform:translateY(-3px);color:white">Cotiza tu combinación →</a>
+              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">8 colores de cojinería</span>
+              <span style="border:1px solid oklch(83% .006 270);border-radius:999px;padding:10px 18px;font-size:12px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">8 acabados de estructura</span>
+              <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);color:white;border-radius:999px;padding:10px 22px;font-size:12px;font-weight:700;letter-spacing:0.01em;transition:transform .3s ease" style-hover="transform:translateY(-3px);color:white">Cotiza tu combinación →</a>
             </div>
           </div>
         </div>
@@ -579,21 +587,21 @@ $seriesJson = json_encode($series);
     <section ref="{{processRef}}" style="padding:{{secPad}};background:oklch(93% .004 270)">
       <div style="max-width:1280px;margin:0 auto">
         <div style="text-align:center;max-width:560px;margin:0 auto 64px;opacity:{{processHeaderOpacity}};transform:{{processHeaderTransform}};transition:opacity .6s ease,transform .6s ease">
-          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Estándar de Calidad</div>
-          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px">Nuestro Proceso de Remanufactura Élite</h2>
+          <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Estándar de Calidad</div>
+          <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px">Nuestro Proceso de Remanufactura Élite</h2>
           <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">No vendemos equipos usados comunes. Cada máquina pasa por un riguroso proceso de reconstrucción artesanal e industrial para garantizar que luzca y rinda al 100%.</p>
         </div>
         <div style="display:grid;grid-template-columns:{{grid4}};gap:1px;background:oklch(85% .004 270);border-top:1px solid oklch(85% .004 270)">
           <sc-for list="{{processSteps}}" as="step" hint-placeholder-count="4">
             <div style="position:relative;overflow:hidden;background:oklch(96% .002 270);padding:64px 28px 36px;opacity:{{step.revealOpacity}};transform:{{step.revealTransform}};transition:opacity .6s ease {{step.revealDelay}},transform .6s cubic-bezier(.2,.8,.2,1) {{step.revealDelay}},background .35s ease,box-shadow .4s ease" style-hover="background:oklch(100% 0 0);box-shadow:0 22px 44px -18px oklch(58% .22 25 / .5);transform:translateY(-8px)">
-              <div style="position:absolute;top:22px;right:22px;font-family:Oswald,sans-serif;font-size:118px;font-weight:700;line-height:.82;color:oklch(88% .006 270);pointer-events:none;transition:color .4s ease,transform .5s cubic-bezier(.2,.8,.2,1)" style-hover="color:oklch(58% .22 25 / .24);transform:translateY(4px) scale(1.04)">{{step.num}}</div>
+              <div style="position:absolute;top:22px;right:22px;font-family:'FL Titulos',Oswald,sans-serif;font-size:118px;font-weight:700;line-height:.82;color:oklch(88% .006 270);pointer-events:none;transition:color .4s ease,transform .5s cubic-bezier(.2,.8,.2,1)" style-hover="color:oklch(58% .22 25 / .24);transform:translateY(4px) scale(1.04)">{{step.num}}</div>
               <div style="position:absolute;top:0;left:0;right:0;height:3px;background:oklch(58% .22 25);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scaleX(1)"></div>
               <div style="position:relative">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
                   <span style="width:26px;height:2px;background:oklch(58% .22 25)"></span>
-                  <span style="font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:oklch(58% .22 25)">Paso {{step.num}}</span>
+                  <span style="font-size:10px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25)">Paso {{step.num}}</span>
                 </div>
-                <h3 style="font-family:Oswald,sans-serif;font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.2">{{step.title}}</h3>
+                <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.2">{{step.title}}</h3>
                 <p style="color:oklch(42% .01 270);font-size:14px;line-height:1.65;margin:0">{{step.desc}}</p>
               </div>
             </div>
@@ -604,8 +612,8 @@ $seriesJson = json_encode($series);
 
     <section id="marcas" ref="{{marcasRef}}" style="padding:{{secPadSm}};max-width:1280px;margin:0 auto">
       <div style="text-align:center;max-width:560px;margin:0 auto 48px;opacity:{{marcasHeaderOpacity}};transform:{{marcasHeaderTransform}};transition:opacity .6s ease,transform .6s ease">
-        <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Marcas Autorizadas</div>
-        <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px">Distribuidor Oficial</h2>
+        <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Marcas Autorizadas</div>
+        <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px">Distribuidor Oficial</h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Representamos y distribuimos en Colombia a los mayores referentes mundiales en equipamiento e innovación fitness.</p>
       </div>
       <div style="position:relative;overflow:hidden;background:oklch(100% 0 0);padding:26px 0;opacity:{{marcasHeaderOpacity}};transition:opacity .8s ease .2s">
@@ -624,17 +632,17 @@ $seriesJson = json_encode($series);
     <section id="clientes" ref="{{clientesRef}}" style="padding:{{secPadSm}};background:oklch(93% .004 270)">
       <div style="max-width:1280px;margin:0 auto">
         <div style="text-align:center;max-width:900px;margin:0 auto 48px;opacity:{{clientesHeaderOpacity}};transform:{{clientesHeaderTransform}};transition:opacity .6s ease,transform .6s ease">
-          <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Clientes &amp; Casos de Éxito</div>
-          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(22px,2.4vw,30px);font-weight:700;margin:0;white-space:nowrap">Clientes que confían en Fitness Life</h2>
+          <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Clientes &amp; Casos de Éxito</div>
+          <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(22px,2.4vw,30px);font-weight:700;margin:0;white-space:nowrap">Clientes que confían en Fitness Life</h2>
         </div>
-        <blockquote style="max-width:720px;margin:0 auto 56px;text-align:center;font-family:Oswald,sans-serif;font-size:22px;font-weight:500;line-height:1.5;color:oklch(20% .005 270);opacity:{{clientesHeaderOpacity}};transform:{{clientesHeaderTransform}};transition:opacity .7s ease .1s,transform .7s ease .1s">
+        <blockquote style="max-width:720px;margin:0 auto 56px;text-align:center;font-family:'FL Titulos',Oswald,sans-serif;font-size:22px;font-weight:500;line-height:1.5;color:oklch(20% .005 270);opacity:{{clientesHeaderOpacity}};transform:{{clientesHeaderTransform}};transition:opacity .7s ease .1s,transform .7s ease .1s">
           "Equipar nuestras salas de entrenamiento con Fitness Life ha sido la mejor decisión comercial. Los equipos remanufacturados tienen el rendimiento y apariencia idénticos a los nuevos."
-          <footer style="margin-top:18px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:oklch(58% .22 25);letter-spacing:0.05em;text-transform:uppercase">— Mundo Fitness</footer>
+          <footer style="margin-top:18px;font-family:Inter,sans-serif;font-size:13px;font-weight:600;color:oklch(58% .22 25);letter-spacing:0.01em;">— Mundo Fitness</footer>
         </blockquote>
-        <div style="font-size:11px;letter-spacing:0.15em;color:oklch(42% .01 270);font-weight:600;text-transform:uppercase;text-align:center;margin-bottom:24px">Alianzas e Instituciones Destacadas</div>
+        <div style="font-size:11px;letter-spacing:0.01em;color:oklch(42% .01 270);font-weight:600;text-align:center;margin-bottom:24px">Alianzas e Instituciones Destacadas</div>
         <div style="display:flex;justify-content:center;gap:14px;flex-wrap:{{clientsWrap}};opacity:{{clientesHeaderOpacity}};transition:opacity .8s ease .2s">
           <sc-for list="{{clients}}" as="client" hint-placeholder-count="6">
-            <div style="flex:0 1 {{clientBasis}};min-width:0;background:oklch(100% 0 0);border-radius:12px;height:{{clientH}};display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;box-shadow:0 6px 20px -10px oklch(20% .01 270 / .25);transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -14px oklch(20% .01 270 / .4)">
+            <div style="flex:0 1 {{clientBasis}};min-width:0;background:oklch(100% 0 0);border-radius:14px;height:{{clientH}};display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box;box-shadow:0 6px 20px -10px oklch(20% .01 270 / .25);transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -14px oklch(20% .01 270 / .4)">
               <img loading="lazy" sc-camel-src="{{client.img}}" alt="{{client.name}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
             </div>
           </sc-for>
@@ -644,21 +652,21 @@ $seriesJson = json_encode($series);
 
     <section ref="{{whyUsRef}}" style="padding:{{secPadSm}};background:oklch(14% .005 270)"><div style="max-width:1280px;margin:0 auto">
       <div style="text-align:center;max-width:600px;margin:0 auto 56px;opacity:{{whyUsHeaderOpacity}};transform:{{whyUsHeaderTransform}};transition:opacity .6s ease,transform .6s ease">
-        <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Por qué elegirnos</div>
-        <h2 style="font-family:Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px;color:oklch(98% 0 0)">Nuestras Ventajas</h2>
+        <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Por qué elegirnos</div>
+        <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(28px,4vw,44px);font-weight:700;margin:0 0 16px;color:oklch(98% 0 0)">Nuestras Ventajas</h2>
         <p style="color:oklch(72% .008 270);font-size:16px;line-height:1.6;margin:0">Garantizamos la máxima rentabilidad de tu inversión deportiva con la ingeniería más avanzada del mercado.</p>
       </div>
       <div style="display:grid;grid-template-columns:{{grid4}};gap:1px;background:oklch(32% .006 270);border-top:1px solid oklch(32% .006 270)">
         <sc-for list="{{whyUs}}" as="w" hint-placeholder-count="4">
           <div style="position:relative;overflow:hidden;background:oklch(97% .002 270);padding:42px 28px 36px;opacity:{{w.revealOpacity}};transform:{{w.revealTransform}};transition:opacity .6s ease {{w.revealDelay}},transform .6s cubic-bezier(.2,.8,.2,1) {{w.revealDelay}},background .35s ease,box-shadow .4s ease" style-hover="background:oklch(100% 0 0);box-shadow:0 22px 44px -18px oklch(58% .22 25 / .55);transform:translateY(-8px)">
-            <div style="position:absolute;top:-6px;right:10px;font-family:Oswald,sans-serif;font-size:96px;font-weight:700;line-height:1;color:oklch(88% .006 270);pointer-events:none;transition:color .4s ease,transform .5s cubic-bezier(.2,.8,.2,1)" style-hover="color:oklch(58% .22 25 / .22);transform:translateY(6px)">{{w.icon}}</div>
+            <div style="position:absolute;top:-6px;right:10px;font-family:'FL Titulos',Oswald,sans-serif;font-size:96px;font-weight:700;line-height:1;color:oklch(88% .006 270);pointer-events:none;transition:color .4s ease,transform .5s cubic-bezier(.2,.8,.2,1)" style-hover="color:oklch(58% .22 25 / .22);transform:translateY(6px)">{{w.icon}}</div>
             <div style="position:absolute;top:0;left:0;right:0;height:3px;background:oklch(58% .22 25);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scaleX(1)"></div>
             <div style="position:relative">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
                 <span style="width:26px;height:2px;background:oklch(58% .22 25)"></span>
-                <span style="font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:oklch(58% .22 25)">Ventaja</span>
+                <span style="font-size:10px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25)">Ventaja</span>
               </div>
-              <h3 style="font-family:Oswald,sans-serif;font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.2;color:oklch(16% .006 270)">{{w.title}}</h3>
+              <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:20px;font-weight:600;margin:0 0 10px;line-height:1.2;color:oklch(16% .006 270)">{{w.title}}</h3>
               <p style="color:oklch(42% .01 270);font-size:14px;line-height:1.65;margin:0">{{w.desc}}</p>
             </div>
           </div>
@@ -673,34 +681,34 @@ $seriesJson = json_encode($series);
         <div style="padding:{{cotPadLeft}};border-right:1px solid oklch(26% .006 270)">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
             <span style="width:56px;height:2px;background:oklch(58% .22 25)"></span>
-            <span style="font-size:12px;letter-spacing:.32em;color:oklch(65% .24 27);font-weight:700;text-transform:uppercase">Cotización</span>
+            <span style="font-size:12px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;">Cotización</span>
           </div>
-          <h2 style="font-family:Oswald,sans-serif;font-size:clamp(38px,4.6vw,62px);font-weight:700;line-height:.98;margin:0 0 26px;color:oklch(98% 0 0);text-transform:uppercase">¿Deseas un<br/><span style="color:oklch(58% .22 25)">precio<br/>especial</span>?</h2>
+          <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(38px,4.6vw,62px);font-weight:700;line-height:.98;margin:0 0 26px;color:oklch(98% 0 0);text-transform:uppercase">¿Deseas un<br/><span style="color:oklch(58% .22 25)">precio<br/>especial</span>?</h2>
           <p style="color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0 0 40px;max-width:400px">Llena el formulario y consigue precios especiales en tus equipos de entrenamiento físico.</p>
           <div style="display:flex;flex-direction:column;gap:22px">
             <div style="display:flex;align-items:center;gap:16px">
               <span style="width:46px;height:46px;flex-shrink:0;border-radius:10px;background:oklch(58% .22 25);display:flex;align-items:center;justify-content:center;color:white"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1.9.3 1.8.7 2.6a2 2 0 01-.5 2.1L8.1 9.9a16 16 0 006 6l1.5-1.2a2 2 0 012.1-.5c.8.4 1.7.6 2.6.7a2 2 0 011.7 2z"></path></svg></span>
-              <div><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Teléfono</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">312-8011838 · 312-7199008</div></div>
+              <div><div style="font-size:11px;letter-spacing:0.01em;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Teléfono</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">312-8011838 · 312-7199008</div></div>
             </div>
             <div style="display:flex;align-items:center;gap:16px">
               <span style="width:46px;height:46px;flex-shrink:0;border-radius:10px;background:oklch(58% .22 25);display:flex;align-items:center;justify-content:center;color:white"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><path d="M2 6l10 7 10-7"></path></svg></span>
-              <div><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Email</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">fitnesslifesas@gmail.com</div></div>
+              <div><div style="font-size:11px;letter-spacing:0.01em;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Email</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">fitnesslifesas@gmail.com</div></div>
             </div>
             <div style="display:flex;align-items:center;gap:16px">
               <span style="width:46px;height:46px;flex-shrink:0;border-radius:10px;background:oklch(58% .22 25);display:flex;align-items:center;justify-content:center;color:white"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1116 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></span>
-              <div><div style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Ubicación</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">Cali, Colombia · Cobertura nacional</div></div>
+              <div><div style="font-size:11px;letter-spacing:0.01em;color:oklch(62% .008 270);font-weight:600;margin-bottom:3px">Ubicación</div><div style="font-size:17px;color:oklch(97% 0 0);font-weight:600">Cali, Colombia · Cobertura nacional</div></div>
             </div>
           </div>
         </div>
         <div style="padding:{{cotPadRight}}">
-          <h3 style="font-family:Oswald,sans-serif;font-size:30px;font-weight:700;margin:0 0 34px;color:oklch(98% 0 0);text-transform:uppercase">Solicita tu cotización</h3>
+          <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:30px;font-weight:700;margin:0 0 34px;color:oklch(98% 0 0);text-transform:uppercase">Solicita tu cotización</h3>
           <sc-if value="{{quoteSent}}" hint-placeholder-val="{{false}}">
             <div style="border:1px solid oklch(58% .22 25);background:oklch(58% .22 25 / .12);padding:34px 28px;display:flex;gap:18px;align-items:flex-start">
               <span style="width:44px;height:44px;flex-shrink:0;border-radius:999px;background:oklch(58% .22 25);color:white;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg></span>
               <div>
-                <div style="font-family:Oswald,sans-serif;font-size:22px;font-weight:600;color:oklch(98% 0 0);margin-bottom:8px;text-transform:uppercase">Solicitud enviada</div>
+                <div style="font-family:'FL Titulos',Oswald,sans-serif;font-size:22px;font-weight:600;color:oklch(98% 0 0);margin-bottom:8px;text-transform:uppercase">Solicitud enviada</div>
                 <p style="color:oklch(78% .008 270);font-size:15px;line-height:1.6;margin:0 0 18px">Gracias {{quoteName}}. Un asesor de Fitness Life te contactará dentro de las próximas 24 horas hábiles.</p>
-                <button onClick="{{resetQuote}}" style="background:none;border:1px solid oklch(45% .01 270);color:oklch(90% 0 0);padding:12px 20px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer">Enviar otra solicitud</button>
+                <button onClick="{{resetQuote}}" style="background:none;border:1px solid oklch(45% .01 270);color:oklch(90% 0 0);padding:12px 20px;font-size:12px;font-weight:700;letter-spacing:0.01em;cursor:pointer">Enviar otra solicitud</button>
               </div>
             </div>
           </sc-if>
@@ -734,7 +742,7 @@ $seriesJson = json_encode($series);
                 <option value="Accesorios">Accesorios</option>
               </select>
               <textarea placeholder="Mensaje" rows="5" value="{{qMessage}}" onChange="{{onQMessage}}" style="background:oklch(16% .005 270);border:1px solid oklch(28% .006 270);color:oklch(96% 0 0);padding:17px 18px;font-size:15px;width:100%;box-sizing:border-box;margin-bottom:24px;outline:none;resize:vertical;font-family:Inter,sans-serif"></textarea>
-              <button onClick="{{submitQuote}}" style="width:100%;background:oklch(58% .22 25);color:white;border:none;padding:20px;font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(65% .24 27);transform:translateY(-2px)">Enviar solicitud <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
+              <button onClick="{{submitQuote}}" style="width:100%;background:oklch(58% .22 25);color:white;border:none;padding:20px;font-weight:700;font-size:14px;letter-spacing:0.01em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(65% .24 27);transform:translateY(-2px)">Enviar solicitud <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path></svg></button>
               <p style="font-size:11px;color:oklch(58% .008 270);margin:14px 0 0;line-height:1.6">Los campos marcados con * son obligatorios. También puedes escribirnos por WhatsApp al 312-8011838.</p>
             </div>
           </sc-if>
@@ -749,8 +757,8 @@ $seriesJson = json_encode($series);
     <main class="page-in" style="padding-bottom:100px;background:oklch(97% .004 270);min-height:100vh">
       <section style="background:oklch(14% .005 270);padding:{{catHeroPad}};text-align:{{catHeroAlign}}">
         <div style="max-width:800px;margin:0 auto">
-          <div style="font-size:{{catHeroEyebrowSize}};letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:{{catHeroEyebrowGap}}">Catálogo de Equipos</div>
-          <h1 style="font-family:Oswald,sans-serif;font-size:{{catHeroH1Size}};line-height:{{catHeroH1LH}};font-weight:700;margin:0 0 {{catHeroH1Gap}};color:white;text-transform:uppercase">{{currentCategoryName}}</h1>
+          <div style="font-size:{{catHeroEyebrowSize}};letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:{{catHeroEyebrowGap}}">Catálogo de Equipos</div>
+          <h1 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:{{catHeroH1Size}};line-height:{{catHeroH1LH}};font-weight:700;margin:0 0 {{catHeroH1Gap}};color:white;text-transform:uppercase">{{currentCategoryName}}</h1>
           <p style="display:{{desktopOnlyBlock}};color:oklch(70% .008 270);font-size:16px;line-height:1.6;margin:0">{{currentCategorySub}}</p>
         </div>
       </section>
@@ -759,28 +767,28 @@ $seriesJson = json_encode($series);
       <section style="max-width:1280px;width:100%;box-sizing:border-box;margin:0 auto;padding:{{catSecPad}};display:flex;gap:{{catSecGap}};flex-direction:{{catLayoutDir}};align-items:{{catSecAlign}}">
 
         <!-- BARRA LATERAL (Filtros) — en celular se reemplaza por la barra fija + hoja de filtros -->
-        <aside style="display:{{desktopOnlyBlock}};width:{{catAsideWidth}};box-sizing:border-box;flex-shrink:0;background:white;padding:24px;border-radius:12px;border:1px solid oklch(90% 0 0);position:{{catAsidePos}};top:{{catAsideTop}};">
+        <aside style="display:{{desktopOnlyBlock}};width:{{catAsideWidth}};box-sizing:border-box;flex-shrink:0;background:white;padding:24px;border-radius:14px;border:1px solid oklch(90% 0 0);position:{{catAsidePos}};top:{{catAsideTop}};">
           
           <div style="margin-bottom:24px">
-            <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 12px;color:oklch(20% .005 270)">Buscar Equipo</h3>
-            <input type="text" id="catalogoSearchInput" placeholder="Ej. Cybex, Abdominal..." onInput="{{onCatalogoSearch}}" value="{{catalogoSearch}}" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid oklch(85% 0 0);border-radius:6px;font-size:14px;outline:none" />
+            <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:18px;margin:0 0 12px;color:oklch(20% .005 270)">Buscar Equipo</h3>
+            <input type="text" id="catalogoSearchInput" placeholder="Ej. Cybex, Abdominal..." onInput="{{onCatalogoSearch}}" value="{{catalogoSearch}}" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid oklch(85% 0 0);border-radius:8px;font-size:14px;outline:none" />
           </div>
 
           
           <div style="margin-bottom:24px">
-            <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 12px;color:oklch(20% .005 270)">Categorías</h3>
+            <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:18px;margin:0 0 12px;color:oklch(20% .005 270)">Categorías</h3>
             <div style="display:flex;flex-direction:{{catListDir}};flex-wrap:{{catListWrap}};gap:4px;padding-right:8px;">
               <div style="display:flex;flex-direction:{{catListDir}};gap:4px;flex-grow:1;flex-wrap:wrap;">
               <sc-for list="{{catalogoFilters}}" as="f">
-                <button onClick="{{f.onClick}}" style="text-align:left;background:{{f.bg}};color:{{f.color}};border:1px solid {{f.border}};padding:9px 14px;border-radius:6px;font-size:13px;font-weight:{{f.weight}};box-shadow:{{f.shadow}};cursor:pointer;transition:all .2s ease;width:100%">{{f.label}}</button>
+                <button onClick="{{f.onClick}}" style="text-align:left;background:{{f.bg}};color:{{f.color}};border:1px solid {{f.border}};padding:9px 14px;border-radius:8px;font-size:13px;font-weight:{{f.weight}};box-shadow:{{f.shadow}};cursor:pointer;transition:all .2s ease;width:100%">{{f.label}}</button>
               </sc-for>
               </div>
             </div>
           </div>
 
           <div style="margin-bottom:16px">
-            <h3 style="font-family:Oswald,sans-serif;font-size:18px;margin:0 0 8px;color:oklch(20% .005 270)">Marcas</h3>
-            <input type="text" onInput="{{onBrandSearch}}" value="{{brandSearch}}" placeholder="Buscar marca..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid oklch(85% 0 0);border-radius:6px;font-size:13px;outline:none;margin-bottom:12px;background:#fdfdfd" />
+            <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:18px;margin:0 0 8px;color:oklch(20% .005 270)">Marcas</h3>
+            <input type="text" onInput="{{onBrandSearch}}" value="{{brandSearch}}" placeholder="Buscar marca..." style="width:100%;box-sizing:border-box;padding:8px 12px;border:1px solid oklch(85% 0 0);border-radius:8px;font-size:13px;outline:none;margin-bottom:12px;background:#fdfdfd" />
             <div style="display:flex;flex-direction:column;gap:8px;max-height:450px;overflow-y:auto;padding-right:8px;scrollbar-width:thin;scrollbar-color:oklch(85% 0 0) transparent">
               <style>
                 .brand-scroll::-webkit-scrollbar { width: 4px; }
@@ -824,18 +832,18 @@ $seriesJson = json_encode($series);
           </sc-if>
 
           <div style="display:{{desktopOnlyFlex}};justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px">
-            <h2 style="font-family:Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">{{currentCategoryName}}</h2>
+            <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:24px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">{{currentCategoryName}}</h2>
             <span style="font-size:13px;font-weight:600;color:oklch(45% .008 270);background:oklch(94% 0 0);padding:4px 12px;border-radius:999px">{{catalogoTotal}} productos</span>
           </div>
 
           <!-- Barra de Control: Filtros y Ordenamiento -->
-          <div style="display:{{desktopOnlyFlex}};flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:12px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
+          <div style="display:{{desktopOnlyFlex}};flex-direction:column;gap:12px;margin-bottom:24px;background:#ffffff;padding:16px 20px;border-radius:14px;border:1px solid oklch(88% .006 270);box-shadow:0 2px 8px rgba(0,0,0,0.03)">
             
             <!-- Fila superior: Selectores principales (Marca y Ordenar) bien alineados -->
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-bottom:12px;border-bottom:1px solid oklch(93% 0 0)">
               <div style="display:inline-flex;align-items:center;gap:10px">
-                <span style="font-size:12px;font-weight:700;color:oklch(35% .008 270);font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.06em">Filtrar Marca:</span>
-                <select onChange="{{onTopBrandSelect}}" value="{{topBrandValue}}" style="padding:7px 14px;border-radius:6px;border:1px solid oklch(85% 0 0);font-size:13px;font-weight:500;color:oklch(20% .005 270);outline:none;cursor:pointer;background:#fafafa;min-width:180px">
+                <span style="font-size:12px;font-weight:700;color:oklch(35% .008 270);font-family:'FL Titulos',Oswald,sans-serif;letter-spacing:0.01em">Filtrar Marca:</span>
+                <select onChange="{{onTopBrandSelect}}" value="{{topBrandValue}}" style="padding:7px 14px;border-radius:8px;border:1px solid oklch(85% 0 0);font-size:13px;font-weight:500;color:oklch(20% .005 270);outline:none;cursor:pointer;background:#fafafa;min-width:180px">
                   <option value="">Todas las Marcas</option>
                   <sc-for list="{{topBrandsList}}" as="bm">
                     <option value="{{bm.name}}">{{bm.name}}</option>
@@ -844,8 +852,8 @@ $seriesJson = json_encode($series);
               </div>
 
               <div style="display:inline-flex;align-items:center;gap:10px;margin-left:auto">
-                <span style="font-size:12px;color:oklch(40% 0 0);font-weight:700;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.06em">Ordenar:</span>
-                <select onChange="{{onCatalogoSort}}" value="{{catalogoSort}}" style="padding:7px 14px;border-radius:6px;border:1px solid oklch(85% 0 0);font-size:13px;color:oklch(20% .005 270);outline:none;cursor:pointer;background:#fafafa;min-width:190px">
+                <span style="font-size:12px;color:oklch(40% 0 0);font-weight:700;font-family:'FL Titulos',Oswald,sans-serif;letter-spacing:0.01em">Ordenar:</span>
+                <select onChange="{{onCatalogoSort}}" value="{{catalogoSort}}" style="padding:7px 14px;border-radius:8px;border:1px solid oklch(85% 0 0);font-size:13px;color:oklch(20% .005 270);outline:none;cursor:pointer;background:#fafafa;min-width:190px">
                   <option value="serie_order">Por Serie (Recomendado)</option>
                   <option value="name_asc">Nombre (A-Z)</option>
                   <option value="name_desc">Nombre (Z-A)</option>
@@ -857,15 +865,15 @@ $seriesJson = json_encode($series);
             <!-- Fila inferior: Series en pastillas ordenadas y estilizadas -->
             <sc-if value="{{hasSeriesFilter}}">
               <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding-top:2px">
-                <span style="font-size:12px;font-weight:700;color:oklch(35% .008 270);margin-right:4px;font-family:Oswald,sans-serif;text-transform:uppercase;letter-spacing:0.06em">Series:</span>
+                <span style="font-size:12px;font-weight:700;color:oklch(35% .008 270);margin-right:4px;font-family:'FL Titulos',Oswald,sans-serif;letter-spacing:0.01em">Series:</span>
                 <sc-for list="{{catalogoSeriesList}}" as="s">
-                  <button onClick="{{s.onClick}}" style="background:{{s.bg}};color:{{s.color}};border:{{s.border}};padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;box-shadow:0 1px 2px rgba(0,0,0,0.04);white-space:nowrap">
+                  <button onClick="{{s.onClick}}" style="background:{{s.bg}};color:{{s.color}};border:{{s.border}};padding:5px 13px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;box-shadow:0 1px 2px rgba(0,0,0,0.04);white-space:nowrap">
                     <sc-if value="{{s.checked}}"><span style="font-size:11px">✓</span></sc-if>
                     <span>{{s.name}}</span>
                   </button>
                 </sc-for>
                 <sc-if value="{{hasSelectedSeries}}">
-                  <button onClick="{{clearCatalogoSeries}}" style="background:white;color:oklch(58% .22 25);border:1px solid oklch(85% 0 0);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s ease;margin-left:4px" title="Limpiar selección de series">✕ Todas</button>
+                  <button onClick="{{clearCatalogoSeries}}" style="background:white;color:oklch(58% .22 25);border:1px solid oklch(85% 0 0);padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;cursor:pointer;transition:all .2s ease;margin-left:4px" title="Limpiar selección de series">✕ Todas</button>
                 </sc-if>
               </div>
             </sc-if>
@@ -880,7 +888,7 @@ $seriesJson = json_encode($series);
 
             <!-- CARD DESTACADO DE VIDEO EXCLUSIVO GLUTE LEADER -->
             <sc-if value="{{isGluteLeader}}">
-              <div class="pc-feature" style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:12px;overflow:hidden;background:#000;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;min-height:360px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
+              <div class="pc-feature" style="position:relative;border:2px solid oklch(58% .22 25 / .6);border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 28px rgba(0,0,0,0.22);display:flex;flex-direction:column;height:100%;min-height:360px;transition:transform .3s ease,box-shadow .3s ease" style-hover="transform:translateY(-5px);box-shadow:0 16px 36px rgba(230,57,70,0.3)">
                 
                 <!-- Video Container a pantalla completa dentro del card -->
                 <div style="position:relative;flex-grow:1;width:100%;height:100%;min-height:300px;background:#000;overflow:hidden;display:flex;align-items:center;justify-content:center">
@@ -917,7 +925,7 @@ $seriesJson = json_encode($series);
             </sc-if>
 
             <sc-for list="{{catalogoProducts}}" as="prod">
-              <div key="{{prod.cardKey}}" class="pc-card" style="animation-delay:{{prod.animDelay}};position:relative;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
+              <div key="{{prod.cardKey}}" class="pc-card" style="animation-delay:{{prod.animDelay}};position:relative;border:1px solid oklch(88% .006 270);border-radius:14px;overflow:hidden;background:white;transition:transform .3s ease,box-shadow .3s ease;display:flex;flex-direction:column;height:100%" style-hover="transform:translateY(-5px);box-shadow:0 16px 32px -12px oklch(20% .01 270 / .15)">
                 
                 <div class="pc-img" onClick="{{prod.onOpen}}" style="height:160px;background:oklch(98% .002 270);padding:16px;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer" title="Ver detalles">
                   <img class="pc-photo" loading="lazy" decoding="async" sc-camel-src="{{prod.image}}" alt="{{prod.name}}" onLoad="{{onPhotoLoad}}" onError="{{onPhotoLoad}}" style="max-width:100%;max-height:100%;object-fit:contain"/>
@@ -925,10 +933,10 @@ $seriesJson = json_encode($series);
 
                 <div class="pc-body" style="padding:16px;flex-grow:1;display:flex;flex-direction:column">
                   <div class="pc-meta" style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px">
-                    <div style="font-size:12px;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase">{{prod.series}}</div>
+                    <div style="font-size:11px;color:oklch(45% .008 270);font-weight:600;letter-spacing:0.04em">{{prod.series}}</div>
                     <sc-if value="{{prod.hasSerie}}"><span class="pc-serie" style="font-size:11px;background:oklch(96% 0 0);color:oklch(20% .005 270);border:1px solid oklch(88% 0 0);padding:2px 6px;border-radius:4px;font-weight:600">Serie: {{prod.serie}}</span></sc-if>
                   </div>
-                  <h4 class="pc-name" onClick="{{prod.onOpen}}" style="font-family:Oswald,sans-serif;font-size:16px;margin:0 0 8px;color:oklch(20% .005 270);line-height:1.2;flex-grow:1;cursor:pointer">{{prod.name}}</h4>
+                  <h4 class="pc-name" onClick="{{prod.onOpen}}" style="font-family:'FL Titulos',Oswald,sans-serif;font-size:16px;margin:0 0 8px;color:oklch(20% .005 270);line-height:1.2;flex-grow:1;cursor:pointer">{{prod.name}}</h4>
                   
                   <!-- ESPECIFICACIONES (ocultas por defecto, pero mostradas si hay) -->
                   <div class="pc-specs" style="margin-bottom:20px;font-size:12px;color:oklch(40% .005 270);line-height:1.5">
@@ -937,11 +945,11 @@ $seriesJson = json_encode($series);
                   </div>
 
                   <div class="pc-actions" style="display:flex;gap:8px">
-                    <button class="pc-cart" onClick="{{prod.onToggleCart}}" style="flex-grow:1;background:{{prod.cartBg}};color:{{prod.cartColor}};border:{{prod.cartBorder}};padding:10px 8px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:{{prod.cartBgHover}};color:white">
+                    <button class="pc-cart" onClick="{{prod.onToggleCart}}" style="flex-grow:1;background:{{prod.cartBg}};color:{{prod.cartColor}};border:{{prod.cartBorder}};padding:10px 8px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:0.02em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s" style-hover="background:{{prod.cartBgHover}};color:white">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                       {{prod.cartText}}
                     </button>
-                    <a class="pc-wa" href="{{prod.waLink}}" target="_blank" rel="noopener" aria-label="Cotizar por WhatsApp" style="flex-shrink:0;background:#25D366;color:white;border:none;padding:12px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" style-hover="background:#1ebd5c" title="Cotizar rápido por WhatsApp">
+                    <a class="pc-wa" href="{{prod.waLink}}" target="_blank" rel="noopener" aria-label="Cotizar por WhatsApp" style="flex-shrink:0;background:white;color:#1a9e4b;border:1px solid oklch(85% 0 0);padding:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" style-hover="background:#effaf3" title="Cotizar rápido por WhatsApp">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     </a>
                   </div>
@@ -954,7 +962,7 @@ $seriesJson = json_encode($series);
           
 
           <sc-if value="{{noCatalogoProducts}}" hint-placeholder-val="{{false}}">
-               <div style="grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:12px;border:1px solid oklch(90% 0 0)">
+               <div style="grid-column:1/-1;text-align:center;padding:60px 20px;background:white;border-radius:14px;border:1px solid oklch(90% 0 0)">
                   <p style="color:oklch(42% .01 270);font-size:16px;margin:0">No se encontraron productos que coincidan con tu búsqueda.</p>
                </div>
             </sc-if>
@@ -994,7 +1002,7 @@ $seriesJson = json_encode($series);
           <!-- "Ver más" (solo celular): agrega la siguiente tanda debajo, sin saltar arriba -->
           <sc-if value="{{hasLoadMoreMobile}}">
             <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin:24px 0 8px">
-              <button onClick="{{onLoadMoreMobile}}" style="width:100%;max-width:360px;height:48px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer">Ver {{loadMoreCount}} más</button>
+              <button onClick="{{onLoadMoreMobile}}" style="width:100%;max-width:360px;height:48px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:13px;font-weight:700;letter-spacing:0.01em;cursor:pointer">Ver {{loadMoreCount}} más</button>
               <span style="font-size:12px;color:oklch(45% .008 270)">Mostrando {{shownCount}} de {{catalogoTotal}}</span>
             </div>
           </sc-if>
@@ -1044,14 +1052,14 @@ $seriesJson = json_encode($series);
         <div onClick="{{closeFiltersSheet}}" style="position:fixed;inset:0;z-index:10040;background:rgba(0,0,0,0.45)"></div>
         <div role="dialog" aria-modal="true" aria-label="Filtros del catálogo" style="position:fixed;left:0;right:0;bottom:0;z-index:10041;background:white;border-radius:18px 18px 0 0;max-height:85vh;max-height:85dvh;display:flex;flex-direction:column;box-shadow:0 -12px 32px -12px rgba(0,0,0,0.3);animation:sheetUp .28s cubic-bezier(.2,.8,.2,1)">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;border-bottom:1px solid oklch(93% 0 0)">
-            <h3 style="font-family:Oswald,sans-serif;font-size:20px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">Filtros</h3>
+            <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:20px;margin:0;color:oklch(20% .005 270);text-transform:uppercase">Filtros</h3>
             <button onClick="{{closeFiltersSheet}}" aria-label="Cerrar filtros" style="width:40px;height:40px;border-radius:999px;border:none;background:oklch(96% 0 0);display:flex;align-items:center;justify-content:center;cursor:pointer">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
             </button>
           </div>
           <div class="sheet-scroll" style="flex:1;padding:14px 16px 8px;display:flex;flex-direction:column;gap:22px">
             <div>
-              <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Ordenar</div>
+              <div style="font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Ordenar</div>
               <div style="display:flex;flex-wrap:wrap;gap:8px">
                 <sc-for list="{{sortOptions}}" as="so">
                   <button onClick="{{so.onClick}}" aria-pressed="{{so.isActive}}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{so.border}};background:{{so.bg}};color:{{so.color}};font-size:13px;font-weight:600;cursor:pointer">{{so.label}}</button>
@@ -1059,7 +1067,7 @@ $seriesJson = json_encode($series);
               </div>
             </div>
             <div>
-              <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Marca</div>
+              <div style="font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Marca</div>
               <sc-if value="{{showBrandSearch}}">
                 <input type="search" onInput="{{onBrandSearch}}" value="{{brandSearch}}" placeholder="Buscar marca..." aria-label="Buscar marca" style="width:100%;box-sizing:border-box;height:40px;padding:0 12px;border:1px solid oklch(85% 0 0);border-radius:8px;font-size:16px;outline:none;margin-bottom:6px"/>
               </sc-if>
@@ -1074,7 +1082,7 @@ $seriesJson = json_encode($series);
             </div>
             <sc-if value="{{hasSeriesFilter}}">
               <div>
-                <div style="font-family:Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Serie</div>
+                <div style="font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.04em;color:oklch(30% .008 270);margin-bottom:10px">Serie</div>
                 <div style="display:flex;flex-wrap:wrap;gap:8px">
                   <sc-for list="{{catalogoSeriesList}}" as="s">
                     <button onClick="{{s.onClick}}" aria-pressed="{{s.checked}}" style="height:36px;padding:0 14px;border-radius:999px;border:{{s.border}};background:{{s.bg}};color:{{s.color}};font-size:13px;font-weight:600;cursor:pointer">{{s.name}}</button>
@@ -1110,7 +1118,7 @@ $seriesJson = json_encode($series);
 
             <!-- Centro: Detalles -->
             <div style="flex:1.5;padding:{{modalPadding}};display:flex;flex-direction:column">
-               <h2 style="font-family:Oswald,sans-serif;font-size:{{modalTitleSize}};margin:0 0 16px;padding-right:{{modalTitlePadR}};color:oklch(20% .005 270);line-height:1.2;text-transform:uppercase">{{modalProd.name}}</h2>
+               <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:{{modalTitleSize}};margin:0 0 16px;padding-right:{{modalTitlePadR}};color:oklch(20% .005 270);line-height:1.2;text-transform:uppercase">{{modalProd.name}}</h2>
                
 
                <p style="font-size:15px;color:oklch(40% .005 270);line-height:1.6;margin-bottom:{{modalPGap}};flex-grow:1">
@@ -1118,7 +1126,7 @@ $seriesJson = json_encode($series);
                </p>
 
                <div style="display:{{desktopOnlyFlex}};gap:16px;margin-bottom:32px">
-                 <button onClick="{{modalProd.onToggleCart}}" style="flex:1;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};padding:16px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.05em;cursor:pointer;text-transform:uppercase;transition:all .3s ease">
+                 <button onClick="{{modalProd.onToggleCart}}" style="flex:1;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};padding:16px;border-radius:8px;font-size:15px;font-weight:700;letter-spacing:0.01em;cursor:pointer;transition:all .3s ease">
                    {{modalProd.cartText}}
                  </button>
                </div>
@@ -1139,29 +1147,29 @@ $seriesJson = json_encode($series);
                  <div style="width:48px;height:48px;border-radius:50%;background:white;border:1px solid oklch(90% 0 0);display:flex;align-items:center;justify-content:center;color:oklch(20% .01 270)">
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
                  </div>
-                 <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;color:oklch(30% .01 270);text-transform:uppercase">Envío a todo<br>El País</div>
+                 <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .01 270);">Envío a todo<br>El País</div>
                </div>
 
                <div style="display:flex;align-items:center;gap:16px">
                  <div style="width:48px;height:48px;border-radius:50%;background:white;border:1px solid oklch(90% 0 0);display:flex;align-items:center;justify-content:center;color:oklch(20% .01 270)">
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
                  </div>
-                 <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;color:oklch(30% .01 270);text-transform:uppercase">Los Mejores<br>Precios</div>
+                 <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .01 270);">Los Mejores<br>Precios</div>
                </div>
 
                <div style="display:flex;align-items:center;gap:16px">
                  <div style="width:48px;height:48px;border-radius:50%;background:white;border:1px solid oklch(90% 0 0);display:flex;align-items:center;justify-content:center;color:oklch(20% .01 270)">
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
                  </div>
-                 <div style="font-size:12px;font-weight:700;letter-spacing:0.05em;color:oklch(30% .01 270);text-transform:uppercase">Respaldo y<br>Garantía</div>
+                 <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .01 270);">Respaldo y<br>Garantía</div>
                </div>
 
             </div>
 
             <sc-if value="{{isMobile}}" hint-placeholder-val="{{false}}">
               <div style="position:sticky;bottom:0;z-index:5;display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom, 0px));background:white;border-top:1px solid oklch(92% 0 0);box-shadow:0 -8px 20px -12px rgba(0,0,0,0.2)">
-                <button onClick="{{modalProd.onToggleCart}}" style="flex:1;height:50px;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;cursor:pointer">{{modalProd.cartText}}</button>
-                <a href="{{modalProd.waLink}}" target="_blank" rel="noopener" style="flex:1;height:50px;box-sizing:border-box;background:#25D366;color:white;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px">
+                <button onClick="{{modalProd.onToggleCart}}" style="flex:1;height:50px;background:{{modalProd.cartBg}};color:{{modalProd.cartColor}};border:{{modalProd.cartBorder}};border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer">{{modalProd.cartText}}</button>
+                <a href="{{modalProd.waLink}}" target="_blank" rel="noopener" style="flex:1;height:50px;box-sizing:border-box;background:#25D366;color:white;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:.04em;display:flex;align-items:center;justify-content:center;gap:8px">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a9.9 9.9 0 00-8.5 15L2 22l5.2-1.4A10 10 0 1012 2z"></path></svg>
                   WhatsApp
                 </a>
@@ -1178,28 +1186,28 @@ $seriesJson = json_encode($series);
     <main class="page-in" style="max-width:1280px;margin:0 auto;padding:80px 24px 120px">
       
       <div style="text-align:center;max-width:600px;margin:0 auto 56px">
-        <button onClick="{{goBackHistory}}" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:oklch(42% .01 270);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;margin-bottom:24px;transition:color .2s" style-hover="color:oklch(58% .22 25)">
+        <button onClick="{{goBackHistory}}" style="display:inline-flex;align-items:center;gap:6px;background:none;border:none;color:oklch(42% .01 270);font-size:13px;font-weight:700;letter-spacing:0.01em;cursor:pointer;margin-bottom:24px;transition:color .2s" style-hover="color:oklch(58% .22 25)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           Volver atrás
         </button>
-        <div style="font-size:12px;letter-spacing:0.3em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:14px">Cotización</div>
-        <h1 style="font-family:Oswald,sans-serif;font-size:clamp(32px,5vw,52px);font-weight:700;margin:0 0 16px">¿Deseas un precio especial?</h1>
+        <div style="font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px">Cotización</div>
+        <h1 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(32px,5vw,52px);font-weight:700;margin:0 0 16px">¿Deseas un precio especial?</h1>
         
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Llena el formulario y consigue precios especiales en tus equipos de entrenamiento físico.</p>
       </div>
 
       <sc-if value="{{hasCartItems}}" hint-placeholder-val="{{false}}">
-        <div style="max-width:600px;margin:0 auto 40px;background:white;border:1px solid oklch(88% .006 270);border-radius:12px;overflow:hidden">
+        <div style="max-width:600px;margin:0 auto 40px;background:white;border:1px solid oklch(88% .006 270);border-radius:14px;overflow:hidden">
           <div style="background:oklch(97% 0 0);padding:16px 24px;border-bottom:1px solid oklch(88% .006 270);font-weight:700;color:oklch(20% .005 270);display:flex;justify-content:space-between;align-items:center">
             <span>Equipos a cotizar ({{cartCount}})</span>
           </div>
           <div style="padding:12px 24px">
             <sc-for list="{{cartItemsList}}" as="cp">
               <div style="display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid oklch(93% 0 0)">
-                <img sc-camel-src="{{cp.image}}" style="width:50px;height:50px;object-fit:contain;border-radius:6px;background:oklch(98% 0 0);border:1px solid oklch(90% 0 0)"/>
+                <img sc-camel-src="{{cp.image}}" style="width:50px;height:50px;object-fit:contain;border-radius:8px;background:oklch(98% 0 0);border:1px solid oklch(90% 0 0)"/>
                 <div style="flex-grow:1">
                   <div style="font-size:14px;font-weight:600;color:oklch(20% .005 270);line-height:1.2">{{cp.name}}</div>
-                  <div style="font-size:11px;color:oklch(58% .22 25);text-transform:uppercase;font-weight:700;margin-top:4px">SKU: {{cp.item_no}}</div>
+                  <div style="font-size:11px;color:oklch(58% .22 25);font-weight:700;margin-top:4px">SKU: {{cp.item_no}}</div>
                 </div>
                 <button onClick="{{cp.onRemove}}" style="background:none;border:none;color:oklch(60% 0 0);cursor:pointer;padding:8px" title="Quitar">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -1213,32 +1221,32 @@ $seriesJson = json_encode($series);
       <div style="display:grid;grid-template-columns:{{contactGrid}};gap:48px">
         <div style="display:flex;flex-direction:column;gap:28px;order:{{contactInfoOrder}}">
           <div>
-            <div style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px">Teléfono</div>
+            <div style="font-size:11px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:8px">Teléfono</div>
             <div style="font-size:18px;font-weight:600">+57 (1) 555-0100</div>
           </div>
           <div>
-            <div style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px">Email</div>
+            <div style="font-size:11px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:8px">Email</div>
             <div style="font-size:18px;font-weight:600">ventas@fitnesslifesas.com</div>
           </div>
           <div>
-            <div style="font-size:11px;letter-spacing:0.15em;color:oklch(58% .22 25);font-weight:700;text-transform:uppercase;margin-bottom:8px">Ubicación</div>
+            <div style="font-size:11px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:8px">Ubicación</div>
             <div style="font-size:18px;font-weight:600;margin-bottom:6px">Colombia · Cobertura nacional</div>
             <div style="font-size:14px;color:oklch(40% .01 270);display:flex;align-items:center;gap:16px"><a href="tel:3128011838" style="color:inherit;text-decoration:none">📞 312 8011838</a> <a href="tel:3127199008" style="color:inherit;text-decoration:none">📞 312 7199008</a></div>
           </div>
-          <div style="height:240px;border:1px solid oklch(85% 0 0);border-radius:12px;overflow:hidden"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127402.13110996841!2d-76.62002306766453!3d3.411681283626245!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e30a6f0cc4bb3f1%3A0x1f0fb5e952ae6168!2sCali%2C%20Valle%20del%20Cauca!5e0!3m2!1sen!2sco!4v1700000000000!5m2!1sen!2sco" width="100%" height="100%" style="border:0;filter:grayscale(1) contrast(1.2)" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+          <div style="height:240px;border:1px solid oklch(85% 0 0);border-radius:14px;overflow:hidden"><iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127402.13110996841!2d-76.62002306766453!3d3.411681283626245!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e30a6f0cc4bb3f1%3A0x1f0fb5e952ae6168!2sCali%2C%20Valle%20del%20Cauca!5e0!3m2!1sen!2sco!4v1700000000000!5m2!1sen!2sco" width="100%" height="100%" style="border:0;filter:grayscale(1) contrast(1.2)" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
         </div>
         <div style="background:oklch(98% 0 0);border:1px solid oklch(83% .006 270);padding:{{modalPadding}};order:{{contactFormOrder}}">
           <sc-if value="{{formSubmitted}}" hint-placeholder-val="{{false}}">
             <div style="text-align:center;padding:40px 16px">
               <div style="width:64px;height:64px;background:oklch(96% .05 145);color:#10b981;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:28px">✓</div>
-              <h3 style="font-family:Oswald,sans-serif;font-size:24px;font-weight:600;margin:0 0 10px;color:oklch(20% .005 270);text-transform:uppercase">¡Solicitud recibida con éxito!</h3>
+              <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:24px;font-weight:600;margin:0 0 10px;color:oklch(20% .005 270);text-transform:uppercase">¡Solicitud recibida con éxito!</h3>
               <p style="color:oklch(40% .01 270);font-size:15px;line-height:1.5;margin:0 0 12px">Hemos enviado un resumen detallado de tu cotización a tu correo electrónico.</p>
               <p style="color:oklch(55% .01 270);font-size:13px;margin:0">Un asesor comercial de Fitness Life se pondrá en contacto contigo muy pronto.</p>
             </div>
           </sc-if>
           <sc-if value="{{formNotSubmitted}}" hint-placeholder-val="{{true}}">
             <form onSubmit="{{submitForm}}" style="display:flex;flex-direction:column;gap:18px">
-              <h3 style="font-family:Oswald,sans-serif;font-size:22px;font-weight:600;margin:0 0 4px">Solicita tu cotización</h3>
+              <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:22px;font-weight:600;margin:0 0 4px">Solicita tu cotización</h3>
               <input name="name" required="{{true}}" placeholder="Nombre completo" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
               <input name="email" required="{{true}}" type="email" placeholder="Correo electrónico" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
               <input name="phone" required="{{true}}" type="tel" placeholder="Teléfono / Celular" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px"/>
@@ -1250,7 +1258,7 @@ $seriesJson = json_encode($series);
                 <option>Equipos de Fuerza & Cardio para Hogar</option>
               </select>
               <textarea name="message" placeholder="Cuéntanos detalles de tu proyecto o inquietudes adicionales..." rows="4" style="background:oklch(96% .003 270);border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 16px;font-size:14px;resize:vertical"></textarea>
-              <button type="submit" disabled="{{formSubmitting}}" style="background:linear-gradient(135deg, oklch(58% .22 25), oklch(65% .24 27));color:white;border:none;padding:16px;font-weight:700;font-size:13px;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;opacity:{{submitBtnOpacity}}">{{submitBtnText}}</button>
+              <button type="submit" disabled="{{formSubmitting}}" style="background:oklch(58% .22 25);border-radius:10px;color:white;border:none;padding:16px;font-weight:700;font-size:13px;letter-spacing:0.01em;cursor:pointer;opacity:{{submitBtnOpacity}}">{{submitBtnText}}</button>
             </form>
           </sc-if>
         </div>
@@ -1268,12 +1276,12 @@ $seriesJson = json_encode($series);
         <div>
           <img src="assets/logo.webp" alt="Fitness Life S.A.S" style="height:80px;width:auto;margin-bottom:16px;filter:brightness(0) invert(1)"/>
           <p style="color:oklch(70% .006 270);font-size:14px;line-height:1.6;margin:0 0 20px;max-width:280px">Inspirando al mundo a entrenar. Importadores directos de equipamiento deportivo comercial de las marcas líderes en EE.UU.</p>
-          <div style="font-size:11px;letter-spacing:0.12em;color:oklch(98% 0 0);text-transform:uppercase;font-weight:700;margin-bottom:10px">Recibe nuestros catálogos</div>
+          <div style="font-size:11px;letter-spacing:0.01em;color:oklch(98% 0 0);font-weight:700;margin-bottom:10px">Recibe nuestros catálogos</div>
           <div style="display:flex;gap:8px;margin-bottom:24px;max-width:300px">
             <input placeholder="Tu correo" style="flex:1;min-width:0;background:oklch(26% .005 265);border:1px solid oklch(36% .006 270);color:oklch(95% 0 0);padding:12px 14px;font-size:13px"/>
             <button style="background:oklch(58% .22 25);color:white;border:none;padding:0 20px;font-weight:700;font-size:12px;cursor:pointer">Ir</button>
           </div>
-          <div style="font-size:11px;letter-spacing:0.12em;color:oklch(98% 0 0);text-transform:uppercase;font-weight:700;margin-bottom:10px">Síguenos en redes</div>
+          <div style="font-size:11px;letter-spacing:0.01em;color:oklch(98% 0 0);font-weight:700;margin-bottom:10px">Síguenos en redes</div>
           <div style="display:flex;gap:10px">
             <a href="https://www.instagram.com/fitnesslifesas/?hl=es" target="_blank" rel="noopener" aria-label="Instagram" style="width:38px;height:38px;border-radius:999px;border:1px solid oklch(34% .006 270);display:flex;align-items:center;justify-content:center;color:oklch(92% .003 270);transition:background .3s ease,color .3s ease,border-color .3s ease" style-hover="background:oklch(58% .22 25);border-color:oklch(58% .22 25);color:white"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="16" height="16" rx="5"></rect><circle cx="12" cy="12" r="4.2"></circle><circle cx="17.8" cy="6.2" r="1.2" fill="currentColor" stroke="none"></circle></svg></a>
             <a href="https://www.facebook.com/fitnesslifesas" target="_blank" rel="noopener" style="width:38px;height:38px;border-radius:999px;border:1px solid oklch(34% .006 270);display:flex;align-items:center;justify-content:center;color:oklch(92% .003 270);transition:background .3s ease,color .3s ease,border-color .3s ease" style-hover="background:oklch(58% .22 25);border-color:oklch(58% .22 25);color:white"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M14.5 8.5V6.9c0-.8.2-1.2 1.4-1.2h1.5V2.8c-.3 0-1.2-.1-2.3-.1-2.4 0-4 1.4-4 4.1v1.7H8.4v3h2.7V21h3.4v-8.5h2.6l.4-3h-3z"></path></svg></a>
@@ -1281,7 +1289,7 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <div>
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;color:oklch(98% 0 0)">Equipos</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;margin-bottom:18px;color:oklch(98% 0 0)">Equipos</div>
           <div style="display:flex;flex-direction:column;gap:12px">
             <a href="#" onClick="{{goToCategory_elipticas}}" style="font-size:14px;color:oklch(70% .006 270)">Elípticas Premium</a>
             <a href="#" onClick="{{goToCategory_bicicletas}}" style="font-size:14px;color:oklch(70% .006 270)">Bicicletas Estáticas &amp; Indoor</a>
@@ -1290,7 +1298,7 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <div>
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;color:oklch(98% 0 0)">Soluciones</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;margin-bottom:18px;color:oklch(98% 0 0)">Soluciones</div>
           <div style="display:flex;flex-direction:column;gap:12px">
             <span style="font-size:14px;color:oklch(70% .006 270)">Línea Comercial de Alto Tráfico</span>
             <span style="font-size:14px;color:oklch(70% .006 270)">Dotación de Gimnasios y Clubes</span>
@@ -1300,22 +1308,22 @@ $seriesJson = json_encode($series);
           </div>
         </div>
         <div>
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:18px;color:oklch(98% 0 0)">Contáctenos</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.01em;margin-bottom:18px;color:oklch(98% 0 0)">Contáctenos</div>
           <div style="display:flex;flex-direction:column;gap:18px">
             <div>
-              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:oklch(58% .22 25);margin-bottom:5px">Dirección</div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25);margin-bottom:5px">Dirección</div>
               <div style="font-size:14px;color:oklch(70% .006 270);line-height:1.55">Cra 1 # 30-75 barrio Fátima<br/>Cali, Colombia</div>
             </div>
             <div>
-              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:oklch(58% .22 25);margin-bottom:5px">Teléfono</div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25);margin-bottom:5px">Teléfono</div>
               <div style="font-size:14px;color:oklch(70% .006 270);line-height:1.55">312-8011838 &nbsp;·&nbsp; 312-7199008</div>
             </div>
             <div>
-              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:oklch(58% .22 25);margin-bottom:5px">Email</div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25);margin-bottom:5px">Email</div>
               <a href="mailto:fitnesslifesas@gmail.com" style="font-size:14px;color:oklch(70% .006 270)">fitnesslifesas@gmail.com</a>
             </div>
             <div>
-              <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:oklch(58% .22 25);margin-bottom:5px">Horario de trabajo</div>
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(58% .22 25);margin-bottom:5px">Horario de trabajo</div>
               <div style="font-size:14px;color:oklch(70% .006 270);line-height:1.55">Lunes a Viernes / 8:00AM - 5:00PM</div>
             </div>
           </div>
@@ -1356,6 +1364,18 @@ window.DB_ERROR = <?php echo json_encode($dbError ?? null); ?>;
 const ITEMS_PER_PAGE = 12;
 // true solo con mouse/trackpad: en táctil los efectos de hover se quedan pegados después de tocar
 const CAN_HOVER = typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+// Íconos de línea (en vez de emojis, que se ven distintos en cada teléfono)
+const ICON_PATHS = {
+  sound: ['M11 5L6 9H3v6h3l5 4V5z', 'M15.5 8.5a5 5 0 0 1 0 7', 'M18.5 5.5a9 9 0 0 1 0 13'],
+  muted: ['M11 5L6 9H3v6h3l5 4V5z', 'M16 9l5 6', 'M21 9l-5 6'],
+};
+const svgIcon = (kind, size) => {
+  const sz = size || 16;
+  if (kind === 'play') return React.createElement('svg', { width: sz, height: sz, viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': true }, React.createElement('path', { d: 'M8 5v14l11-7z' }));
+  if (kind === 'pause') return React.createElement('svg', { width: sz, height: sz, viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': true }, React.createElement('rect', { x: 6, y: 5, width: 4, height: 14, rx: 1 }), React.createElement('rect', { x: 14, y: 5, width: 4, height: 14, rx: 1 }));
+  return React.createElement('svg', { width: sz, height: sz, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true },
+    ICON_PATHS[kind].map((d, i) => React.createElement('path', { key: i, d })));
+};
 const R = (p) => (window.__resources && window.__resources[p]) || p;
 const DB_CATS = window.DB_CATEGORIAS || [];
 const CATEGORIES = {};
@@ -2636,9 +2656,9 @@ class Component extends DCLogic {
       return {
         name: sName,
         checked: checked,
-        bg: checked ? 'oklch(58% .22 25)' : 'white',
+        bg: checked ? 'oklch(20% .005 270)' : 'white',
         color: checked ? 'white' : 'oklch(20% .005 270)',
-        border: checked ? '1px solid oklch(58% .22 25)' : '1px solid oklch(85% 0 0)',
+        border: checked ? '1px solid oklch(20% .005 270)' : '1px solid oklch(85% 0 0)',
         onClick: this.toggleCatalogoSerie(sName)
       };
     });
@@ -2661,11 +2681,11 @@ class Component extends DCLogic {
       return {
         label: f.label,
         onClick: this.setCatalogoFilter(f.id),
-        bg: active ? 'oklch(58% .22 25)' : 'white',
+        bg: active ? 'oklch(20% .005 270)' : 'white',
         color: active ? 'white' : 'oklch(25% .008 270)',
-        border: active ? 'oklch(58% .22 25)' : 'oklch(85% 0 0)',
-        weight: active ? '700' : '500',
-        shadow: active ? '0 4px 12px oklch(58% .22 25 / .28)' : 'none',
+        border: active ? 'oklch(20% .005 270)' : 'oklch(85% 0 0)',
+        weight: active ? '600' : '500',
+        shadow: 'none',
         isActive: active,
         activeAttr: active ? '1' : '0'
       };
@@ -2705,10 +2725,10 @@ class Component extends DCLogic {
       
       const inCart = this.state.cart.some(c => (c.id || c.item_no) === prodId);
       const cartText = inCart ? 'Añadido ✓' : 'Añadir';
-      const cartBg = inCart ? 'oklch(96% 0 0)' : 'oklch(20% .005 270)';
-      const cartBgHover = inCart ? 'oklch(40% 0 0)' : 'oklch(58% .22 25)';
-      const cartColor = inCart ? 'oklch(20% .005 270)' : 'white';
-      const cartBorder = inCart ? '1px solid oklch(80% 0 0)' : '1px solid transparent';
+      const cartBg = inCart ? 'oklch(20% .005 270)' : 'white';
+      const cartBgHover = 'oklch(20% .005 270)';
+      const cartColor = inCart ? 'white' : 'oklch(20% .005 270)';
+      const cartBorder = '1px solid oklch(20% .005 270)';
       
       const waMsg = encodeURIComponent('Hola, estoy interesado en recibir información y precios del equipo ' + p.name + ' (SKU: ' + item_no + ').');
       const waLink = 'https://wa.me/573128011838?text=' + waMsg;
@@ -2909,9 +2929,9 @@ class Component extends DCLogic {
         const prodId = mp.id || item_no;
         const inCart = this.state.cart.some(c => (c.id || c.item_no) === prodId);
         const cartText = inCart ? 'Añadido ✓' : 'Añadir';
-        const cartBg = inCart ? 'oklch(96% 0 0)' : 'oklch(20% .005 270)';
-        const cartColor = inCart ? 'oklch(20% .005 270)' : 'white';
-        const cartBorder = inCart ? '1px solid oklch(80% 0 0)' : '1px solid transparent';
+        const cartBg = inCart ? 'oklch(20% .005 270)' : 'white';
+        const cartColor = inCart ? 'white' : 'oklch(20% .005 270)';
+        const cartBorder = '1px solid oklch(20% .005 270)';
         return { 
           ...mp, 
           prodId,
@@ -2983,9 +3003,9 @@ class Component extends DCLogic {
       closeGluteModal: this.closeGluteModal,
       gluteModalOpen: this.state.gluteModalOpen,
       glutePaused: this.state.glutePaused,
-      glutePlayIcon: this.state.glutePaused ? '▶' : '⏸',
+      glutePlayIcon: this.state.glutePaused ? svgIcon('play', 14) : svgIcon('pause', 14),
       glutePlayTitle: this.state.glutePaused ? 'Reproducir' : 'Pausar',
-      gluteSoundIcon: this.state.gluteSound ? '🔊' : '🔇',
+      gluteSoundIcon: this.state.gluteSound ? svgIcon('sound', 15) : svgIcon('muted', 15),
       gluteSoundTitle: this.state.gluteSound ? 'Silenciar' : 'Activar sonido',
       gluteMuted: !this.state.gluteSound,
       noCatalogoProducts: catalogoProducts.length === 0,
@@ -3033,7 +3053,7 @@ class Component extends DCLogic {
       toggleRs800Sound: this.toggleRs800Sound,
       rs800Muted: !this.state.rs800Sound,
       rs800SoundLabel: this.state.rs800Sound ? 'Silenciar' : 'Activar sonido',
-      rs800SoundIcon: this.state.rs800Sound ? '🔊' : '🔇',
+      rs800SoundIcon: this.state.rs800Sound ? svgIcon('sound', 15) : svgIcon('muted', 15),
       colorsOpacity: this.state.colorsVisible ? 1 : 0,
       colorsTransform: this.state.colorsVisible ? 'translateY(0)' : 'translateY(28px)',
       colorsImgTransform: this.state.colorsVisible ? 'translateY(0) scale(1)' : 'translateY(40px) scale(.97)',
@@ -3182,7 +3202,7 @@ class Component extends DCLogic {
       heroSectionRef: this.heroSectionRef,
       toggleSound: this.toggleSound,
       soundBtnDisplay: heroSlides.some(s => s.showVideo) ? 'flex' : 'none',
-      soundIcon: this.state.videoMuted ? '🔇' : '🔊',
+      soundIcon: this.state.videoMuted ? svgIcon('muted', 18) : svgIcon('sound', 18),
       soundLabel: this.state.videoMuted ? 'Activar sonido' : 'Silenciar',
       heroImgRef: this.heroImgRef,
       prevHero: () => this.setState(s => ({ heroIndex: (s.heroIndex + 1) % 2 }), () => this.scheduleHero()),
