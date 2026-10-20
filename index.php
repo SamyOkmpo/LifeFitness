@@ -486,7 +486,6 @@ $seriesJson = json_encode($series);
             <video ref="{{rs800Ref}}" src="assets/realleader_rs800_final_v2.mp4" sc-camel-src="assets/realleader_rs800_final_v2.mp4" autoPlay="{{true}}" muted="{{rs800Muted}}" loop="{{true}}" playsInline="{{true}}" preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block"></video>
             <button onClick="{{toggleRs800Sound}}" aria-label="{{rs800SoundLabel}}" style="position:absolute;top:16px;right:16px;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:none;background:oklch(10% .005 270 / .65);color:white;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(6px);transition:background .3s ease" style-hover="background:oklch(58% .22 25)"><span style="font-size:14px;line-height:1">{{rs800SoundIcon}}</span>{{rs800SoundLabel}}</button>
             <div style="position:absolute;left:0;right:0;bottom:0;padding:22px;background:linear-gradient(to top,oklch(10% .005 270 / .78),oklch(10% .005 270 / 0))">
-              <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:oklch(72% .2 27);margin-bottom:4px">Realleader USA</div>
               <div style="font-family:Oswald,sans-serif;font-size:26px;font-weight:700;color:white;text-transform:uppercase;letter-spacing:.02em">Serie RS800</div>
             </div>
           </div>
