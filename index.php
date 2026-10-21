@@ -191,6 +191,33 @@ $seriesJson = json_encode($series);
               @keyframes countBump { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
               .tab-count { animation: countBump .35s ease; }
               .pc-photo { opacity: 0; transition: opacity .35s ease; }
+              /* Circuitos en celular: cada bloque es una tarjeta (foto arriba, texto abajo). Mismos textos. */
+              @media (max-width: 1099.98px) {
+                .circ-head { margin-bottom: 28px !important; }
+                .circ-row { display: flex !important; flex-direction: column; gap: 0 !important; margin-bottom: 18px !important; background: white; border: 1px solid oklch(90% .004 270); border-radius: 14px; overflow: hidden; }
+                .circ-media { aspect-ratio: 16 / 10 !important; border-radius: 0 !important; box-shadow: none !important; width: 100%; }
+                .circ-media > div[style*="bottom"] { bottom: 14px !important; font-size: 13px !important; padding: 7px 13px !important; }
+                .circ-media > div[style*="bottom"][style*="left"] { left: 14px !important; }
+                .circ-media > div[style*="bottom"][style*="right"] { right: 14px !important; }
+                .circ-text { padding: 16px 16px 18px; }
+                .circ-text h3 { font-size: 22px !important; margin-bottom: 8px !important; }
+                .circ-text p { font-size: 14px !important; line-height: 1.55 !important; margin-bottom: 14px !important; }
+                .circ-tags { gap: 6px !important; margin-bottom: 16px !important; }
+                .circ-tags span { border-radius: 999px; padding: 5px 10px !important; font-size: 11px !important; font-weight: 600 !important; background: oklch(96% .003 270); border-color: transparent !important; }
+                .circ-cta { gap: 14px !important; align-items: center; }
+                .circ-cta a:first-child { padding: 12px 18px !important; font-size: 13px !important; }
+                .circ-cta a + a { border: none !important; padding: 2px 0 !important; border-bottom: 1px solid currentColor !important; font-size: 13px !important; }
+              }
+              /* Soluciones en celular: la tarjeta que pasa por el centro se marca con .is-active desde el
+                 observador (sin re-render de React, que recalculaba toda la página y trababa el scroll) */
+              .sol-card .sol-img { will-change: transform; }
+              .sol-card.is-active .sol-img { opacity: .92 !important; transform: scale(1.14) !important; }
+              .sol-card.is-active .sol-fill { transform: scaleY(1) !important; }
+              .sol-card.is-active .sol-bar { transform: scaleX(1) !important; }
+              .sol-card.is-active .sol-content { transform: translateY(-10px) !important; }
+              .sol-card.is-active .sol-desc { color: oklch(96% .02 25) !important; }
+              .sol-card.is-active .sol-link { color: oklch(99% 0 0) !important; }
+              .sol-card.is-active .sol-arrow { transform: translateX(8px) !important; }
               /* Silueta animada mientras la foto del producto no ha cargado */
               @keyframes skel { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
               .pc-img:has(> img.pc-photo:not([data-loaded])) { background: linear-gradient(90deg, oklch(94% .003 270) 25%, oklch(97.5% .002 270) 37%, oklch(94% .003 270) 63%) !important; background-size: 400% 100% !important; animation: skel 1.3s ease infinite; }
@@ -431,7 +458,7 @@ $seriesJson = json_encode($series);
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Encuentra equipos profesionales de las marcas más prestigiosas: Life Fitness, Precor, Hoist, Cybex, Matrix y Free Motion.</p>
       </div>
       <div class="hc-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px">
-        <sc-for list="{{categories}}" as="cat" hint-placeholder-count="4">
+        <sc-for list="{{categoriesShown}}" as="cat" hint-placeholder-count="4">
           <div onClick="{{cat.onClick}}" onMouseEnter="{{cat.onEnterCard}}" onMouseLeave="{{cat.onLeaveCard}}" style="position:relative;cursor:pointer;background:oklch(98% 0 0);border:1px solid oklch(88% .006 270);border-radius:14px;overflow:hidden;opacity:{{cat.revealOpacity}};transform:{{cat.revealTransform}} scale(1);transition:box-shadow .45s ease,border-color .45s ease,transform .45s cubic-bezier(.2,.8,.2,1),opacity .6s ease {{cat.revealDelay}}" style-hover="box-shadow:0 30px 60px -18px oklch(58% .22 25 / .38),0 0 0 1px oklch(58% .22 25 / .35);border-color:oklch(58% .22 25 / .5);transform:translateY(-10px) scale(1.02)">
             <div style="position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,oklch(58% .22 25),oklch(68% .24 30));transform:scaleX({{cat.topBorderScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1);z-index:3"></div>
             <div class="hc-img" style="position:relative;height:340px;overflow:hidden;background:oklch(16% .006 270)">
@@ -447,6 +474,9 @@ $seriesJson = json_encode($series);
           </div>
         </sc-for>
       </div>
+      <sc-if value="{{showCatsMore}}">
+        <button onClick="{{toggleCatsExpanded}}" aria-expanded="{{catsExpanded}}" style="display:block;width:100%;margin-top:12px;height:46px;border-radius:10px;border:1px solid oklch(20% .005 270);background:white;color:oklch(20% .005 270);font-size:14px;font-weight:600;cursor:pointer">{{catsMoreLabel}}</button>
+      </sc-if>
       <div style="text-align:center;margin-top:48px">
         <button onClick="{{goToCatalogo}}" style="display:inline-flex;align-items:center;gap:10px;background:oklch(20% .005 270);color:white;border:none;padding:18px 36px;font-family:'FL Titulos',Oswald,sans-serif;font-weight:600;font-size:16px;letter-spacing:0.01em;cursor:pointer;border-radius:10px;transition:background .3s ease,transform .3s ease" style-hover="background:oklch(58% .22 25);transform:translateY(-2px)">
           Ver catálogo completo de productos →
@@ -509,18 +539,18 @@ $seriesJson = json_encode($series);
         </div>
         <div style="display:grid;grid-template-columns:{{grid4}};gap:1px;background:oklch(42% .006 270)">
           <sc-for list="{{solutions}}" as="sol" hint-placeholder-count="4">
-            <div ref="{{sol.cardRef}}" class="tap-press" onMouseEnter="{{sol.onEnter}}" onMouseLeave="{{sol.onLeave}}" onClick="{{sol.onClick}}" style="position:relative;overflow:hidden;cursor:pointer;background:oklch(25% .008 270);padding:44px 30px 40px;min-height:330px;display:flex;flex-direction:column;opacity:{{sol.revealOpacity}};transform:{{sol.revealTransform}};transition:opacity .7s ease {{sol.revealDelay}},transform .7s cubic-bezier(.2,.8,.2,1) {{sol.revealDelay}}">
-              <img loading="lazy" sc-camel-src="{{sol.bgImg}}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{sol.imgOpacity}};transform:{{sol.imgTransform}};transition:{{sol.imgTransition}};pointer-events:none"/>
+            <div ref="{{sol.cardRef}}" class="tap-press sol-card" onMouseEnter="{{sol.onEnter}}" onMouseLeave="{{sol.onLeave}}" onClick="{{sol.onClick}}" style="position:relative;overflow:hidden;cursor:pointer;background:oklch(25% .008 270);padding:44px 30px 40px;min-height:330px;display:flex;flex-direction:column;opacity:{{sol.revealOpacity}};transform:{{sol.revealTransform}};transition:opacity .7s ease {{sol.revealDelay}},transform .7s cubic-bezier(.2,.8,.2,1) {{sol.revealDelay}}">
+              <img class="sol-img" loading="lazy" sc-camel-src="{{sol.bgImg}}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{sol.imgOpacity}};transform:{{sol.imgTransform}};transition:{{sol.imgTransition}};pointer-events:none"/>
               <div style="position:absolute;inset:0;background:radial-gradient(130% 90% at 50% 120%, oklch(58% .22 25 / .26), transparent 62%);opacity:0;transition:opacity .6s ease" style-hover="opacity:1"></div>
-              <div style="position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(to top,oklch(46% .2 25 / .3),oklch(58% .22 25 / .16));transform:scaleY({{sol.fillScale}});transform-origin:bottom;transition:transform .55s cubic-bezier(.2,.8,.2,1)"></div>
-              <div style="position:absolute;top:0;left:0;right:0;height:4px;background:oklch(99% 0 0);transform:scaleX({{sol.fillScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1) .1s"></div>
-              <div style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .5s cubic-bezier(.2,.8,.2,1);transform:{{sol.contentTransform}}">
+              <div class="sol-fill" style="position:absolute;left:0;right:0;bottom:0;height:100%;background:linear-gradient(to top,oklch(46% .2 25 / .3),oklch(58% .22 25 / .16));transform:scaleY({{sol.fillScale}});transform-origin:bottom;transition:transform .55s cubic-bezier(.2,.8,.2,1)"></div>
+              <div class="sol-bar" style="position:absolute;top:0;left:0;right:0;height:4px;background:oklch(99% 0 0);transform:scaleX({{sol.fillScale}});transform-origin:left;transition:transform .5s cubic-bezier(.2,.8,.2,1) .1s"></div>
+              <div class="sol-content" style="position:relative;flex:1;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .5s cubic-bezier(.2,.8,.2,1);transform:{{sol.contentTransform}}">
                 <div style="width:40px;height:3px;background:transparent;margin-bottom:20px"></div>
                 <h3 style="font-family:'FL Titulos',Oswald,sans-serif;margin:0 0 14px;color:oklch(98% 0 0);letter-spacing:.01em;line-height:1;text-transform:uppercase;display:flex;flex-direction:column;justify-content:flex-end;min-height:78px"><span style="font-size:17px;font-weight:500;letter-spacing:.16em;opacity:.75;margin-bottom:6px;min-height:22px">{{sol.kicker}}</span><span style="font-size:clamp(28px,2.4vw,38px);font-weight:700">{{sol.main}}</span></h3>
-                <p style="color:{{sol.descColor}};font-size:14px;line-height:1.6;margin:0 0 22px;height:92px;overflow:hidden;transition:color .4s ease">{{sol.desc}}</p>
-                <div style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.01em;color:{{sol.linkColor}};transition:color .4s ease">
+                <p class="sol-desc" style="color:{{sol.descColor}};font-size:14px;line-height:1.6;margin:0 0 22px;height:92px;overflow:hidden;transition:color .4s ease">{{sol.desc}}</p>
+                <div class="sol-link" style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:0.01em;color:{{sol.linkColor}};transition:color .4s ease">
                   <span>Ver más</span>
-                  <span style="display:inline-block;transition:transform .4s cubic-bezier(.2,.8,.2,1);transform:{{sol.arrowTransform}}">→</span>
+                  <span class="sol-arrow" style="display:inline-block;transition:transform .4s cubic-bezier(.2,.8,.2,1);transform:{{sol.arrowTransform}}">→</span>
                 </div>
               </div>
             </div>
@@ -530,51 +560,51 @@ $seriesJson = json_encode($series);
     </section>
 
     <section id="circuitos" ref="{{circuitosRef}}" style="padding:{{secPad}};background:oklch(86% .004 265)"><div style="max-width:1280px;margin:0 auto">
-      <div style="text-align:center;max-width:560px;margin:0 auto 64px;opacity:{{circuitosHeaderOpacity}};transform:{{circuitosHeaderTransform}};transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)">
+      <div class="circ-head" style="text-align:center;max-width:560px;margin:0 auto 64px;opacity:{{circuitosHeaderOpacity}};transform:{{circuitosHeaderTransform}};transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)">
         <div style="display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;letter-spacing:0.01em;color:oklch(58% .22 25);font-weight:700;margin-bottom:14px"><span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .15s"></span>Equipos Remanufacturados<span style="width:36px;height:2px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .15s"></span></div>
         <h2 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:clamp(32px,4.4vw,52px);font-weight:700;margin:0 0 16px;line-height:1.08;text-wrap:pretty">Circuitos de Fuerza <span style="color:oklch(58% .22 25)">Remanufacturados</span></h2>
         <p style="color:oklch(42% .01 270);font-size:16px;line-height:1.6;margin:0">Equipa tu centro fitness con sistemas de entrenamiento de grado comercial reconstruidos a la perfección con un ahorro de hasta el 60%.</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center;margin-bottom:110px">
-        <div style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
+      <div class="circ-row" style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center;margin-bottom:110px">
+        <div class="circ-media" style="position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow1ImgOpacity}};transform:{{circRow1ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
           <img loading="lazy" sc-camel-src="{{circRow1Img}}" src="assets/circuitos_matrix.webp" alt="Circuito Matrix Fitness" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;left:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:left;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;left:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
           <div style="position:absolute;bottom:22px;left:22px;background:oklch(58% .22 25);color:white;padding:10px 18px;border-radius:999px;font-family:'FL Titulos',Oswald,sans-serif;font-size:15px;font-weight:700;letter-spacing:.06em;opacity:{{circRow1ImgOpacity}};transition:opacity .6s ease .5s">Hasta −60%</div>
         </div>
-        <div style="opacity:{{circRow1TextOpacity}};transform:{{circRow1TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
+        <div class="circ-text" style="opacity:{{circRow1TextOpacity}};transform:{{circRow1TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
           <div style="font-size:11px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;margin-bottom:10px">Respaldo Fitness Life — Matrix Fitness</div>
           <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Equipos Matrix de Fuerza con Respaldo de Fitness Life</h3>
           <p style="color:oklch(42% .01 270);font-size:15px;line-height:1.65;margin:0 0 26px">Equipos Matrix seleccionados, revisados y avalados por Fitness Life. Renueva tus zonas de entrenamiento con garantía integral.</p>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow1TextOpacity}};transition:opacity .6s ease .25s">
+          <div class="circ-tags" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow1TextOpacity}};transition:opacity .6s ease .25s">
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Garantía Real</span>
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Precio de Oportunidad</span>
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Ergonomía Premium</span>
           </div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div class="circ-cta" style="display:flex;gap:16px;flex-wrap:wrap">
             <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);border-radius:10px;color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
             <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
           </div>
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center">
-        <div style="order:2;opacity:{{circRow2TextOpacity}};transform:{{circRow2TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
+      <div class="circ-row" style="display:grid;grid-template-columns:{{grid2wide}};gap:{{gap2}};align-items:center">
+        <div class="circ-text" style="order:2;opacity:{{circRow2TextOpacity}};transform:{{circRow2TextTransform}};transition:opacity .7s ease .1s,transform .7s cubic-bezier(.2,.8,.2,1) .1s">
           <div style="font-size:11px;letter-spacing:0.01em;color:oklch(65% .24 27);font-weight:700;margin-bottom:10px">Garantía de Fábrica — Life Fitness</div>
           <h3 style="font-family:'FL Titulos',Oswald,sans-serif;font-size:30px;font-weight:600;margin:0 0 18px;line-height:1.15">Circuito Life Fitness Optima™ Series 30 Express</h3>
           <p style="color:oklch(42% .01 270);font-size:15px;line-height:1.65;margin:0 0 26px">Circuito compacto de 30 minutos remanufacturado a especificaciones de fábrica. Ideal para hoteles, condominios y centros premium.</p>
-          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow2TextOpacity}};transition:opacity .6s ease .25s">
+          <div class="circ-tags" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:28px;opacity:{{circRow2TextOpacity}};transition:opacity .6s ease .25s">
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Dual-Function</span>
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Circuito Rápido</span>
             <span style="border:1px solid oklch(83% .006 270);padding:8px 14px;font-size:11px;font-weight:700;letter-spacing:0.01em;color:oklch(30% .008 270)">Acabado Como Nuevo</span>
           </div>
-          <div style="display:flex;gap:16px;flex-wrap:wrap">
+          <div class="circ-cta" style="display:flex;gap:16px;flex-wrap:wrap">
             <a href="#" onClick="{{goToContacto}}" style="background:oklch(58% .22 25);border-radius:10px;color:white;padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease" style-hover="transform:translateY(-3px);box-shadow:0 14px 26px -10px oklch(58% .22 25 / .6)">Cotizar Circuito</a>
             <a href="#" style="border:1px solid oklch(83% .006 270);color:oklch(20% .005 270);padding:14px 26px;font-weight:700;font-size:12px;letter-spacing:0.01em;transition:border-color .3s ease,transform .3s ease,background .3s ease" style-hover="border-color:oklch(58% .22 25);transform:translateY(-3px);background:oklch(96% .01 25)">Video Demostrativo</a>
           </div>
         </div>
-        <div style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
+        <div class="circ-media" style="order:1;position:relative;aspect-ratio:16/11;overflow:hidden;border-radius:14px;background:oklch(91% .004 270);box-shadow:0 16px 38px -14px oklch(20% .01 270 / .3);opacity:{{circRow2ImgOpacity}};transform:{{circRow2ImgTransform}};transition:opacity .8s ease,transform .8s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease" style-hover="box-shadow:0 36px 68px -22px oklch(58% .22 25 / .48);transform:translateY(-10px)">
           <img loading="lazy" sc-camel-src="{{circRow2Img}}" src="assets/circuitos_optima.webp" alt="Circuito Life Fitness Optima" style="width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.8,.2,1)" style-hover="transform:scale(1.07)"/>
           <div style="position:absolute;top:18px;right:18px;width:56px;height:4px;border-radius:4px;background:oklch(58% .22 25);transform:scaleX({{circBarScale}});transform-origin:right;transition:transform .7s ease .3s"></div>
           <div style="position:absolute;top:18px;right:18px;width:4px;height:56px;border-radius:4px;background:oklch(58% .22 25);transform:scaleY({{circBarScale}});transform-origin:top;transition:transform .7s ease .4s"></div>
@@ -1516,6 +1546,7 @@ class Component extends DCLogic {
     menuTop: '0px',
     headerQuery: '',
     cartSheetOpen: false,
+    catsExpanded: false,
     searchTop: '0px',
     catalogoBrands: [],
     brandSearch: '',
@@ -1910,14 +1941,24 @@ class Component extends DCLogic {
 
   _solObservers = {};
   setSolRef = (i) => (el) => {
-    if (!el || this._solObservers[i]) return;
+    if (!el) return;
+    // Al volver a la home las tarjetas son elementos nuevos: se observa el nuevo
+    if (this._solObservers[i]) {
+      if (this._solObservers[i].__el === el) return;
+      this._solObservers[i].disconnect();
+    }
     const obs = new IntersectionObserver((entries) => {
       entries.forEach((en) => {
-        if (en.isIntersecting && this.state.isMobile) this.setState({ activeSolution: i });
+        if (!en.isIntersecting || !this.state.isMobile) return;
+        const card = en.target;
+        const parent = card.parentElement;
+        if (parent) Array.prototype.forEach.call(parent.querySelectorAll('.sol-card.is-active'), (c) => { if (c !== card) c.classList.remove('is-active'); });
+        card.classList.add('is-active');
       });
     // Franja angosta en el centro de la pantalla: se activa la tarjeta que pasa por el medio
     }, { threshold: 0, rootMargin: '-42% 0px -42% 0px' });
     obs.observe(el);
+    obs.__el = el;
     this._solObservers[i] = obs;
   };
 
@@ -2164,6 +2205,15 @@ class Component extends DCLogic {
       }, { threshold: 0.25 });
       this._rs800Observer.observe(el);
     }
+  };
+
+  toggleCatsExpanded = (e) => {
+    if (e) e.preventDefault();
+    const wasExpanded = this.state.catsExpanded;
+    this.setState({ catsExpanded: !wasExpanded }, () => {
+      // Al cerrar, vuelve al inicio de la sección para no quedar más abajo
+      if (wasExpanded) { const el = document.getElementById('categorias'); if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 70, behavior: 'smooth' }); }
+    });
   };
 
   playRs800 = (e) => {
@@ -2627,6 +2677,12 @@ class Component extends DCLogic {
       onLeaveCard: () => this.setState({ hoveredCategory: null }),
     }));
 
+    // Celular: se muestran 6 categorías y el resto al tocar "Ver las N categorías"
+    const CATS_MOBILE = 6;
+    const categoriesShown = (this.state.isMobile && !this.state.catsExpanded) ? categories.slice(0, CATS_MOBILE) : categories;
+    const catsMoreCount = categories.length;
+    const showCatsMore = this.state.isMobile && categories.length > CATS_MOBILE;
+
     const carouselItems = [
       { img: R('assets/portfolio_norm/elipticas.webp'), name: 'Elípticas', tag: 'Cardio de bajo impacto', slug: 'elipticas' },
       { img: R('assets/portfolio_norm/trotadoras.webp'), name: 'Trotadoras', tag: 'Alto rendimiento', slug: 'trotadoras' },
@@ -2926,7 +2982,8 @@ class Component extends DCLogic {
       { title: 'Equipos para Hogar', desc: 'Mantente en forma en casa con equipos premium.', slug: 'hogar' },
       { title: 'Accesorios', desc: 'Pesas libres y elementos de entrenamiento funcional.', slug: 'accesorios' },
     ].map((s, i) => {
-      const hov = this.state.isMobile ? this.state.activeSolution === i : this.state.hoveredSolution === i;
+      // En celular el estado activo lo pone el CSS (.is-active); aquí queda en reposo
+      const hov = this.state.isMobile ? false : this.state.hoveredSolution === i;
       const imageVisible = this.state.isMobile ? this.state.solucionesVisible : hov;
       const bgImgs = [R('assets/sol_comercial.webp'), R('assets/sol_institucional.webp'), R('assets/sol_hogar.webp'), R('assets/sol_accesorios.webp')];
       return {
@@ -3396,6 +3453,11 @@ class Component extends DCLogic {
       prevHero: () => this.setState(s => ({ heroIndex: (s.heroIndex + 1) % 2 }), () => this.scheduleHero()),
       nextHero: () => this.setState(s => ({ heroIndex: (s.heroIndex + 1) % 2 }), () => this.scheduleHero()),
       categories,
+      categoriesShown,
+      showCatsMore,
+      catsExpanded: !!this.state.catsExpanded,
+      catsMoreLabel: this.state.catsExpanded ? 'Ver menos' : 'Ver las ' + catsMoreCount + ' categorías',
+      toggleCatsExpanded: this.toggleCatsExpanded,
       currentCategory,
       categoryProducts,
       noProducts: categoryProducts.length === 0,
